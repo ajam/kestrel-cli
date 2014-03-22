@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
+  "preferGlobal": "true",
+    "bin": {
+      "valrada" : "src/valrada.js"
+    },
+    "repository": {
     "type": "git",
     "url": "https://github.com/mhkeller/valrada"
   },
