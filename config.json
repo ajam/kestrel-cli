@@ -1,0 +1,17 @@
+{
+	"github": {
+		"type": "org-or-individual",
+		"account": "the-github-org-or-individual-account-name",
+		"access_token": "your-github-access-token"
+	},
+	"professor_blastoff_server": {
+		"url": "the-url-and-port-of-your-professor-blastoff-server",
+		"deploy_trigger": "string-to-trigger-a-deployment-to-s3"
+	},
+	"archive": {
+		"enabled": false,
+		"account_name": "your-github-or-bitbucket-account-name",
+		"type": "choose-bitbucket-or-github",
+		"access_token": "your-access-token"
+	}
+}
