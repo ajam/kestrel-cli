@@ -1,23 +1,27 @@
 {
-  "name": "valrada",
+  "name": "professor-blastoff",
   "version": "0.0.1",
-  "description": "A command-line tool for staging and deploying static files.",
-  "main": "src/valrada.js",
+  "description": "A command-line tool for staging, hosting and deploying static files.",
+  "main": "src/professor-blastoff.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "preferGlobal": "true",
-    "bin": {
-      "valrada" : "src/valrada.js"
-    },
-    "repository": {
+  "bin": {
+    "boom": "src/professor-blastoff.js"
+  },
+  "repository": {
     "type": "git",
-    "url": "https://github.com/mhkeller/valrada"
+    "url": "https://github.com/mhkeller/professor-blastoff"
   },
   "author": "Michael Keller",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mhkeller/valrada/issues"
+    "url": "https://github.com/mhkeller/professor-blastoff/issues"
   },
-  "homepage": "https://github.com/mhkeller/valrada"
+  "homepage": "https://github.com/mhkeller/professor-blastoff",
+  "dependencies": {
+    "optimist": "~0.6.1",
+    "request": "~2.34.0"
+  }
 }
