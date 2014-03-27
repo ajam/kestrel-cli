@@ -9,11 +9,11 @@ var argv = optimist
     alias: 'help',
     describe: 'Display help'
   })
-  // .options('i', {
-  //   alias: 'in_file',
-  //   describe: 'Input file',
-  //   default: false
-  // })
+  .options('t', {
+    alias: 'deploy-trigger',
+    describe: 'Deploy trigger for pubishing to S3.',
+    default: null
+  })
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
   })
@@ -25,8 +25,11 @@ var commands = {
   init: professor_blastoff.init
 }
 
-function runCommand(command){
-  commands[command]();
+var command = argv['_'],
+    trigger = argv['t'] || arg['deploy-trigger'];
+
+function runCommand(com, trig){
+  commands[com](trig);
 }
 
-runCommand(argv['_']);
+runCommand(command, trigger);
