@@ -19,7 +19,7 @@ var argv = optimist
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
     if (argv['sync-trigger'] && argv['hard-trigger']) throw 'Please only supply either the sync trigger or the hard trigger, but not both.';
-    if (argv['_'] == 'deploy-last' && (!argv['trigger'] && !argv['hard-trigger']) ) throw 'You must supply a deploy trigger to deploy.';
+    if (argv['_'] == 'deploy-last' && (!argv['trigger'] && !argv['hard-trigger']) ) throw 'You must supply a trigger to deploy.';
   })
   .argv;
 
