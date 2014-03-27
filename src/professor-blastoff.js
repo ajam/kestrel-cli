@@ -78,7 +78,7 @@ function initAll(){
 
 function reportError(error, msg){
 	console.log(error);
-	return throw new Error(msg)
+	throw new Error(msg)
 }
 
 module.exports = {
