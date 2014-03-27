@@ -26,7 +26,9 @@ var argv = optimist
 if (argv.h || argv.help) return optimist.showHelp();
 
 var fns = {
-  init: professor_blastoff.init
+  "init": professor_blastoff.init,
+  // "archive": professor_blastoff.archive,
+  // "deploy-last": professor_blastoff.deployLast
 }
 
 var command = argv['_'],
