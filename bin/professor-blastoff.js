@@ -30,7 +30,7 @@ var fns = {
 }
 
 var command = argv['_'],
-    trigger = argv['sync-trigger'] || arg['hard-trigger'];
+    trigger = argv['s'] || argv['sync-trigger'] || arg['h'] || arg['hard-trigger'];
 
 function runCommand(com, trig){
   fns[com](trig);
