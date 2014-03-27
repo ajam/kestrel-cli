@@ -5,8 +5,7 @@
 		"access_token": "your-github-access-token"
 	},
 	"professor_blastoff_server": {
-		"url": "the-url-and-port-of-your-professor-blastoff-server",
-		"deploy_trigger": "string-to-trigger-a-deployment-to-s3"
+		"url": "the-url-and-port-of-your-professor-blastoff-server"
 	},
 	"archive": {
 		"enabled": false,
