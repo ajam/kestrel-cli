@@ -25,7 +25,7 @@ var argv = optimist
 
 if (argv.h || argv.help) return optimist.showHelp();
 
-var commands = {
+var fns = {
   init: professor_blastoff.init
 }
 
@@ -33,7 +33,7 @@ var command = argv['_'],
     trigger = argv['sync-trigger'] || arg['hard-trigger'];
 
 function runCommand(com, trig){
-  commands[com](trig);
+  fns[com](trig);
 }
 
 runCommand(command, trigger);
