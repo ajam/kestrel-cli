@@ -22,6 +22,7 @@
   "homepage": "https://github.com/mhkeller/professor-blastoff",
   "dependencies": {
     "optimist": "~0.6.1",
-    "request": "~2.34.0"
+    "request": "~2.34.0",
+    "octonode": "~0.6.0"
   }
 }

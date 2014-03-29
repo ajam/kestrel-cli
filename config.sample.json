@@ -2,7 +2,8 @@
 	"github": {
 		"type": "choose-`org`-or-`individual`",
 		"account": "the-github-org-or-individual-account-name",
-		"access_token": "your-github-access-token"
+		"access_token": "your-github-access-token",
+		"private": false
 	},
 	"professor_blastoff_server": {
 		"url": "the-url-and-port-of-your-professor-blastoff-server"

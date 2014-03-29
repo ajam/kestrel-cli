@@ -1,84 +1,73 @@
-var fs      = require('fs'),
-		request = require('request'),
-		path    = require('path'),
-		child   = require('child_process');
+var fs       = require('fs'),
+		octonode = require('octonode'),
+		path     = require('path'),
+		sh       = require('execSync');
 
 var config  = require('../config.json');
 
-function gitInit(cb){
-	var git_init  = child.exed('git init && git remote set-url origin https://github.com/' + config.github_account + '/' + current_dir + '.git', function(error, stdout){
-		if (error) cb(error);
-		cb(null)
-	});
+// Github authentication
+var gh_client = octonode.client(config.github.access_token),
+		gh_entity = setGitHubOrgType(gh_client);
+
+function setGitHubOrgType(gh_c){
+	if (config.github.type == 'org'){
+		return gh_c.org(config.github.account)
+	} else if (config.github.type == 'individual'){
+		return gh_c.me()
+	}
+}
+
+function gitInit(current_dir, cb){
+	var git_init  = sh.run('git init && git remote add origin https://github.com/' + config.github.account + '/' + current_dir + '.git');
 }
 
 function createGitHubRepo(repo_name, cb){
-	var endpoints = {
-		org: function(org_name){
-			return '/orgs/'+org_name+'/repos'
-		},
-		individual: function(){
-			return '/user/repos'
-		}
-	}
-
-	request.post(
-		'https://api.github.com/' + endpoints[config.github.type](config.github.account) + '?access_token=' + config.github.access_token, 
-		{ 
-			form: {
-				name: repo_name,
-				private: true
-			}
-		},
-		function (error, response, body) {
-		  if (error || response.statusCode != 200) cb(error);
-	  	cb(null);
-	})
+	gh_entity.repo({
+	  "name": repo_name,
+	  "private": config.github.private
+	}, function(err, response){
+		cb(err, response)
+	}); 
 }
 
 function createGitHubHook(repo_name, cb){
-	request.post(
-		'https://api.github.com/repos/' + config.github.account + '/' + repo_name + '/hooks?access_token=' + config.github.access_token, 
-		{ 
-			form: {
-				name: "web",
-				config: {
-					url: config.professor_blastoff_server.url
-				},
-			  active: true,
-			  events: ["push", "status"]
-			}
-		},
-		function (error, response, body) {
-		  if (error || response.statusCode != 200) cb(error);
-	  	cb(null);
-	})
+
+	var gh_repo = gh_client.repo(config.github.account + '/' + repo_name);
+
+	gh_repo.hook({
+	  "name": "web",
+	  "active": true,
+	  "events": ["push", "status"],
+	  "config": {
+	    "url": config.professor_blastoff_server.url
+	  }
+	}, function(err, response){
+		cb(err, response)
+	}); 
+	
 }
 
 function initAll(){
 	var current_dir = path.basename(path.resolve('./'));
-	gitInit(function(err){
-		if (err) reportError(err, 'Git init failed.');
-		return true;
-	});
+	gitInit(current_dir);
 
 	createGitHubRepo(current_dir, function(err){
-		if (err) reportError(err, 'GitHub repo creation failed');
+		if (err) reportError(err, 'GitHub repo creation failed!');
+		console.log('GitHub repo created...')
 
 		createGitHubHook(current_dir, function(err){
 			if (err) reportError(err, 'GitHub hook failed');
-			return true;
+			console.log('GitHub hook created. Preview at ' + config.professor_blastoff_server.url.split(':')[0] + ':3000/' + current_dir);
 		});
 
-		return true;
 	});
 
 
 }
 
-function reportError(error, msg){
-	console.log(error);
-	throw new Error(msg)
+function reportError(err, msg){
+	throw new Error(err);
+	console.log(msg);
 }
 
 module.exports = {
