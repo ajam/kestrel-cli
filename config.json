@@ -1,6 +1,6 @@
 {
 	"github": {
-		"type": "org-or-individual",
+		"type": "choose-`org`-or-`individual`",
 		"account": "the-github-org-or-individual-account-name",
 		"access_token": "your-github-access-token"
 	},
@@ -10,7 +10,7 @@
 	"archive": {
 		"enabled": false,
 		"account_name": "your-github-or-bitbucket-account-name",
-		"type": "choose-bitbucket-or-github",
+		"type": "choose-`bitbucket`-or-`github`",
 		"access_token": "your-access-token"
 	}
 }
