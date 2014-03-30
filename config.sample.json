@@ -5,8 +5,8 @@
 		"access_token": "your-github-access-token",
 		"private": false
 	},
-	"professor_blastoff_server": {
-		"url": "the-url-and-port-of-your-professor-blastoff-server"
+	"server": {
+		"url": "the-url-and-port-of-your-server"
 	},
 	"archive": {
 		"enabled": false,
