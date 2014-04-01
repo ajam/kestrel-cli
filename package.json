@@ -1,5 +1,5 @@
 {
-  "name": "professor-blastoff",
+  "name": "strangelove",
   "version": "0.0.1",
   "description": "A command-line tool for staging, hosting and deploying static files.",
   "main": "src/index.js",
@@ -8,18 +8,18 @@
   },
   "preferGlobal": "true",
   "bin": {
-    "boom": "src/professor-blastoff.js"
+    "boom": "src/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mhkeller/professor-blastoff"
+    "url": "https://github.com/mhkeller/strangelove"
   },
   "author": "Michael Keller",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mhkeller/professor-blastoff/issues"
+    "url": "https://github.com/mhkeller/strangelove/issues"
   },
-  "homepage": "https://github.com/mhkeller/professor-blastoff",
+  "homepage": "https://github.com/mhkeller/strangelove",
   "dependencies": {
     "optimist": "~0.6.1",
     "octonode": "~0.6.0"
