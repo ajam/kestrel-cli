@@ -1,5 +1,5 @@
 {
-  "name": "strangelove",
+  "name": "strangelove-cli",
   "version": "0.0.1",
   "description": "A command-line tool for staging, hosting and deploying static files.",
   "main": "src/index.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mhkeller/strangelove"
+    "url": "https://github.com/mhkeller/strangelove-cli"
   },
   "author": "Michael Keller",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mhkeller/strangelove/issues"
+    "url": "https://github.com/mhkeller/strangelove-cli/issues"
   },
-  "homepage": "https://github.com/mhkeller/strangelove",
+  "homepage": "https://github.com/mhkeller/strangelove-cli",
   "dependencies": {
     "optimist": "~0.6.1",
     "octonode": "~0.6.0"
