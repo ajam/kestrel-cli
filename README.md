@@ -1,12 +1,12 @@
-Strangelove Command-line interface
+Snowy Owl Command-line interface
 ========
 
-A command-line tool for staging, hosting and deploying static files with [Strangelove](https://github.com/mhkeller/strangelove).
+A command-line tool for staging, hosting and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
 
 # Installation
 
 ````
-npm install strangelove-cli -g
+npm install snowy-owl-cli -g
 ````
 
 # Usage

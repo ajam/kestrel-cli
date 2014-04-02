@@ -1,5 +1,5 @@
 {
-  "name": "strangelove-cli",
+  "name": "snowy-owl-cli",
   "version": "0.1.0",
   "description": "A command-line tool for staging, hosting and deploying static files.",
   "main": "src/index.js",
@@ -12,18 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mhkeller/strangelove-cli"
+    "url": "https://github.com/mhkeller/snowy-owl-cli"
   },
   "author": "Michael Keller",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mhkeller/strangelove-cli/issues"
+    "url": "https://github.com/mhkeller/snowy-owl-cli/issues"
   },
-  "homepage": "https://github.com/mhkeller/strangelove-cli",
+  "homepage": "https://github.com/mhkeller/snowy-owl-cli",
   "dependencies": {
     "optimist": "~0.6.1",
     "octonode": "~0.6.0",
-    "strangelove-config": "~0.1.1",
+    "snowy-owl-config": "~0.1.0",
     "execSync": "~1.0.1-pre"
   }
 }
