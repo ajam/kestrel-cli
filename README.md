@@ -1,7 +1,7 @@
 Professor Blastoff
 ========
 
-A command-line tool for staging, hosting and deploying static files.
+A command-line tool for staging, hosting and deploying static files with [Strangelove](https://github.com/mhkeller/strangelove).
 
 # Installation
 
@@ -13,7 +13,7 @@ npm install strangelove-cli -g
 
 All commands are accessed through `boom`:
 
-### Configure the options
+### Configure your installation
 
 ````
 boom config
