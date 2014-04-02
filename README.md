@@ -1,4 +1,4 @@
-Professor Blastoff
+Strangelove Command-line interface
 ========
 
 A command-line tool for staging, hosting and deploying static files with [Strangelove](https://github.com/mhkeller/strangelove).

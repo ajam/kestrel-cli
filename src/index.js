@@ -17,13 +17,13 @@ function configClient(){
 /*    C R E A T I O N  C O M M A N D S   */
 function setGitHubOrgType(gh_c){
 	if (config.github.type == 'org'){
-		return gh_c.org(config.github.account)
+		return gh_c.org(config.github.account_name)
 	} else if (config.github.type == 'individual'){
 		return gh_c.me()
 	}
 }
 function gitInit(current_dir, cb){
-	var git_init  = sh.run('git init && git remote add origin https://github.com/' + config.github.account + '/' + current_dir + '.git');
+	var git_init  = sh.run('git init && git remote add origin https://github.com/' + config.github.account_name + '/' + current_dir + '.git');
 }
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
@@ -34,7 +34,7 @@ function createGitHubRepo(repo_name, cb){
 	}); 
 }
 function createGitHubHook(repo_name, cb){
-	var gh_repo = gh_client.repo(config.github.account + '/' + repo_name);
+	var gh_repo = gh_client.repo(config.github.account_name + '/' + repo_name);
 
 	gh_repo.hook({
 	  "name": "web",
