@@ -1,16 +1,17 @@
-var octonode = require('octonode'),
-		path     = require('path'),
-		sh       = require('execSync');
-
-var config  = require('../config.json');
+var octonode   = require('octonode'),
+		path       = require('path'),
+		sh         = require('execSync'),
+		pkg_config = require('strangelove-config');
 
 // Github authentication
-var gh_client = octonode.client(config.github.access_token),
-		gh_entity = setGitHubOrgType(gh_client);
+var config,
+		gh_client,
+		gh_entity;
 
 /*    I N I T  C O M M A N D S   */
 function configClient(){
-
+	var dir = path.resolve('./');
+	pkg_config.config(dir)
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
@@ -46,7 +47,13 @@ function createGitHubHook(repo_name, cb){
 		cb(err, response)
 	}); 
 }
+function setConfig(){
+  config  = config || require('../config.json');
+	gh_client = gh_client || octonode.client(config.github.access_token);
+	gh_entity = gh_entity || setGitHubOrgType(gh_client);
+}
 function initAll(){
+	setConfig();
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir);
 

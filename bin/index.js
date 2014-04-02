@@ -29,8 +29,8 @@ if (argv.h || argv.help) return optimist.showHelp();
 var command = argv['_'],
     trigger = argv['s'] || argv['sync-trigger'] || argv['help'] || argv['hard-trigger'];
 
-function runCommand(com, trig){
-  main_lib[com](trig);
+function runCommand(com, arg){
+  main_lib[com](arg);
 }
 
 runCommand(command, trigger);

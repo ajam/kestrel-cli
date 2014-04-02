@@ -3,7 +3,7 @@
 		"type": "org/individual",
 		"account": "GitHub organization or individual account name",
 		"access_token": "Account access token",
-		"private_repos": false,
+		"private_repos": false
 	},
 	"server": {
 		"url": "http://server.com:9001"

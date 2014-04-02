@@ -22,6 +22,8 @@
   "homepage": "https://github.com/mhkeller/strangelove-cli",
   "dependencies": {
     "optimist": "~0.6.1",
-    "octonode": "~0.6.0"
+    "octonode": "~0.6.0",
+    "strangelove-config": "~0.1.0",
+    "execSync": "~1.0.1-pre"
   }
 }
