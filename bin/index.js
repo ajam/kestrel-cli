@@ -17,24 +17,20 @@ var argv = optimist
   })
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
+    // Require a trigger to deploy
+    if (argv['_'] == 'deploy-last' && (!argv['sync-trigger'] && !argv['hard-trigger']) ) throw 'You must supply a trigger to deploy.';
+    // But only one
     if (argv['sync-trigger'] && argv['hard-trigger']) throw 'Please only supply either the sync trigger or the hard trigger, but not both.';
-    if (argv['_'] == 'deploy-last' && (!argv['trigger'] && !argv['hard-trigger']) ) throw 'You must supply a trigger to deploy.';
   })
   .argv;
 
 if (argv.h || argv.help) return optimist.showHelp();
 
-var fns = {
-  "init": main_lib.init,
-  // "archive": main_lib.archive,
-  // "deploy-last": main_lib.deployLast
-}
-
 var command = argv['_'],
     trigger = argv['s'] || argv['sync-trigger'] || argv['help'] || argv['hard-trigger'];
 
 function runCommand(com, trig){
-  fns[com](trig);
+  main_lib[com](trig);
 }
 
 runCommand(command, trigger);

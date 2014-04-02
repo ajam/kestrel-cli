@@ -8,6 +8,12 @@ var config  = require('../config.json');
 var gh_client = octonode.client(config.github.access_token),
 		gh_entity = setGitHubOrgType(gh_client);
 
+/*    I N I T  C O M M A N D S   */
+function configClient(){
+
+}
+
+/*    C R E A T I O N  C O M M A N D S   */
 function setGitHubOrgType(gh_c){
 	if (config.github.type == 'org'){
 		return gh_c.org(config.github.account)
@@ -15,22 +21,18 @@ function setGitHubOrgType(gh_c){
 		return gh_c.me()
 	}
 }
-
 function gitInit(current_dir, cb){
 	var git_init  = sh.run('git init && git remote add origin https://github.com/' + config.github.account + '/' + current_dir + '.git');
 }
-
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
 	  "name": repo_name,
-	  "private": config.github.private
+	  "private": config.github.private_repos
 	}, function(err, response){
 		cb(err, response)
 	}); 
 }
-
 function createGitHubHook(repo_name, cb){
-
 	var gh_repo = gh_client.repo(config.github.account + '/' + repo_name);
 
 	gh_repo.hook({
@@ -43,9 +45,7 @@ function createGitHubHook(repo_name, cb){
 	}, function(err, response){
 		cb(err, response)
 	}); 
-	
 }
-
 function initAll(){
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir);
@@ -60,9 +60,8 @@ function initAll(){
 		});
 
 	});
-
-
 }
+
 
 function reportError(err, msg){
 	throw new Error(err);
@@ -70,5 +69,6 @@ function reportError(err, msg){
 }
 
 module.exports = {
+	config: configClient,
 	init: initAll
 }

@@ -1,17 +1,17 @@
 {
 	"github": {
-		"type": "choose-`org`-or-`individual`",
-		"account": "the-github-org-or-individual-account-name",
-		"access_token": "your-github-access-token",
-		"private": false
+		"type": "org/individual",
+		"account": "GitHub organization or individual account name",
+		"access_token": "Account access token",
+		"private_repos": false,
 	},
 	"server": {
-		"url": "the-url-and-port-of-your-server"
+		"url": "http://server.com:9001"
 	},
 	"archive": {
 		"enabled": false,
-		"account_name": "your-github-or-bitbucket-account-name",
-		"type": "choose-`bitbucket`-or-`github`",
-		"access_token": "your-access-token"
+		"type": "bitbucket/github",
+		"account_name": "Your GitHub or Bitbucket account name",
+		"access_token": "Account access token"
 	}
 }
