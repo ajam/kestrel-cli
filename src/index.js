@@ -10,7 +10,7 @@ var config,
 
 /*    I N I T  C O M M A N D S   */
 function configClient(){
-	var dir = path.resolve('./');
+	var dir = path.dirname(__dirname);
 	pkg_config.config(dir)
 }
 
