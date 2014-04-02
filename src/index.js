@@ -1,7 +1,7 @@
 var octonode   = require('octonode'),
 		path       = require('path'),
 		sh         = require('execSync'),
-		pkg_config = require('strangelove-config');
+		pkg_config = require('snowy-owl-config');
 
 // Github authentication
 var config,
