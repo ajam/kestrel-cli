@@ -11,17 +11,17 @@ npm install snowy-owl-cli -g
 
 # Usage
 
-All commands are accessed through `boom`:
+All commands are accessed through `swoop`:
 
 ### Configure your installation
 
 ````
-boom config
+swoop config
 ````
 
 ### Initialize a project
 
 ````
-boom init
+swoop init
 ````
 

@@ -1,6 +1,6 @@
 {
   "name": "snowy-owl-cli",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A command-line tool for staging, hosting and deploying static files.",
   "main": "src/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "preferGlobal": "true",
   "bin": {
-    "boom": "src/index.js"
+    "swoop": "src/index.js"
   },
   "repository": {
     "type": "git",
