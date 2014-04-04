@@ -6,8 +6,7 @@ exports.github.type           = prompt('GitHub account type', package.github.typ
 exports.github.account        = prompt('Account name', package.github.account)
 exports.github.access_token   = prompt('Github access token', package.github.access_token)
 exports.github.private_repos  = prompt('Create private repos by default?', String(package.github.private_repos), function(repos){
-  if (repos === "false") repos = false
-  if (repos === "true")  repos = true
+  repos = JSON.parse(repos)
   return repos
 });
 
@@ -15,9 +14,7 @@ exports.server.url = prompt('Snowy Owl server url:port', package.server.url)
 
 var archive_enabled;
 exports.archive.enabled = prompt('Enable archiving', String(package.archive.enabled), function(enabled){
-  if (enabled === "false") enabled = false
-  if (enabled === "true")  enabled = true
-  archive_enabled = enabled
+  enabled = achive_enabled = JSON.parse(enabled)
   return enabled
 })
 
