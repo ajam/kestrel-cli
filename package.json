@@ -1,6 +1,6 @@
 {
   "name": "snowy-owl-cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A command-line tool for staging, hosting and deploying static files.",
   "main": "src/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "dependencies": {
     "optimist": "~0.6.1",
     "octonode": "~0.6.0",
-    "snowy-owl-config": "~0.1.0",
-    "execSync": "~1.0.1-pre"
+    "execSync": "~1.0.1-pre",
+    "config-tree": "~0.1.1"
   }
 }

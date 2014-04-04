@@ -1,7 +1,7 @@
 var octonode   = require('octonode'),
 		path       = require('path'),
 		sh         = require('execSync'),
-		pkg_config = require('snowy-owl-config');
+		pkg_config = require('config-tree');
 
 // Github authentication
 var config,
@@ -11,7 +11,7 @@ var config,
 /*    I N I T  C O M M A N D S   */
 function configClient(){
 	var dir = path.dirname(__dirname);
-	pkg_config.config(dir)
+	pkg_config.sprout(dir)
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
