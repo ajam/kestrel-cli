@@ -27,8 +27,6 @@ swoop init
 
 ### Deploy a project
 
-#### By syncing your project with what's on S3
-
 Use either the `-s` or `--sync-trigger` flags followed by your sync trigger as specified in your [Snowy Owl](https://github.com/mhkeller/snowy-owl) configuration.
 
 Or `-h` or `--hard-trigger` to overwrite that S3 directory with the contents of your project.
