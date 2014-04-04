@@ -11,28 +11,21 @@ npm install snowy-owl-cli -g
 
 ## Usage
 
-All commands are accessed through `swoop`:
-
-### Configure your installation
-
 ````
-swoop config
-````
+swoop <command>
 
-### Initialize a project
+Commands:
+  config  Configure your GitHub account and server settings 
+  init		Git init, create GitHub repo + hooks, create archive if enabled
+  archive	Delete the GitHub repo.
+  deploy	Add your deploy trigger as a commit message and push. Specify trigger with options below.
 
-````
-swoop init
-````
-
-### Deploy a project
-
-Use either the `-s` or `--sync-trigger` flags followed by your sync trigger as specified in your [Snowy Owl](https://github.com/mhkeller/snowy-owl) configuration.
-
-Or `-h` or `--hard-trigger` to overwrite that S3 directory with the contents of your project.
-
-````
-swoop --sync-trigger sync-to-s3
+Options:
+  --help              Display help
+  -s, --sync-trigger  Sync deploy trigger for pubishing to S3.
+  -h, --hard-trigger  Hard deploy trigger for pubishing to S3.
 ````
 
-This will create an empty commit with your trigger as the message and push it to `origin master`. Then, it will run `git commit --ammend -m "::published:(sync|hard)" --allow-empty" && git push origin master --force` to scrub your triggers from the commit history.
+#### A note on deploying
+
+Deploying will create an empty commit with your trigger as the message and push it to `origin master`. Then, it will run `git commit --ammend -m "::published:(sync|hard)" --allow-empty" && git push origin master --force` to scrub your triggers from the commit history.

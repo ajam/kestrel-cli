@@ -4,7 +4,7 @@ var main_lib  = require('../src/index.js'),
     path      = require('path');
 
 var argv = optimist
-  .usage('Usage: swoop <command>\n\nCommands:\n  init\t\tGit init, create GitHub repo + hooks, create archive if enabled\n  archive\tDelete the GitHub repo. \n  deploy-last\tAppend a deploy trigger to the last commit and push. Specify trigger with options below.')
+  .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks, create archive if enabled\n  archive\tDelete the GitHub repo. \n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.')
   .options('help', {
     describe: 'Display help'
   })
