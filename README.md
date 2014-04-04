@@ -15,7 +15,7 @@ npm install snowy-owl-cli -g
 swoop <command>
 
 Commands:
-  config  Configure your GitHub account and server settings 
+  config    Configure your GitHub account and server settings 
   init		Git init, create GitHub repo + hooks, create archive if enabled
   archive	Delete the GitHub repo.
   deploy	Add your deploy trigger as a commit message and push. Specify trigger with options below.
