@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var main_lib  = require('../src/index.js'),
-    optimist  = require('optimist');
+    optimist  = require('optimist'),
+    path      = require('path');
 
 var argv = optimist
   .usage('Usage: swoop <command>\n\nCommands:\n  init\t\tGit init, create GitHub repo + hooks, create archive if enabled\n  archive\tDelete the GitHub repo. \n  deploy-last\tAppend a deploy trigger to the last commit and push. Specify trigger with options below.')
@@ -24,13 +25,22 @@ var argv = optimist
   })
   .argv;
 
-if (argv.h || argv.help) return optimist.showHelp();
+if (argv.help) return optimist.showHelp();
 
-var command = argv['_'],
-    trigger = argv['s'] || argv['sync-trigger'] || argv['help'] || argv['hard-trigger'];
-
-function runCommand(com, arg){
-  main_lib[com](arg);
+function getTriggerType(dict){
+  if (argv['s'] || argv['sync-trigger']){
+    return 'sync'
+  } else if (argv['h'] || argv['hard-trigger']) {
+    return 'hard'
+  }
 }
 
-runCommand(command, trigger);
+var command = argv['_'],
+    trigger = argv['s'] || argv['sync-trigger'] || argv['h'] || argv['hard-trigger'],
+    trigger_type = getTriggerType(argv);
+
+function runCommand(com, arg, trigger_type){
+  main_lib[com](arg, trigger_type);
+}
+
+runCommand(command, trigger, trigger_type);

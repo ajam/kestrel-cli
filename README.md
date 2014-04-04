@@ -3,13 +3,13 @@ Snowy Owl Command-line interface
 
 A command-line tool for staging, hosting and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
 
-# Installation
+## Installation
 
 ````
 npm install snowy-owl-cli -g
 ````
 
-# Usage
+## Usage
 
 All commands are accessed through `swoop`:
 
@@ -25,3 +25,16 @@ swoop config
 swoop init
 ````
 
+### Deploy a project
+
+#### By syncing your project with what's on S3
+
+Use either the `-s` or `--sync-trigger` flags followed by your sync trigger as specified in your [Snowy Owl](https://github.com/mhkeller/snowy-owl) configuration.
+
+Or `-h` or `--hard-trigger` to overwrite that S3 directory with the contents of your project.
+
+````
+swoop --sync-trigger sync-to-s3
+````
+
+This will create an empty commit with your trigger as the message and push it to `origin master`. Then, it will run `git commit --ammend -m "::published:(sync|hard)" --allow-empty" && git push origin master --force` to scrub your triggers from the commit history.

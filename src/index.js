@@ -1,4 +1,5 @@
-var octonode   = require('octonode'),
+var fs         = require('fs'),
+		octonode   = require('octonode'),
 		path       = require('path'),
 		sh         = require('execSync'),
 		pkg_config = require('config-tree');
@@ -69,6 +70,19 @@ function initAll(){
 	});
 }
 
+/*    C R E A T I O N  C O M M A N D S   */
+function deployLastCommit(trigger, trigger_type){
+	var current_dir     = path.resolve('./'),
+			new_commit      = trigger,
+			scrubbed_commit = '::published:' + trigger_type + '::';
+
+	// Add the trigger as a commit message and push
+	sh.run('cd ' + current_dir + ' && git commit -m "' + new_commit + '" --allow-empty && git push origin master');
+	// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
+	sh.run('cd ' + current_dir + ' && git commit --amend -m "' + scrubbed_commit + '" --allow-empty');
+	// And now force push the commit with the amended message, replacing it on the remote
+	sh.run('cd ' + current_dir + ' && git push origin master -f');
+}
 
 function reportError(err, msg){
 	throw new Error(err);
@@ -77,5 +91,6 @@ function reportError(err, msg){
 
 module.exports = {
 	config: configClient,
-	init: initAll
+	init: initAll,
+	deploy: deployLastCommit
 }
