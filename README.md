@@ -1,7 +1,7 @@
 Snowy Owl Command-line interface
 ========
 
-A command-line tool for staging, hosting and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
+A command-line tool for staging and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
 
 ## Installation
 
