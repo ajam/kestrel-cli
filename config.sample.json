@@ -6,7 +6,12 @@
 		"private_repos": false
 	},
 	"server": {
-		"url": "http://server.com:9001"
+		"url": "http://server.com:9001",
+		"sync_deploy_trigger": "String to trigger a sync to s3",
+		"hard_deploy": {
+			"enabled": false,
+			"trigger": "String to trigger an overwrite of S3 files"
+		}
 	},
 	"archive": {
 		"enabled": false,
