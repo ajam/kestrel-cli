@@ -1,8 +1,8 @@
-var fs         = require('fs'),
-		octonode   = require('octonode'),
-		path       = require('path'),
-		sh         = require('execSync'),
-		pkg_config = require('config-tree');
+var fs          = require('fs'),
+		octonode    = require('octonode'),
+		path        = require('path'),
+		child       = require('child_process'),
+		pkg_config  = require('config-tree');
 
 // Github authentication
 var config,
@@ -24,7 +24,7 @@ function setGitHubOrgType(gh_c){
 	}
 }
 function gitInit(current_dir, cb){
-	var git_init  = sh.run('git init && git remote add origin https://github.com/' + config.github.account_name + '/' + current_dir + '.git');
+	child.exec('git init && git remote add origin https://github.com/' + config.github.account_name + '/' + current_dir + '.git', cb);
 }
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
@@ -56,17 +56,27 @@ function setConfig(){
 function initAll(){
 	setConfig();
 	var current_dir = path.basename(path.resolve('./'));
-	gitInit(current_dir);
+	gitInit(current_dir, function(error, stdout, stderr){
+		if (error !== null) throw stderr
+		createGitHubRepo(current_dir, function(err){
+			if (err) reportError(err, 'GitHub repo creation failed!');
+			console.log('GitHub repo created...')
 
-	createGitHubRepo(current_dir, function(err){
-		if (err) reportError(err, 'GitHub repo creation failed!');
-		console.log('GitHub repo created...')
+			createGitHubHook(current_dir, function(err){
+				if (err) reportError(err, 'GitHub hook failed');
+				console.log('GitHub hook created. Preview at ' + config.server.url.split(':')[0] + ':3000/' + current_dir);
+			});
 
-		createGitHubHook(current_dir, function(err){
-			if (err) reportError(err, 'GitHub hook failed');
-			console.log('GitHub hook created. Preview at ' + config.server.url.split(':')[0] + ':3000/' + current_dir);
 		});
+	});
+}
 
+function initHook(){
+	setConfig();
+	var current_dir = path.basename(path.resolve('./'));
+	createGitHubHook(current_dir, function(err){
+		if (err) reportError(err, 'GitHub hook failed');
+		console.log('GitHub hook created. Preview at ' + config.server.url.split(':')[0] + ':3000/' + current_dir);
 	});
 }
 
@@ -77,11 +87,16 @@ function deployLastCommit(trigger, trigger_type){
 			scrubbed_commit = '::published:' + trigger_type + '::';
 
 	// Add the trigger as a commit message and push
-	sh.run('cd ' + current_dir + ' && git commit -m "' + new_commit + '" --allow-empty && git push origin master');
-	// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
-	sh.run('cd ' + current_dir + ' && git commit --amend -m "' + scrubbed_commit + '" --allow-empty');
-	// And now force push the commit with the amended message, replacing it on the remote
-	sh.run('cd ' + current_dir + ' && git push origin master -f');
+	child.exec('cd ' + current_dir + ' && git commit -m "' + new_commit + '" --allow-empty && git push origin master', function(error, stdout, stderr){
+		if (error !== null) throw stderr
+		console.log('Push successful!', stdout.trim())
+
+		// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
+		child.exec('cd ' + current_dir + ' && git commit --amend -m "' + scrubbed_commit + '" --allow-empty && git push origin master -f', function(err, stdo, stdr){
+			if (err !== null) throw stdr
+			console.log('Scrub push successful!', stdo.trim())
+		});
+	});
 }
 
 function reportError(err, msg){
@@ -92,5 +107,6 @@ function reportError(err, msg){
 module.exports = {
 	config: configClient,
 	init: initAll,
-	deploy: deployLastCommit
+	deploy: deployLastCommit,
+	hook: initHook
 }

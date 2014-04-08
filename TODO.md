@@ -4,4 +4,4 @@
 	* Change remote to Bitbucket
 * unarchive
 	* Change remote to github
-* create-hook only
+* make src style drier, more consistent

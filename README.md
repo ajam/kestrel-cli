@@ -1,6 +1,8 @@
 Snowy Owl Command-line interface
 ========
 
+##### Still under development.
+
 A command-line tool for staging and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
 
 ## Installation
@@ -22,8 +24,6 @@ Commands:
 
 Options:
   --help              Display help
-  -s, --sync-trigger  Sync deploy trigger for pubishing to S3.
-  -h, --hard-trigger  Hard deploy trigger for pubishing to S3.
 ````
 
 #### A note on deploying

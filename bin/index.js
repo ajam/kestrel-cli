@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 var main_lib  = require('../src/index.js'),
     optimist  = require('optimist'),
-    path      = require('path');
+    path      = require('path'),
+    promzard  = require('promzard'),
+    read      = require('read');
+
+var deploy_prompts = require.resolve('./deploy-prompts.js')
 
 var argv = optimist
   .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks, create archive if enabled\n  archive\tDelete the GitHub repo. \n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.')
@@ -18,14 +22,13 @@ var argv = optimist
   })
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
-    // Require a trigger to deploy
-    if (argv['_'] == 'deploy-last' && (!argv['sync-trigger'] && !argv['hard-trigger']) ) throw 'You must supply a trigger to deploy.';
-    // But only one
-    if (argv['sync-trigger'] && argv['hard-trigger']) throw 'Please only supply either the sync trigger or the hard trigger, but not both.';
+    if (argv['_'].length > 1) throw 'Please only supply one command.';
   })
   .argv;
 
 if (argv.help) return optimist.showHelp();
+
+
 
 function getTriggerType(dict){
   if (argv['s'] || argv['sync-trigger']){
@@ -36,11 +39,25 @@ function getTriggerType(dict){
 }
 
 var command = argv['_'],
-    trigger = argv['s'] || argv['sync-trigger'] || argv['h'] || argv['hard-trigger'],
     trigger_type = getTriggerType(argv);
+
+if (command == 'deploy'){
+  promzard(deploy_prompts, function (er, data) {
+    if (data.trigger_type != 'sync' && data.trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
+    var d = JSON.stringify(data, null, 2) + '\n';
+    console.log(d)
+    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
+      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
+        console.log('Aborted.')
+      } else {
+        runCommand(command, data.trigger, data.trigger_type);
+      }
+    })
+  });
+}else{
+  runCommand(command);
+}
 
 function runCommand(com, arg, trigger_type){
   main_lib[com](arg, trigger_type);
 }
-
-runCommand(command, trigger, trigger_type);
