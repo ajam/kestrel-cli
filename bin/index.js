@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-var main_lib  = require('../src/index.js'),
+var fs        = require('fs'),
+    main_lib  = require('../src/index.js'),
     optimist  = require('optimist'),
     path      = require('path'),
     promzard  = require('promzard'),
@@ -29,7 +30,6 @@ var argv = optimist
 if (argv.help) return optimist.showHelp();
 
 
-
 function getTriggerType(dict){
   if (argv['s'] || argv['sync-trigger']){
     return 'sync'
@@ -38,26 +38,47 @@ function getTriggerType(dict){
   }
 }
 
+function getTrigger(dict){
+  return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'];
+}
+
 var command = argv['_'],
-    trigger_type = getTriggerType(argv);
+    trigger_type = getTriggerType(argv),
+    trigger = getTrigger(argv);
 
 if (command == 'deploy'){
-  promzard(deploy_prompts, function (er, data) {
-    if (data.trigger_type != 'sync' && data.trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
-    var d = JSON.stringify(data, null, 2) + '\n';
-    console.log(d)
-    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
-      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
-        console.log('Aborted.')
-      } else {
-        runCommand(command, data.trigger, data.trigger_type);
-      }
-    })
-  });
+  deploy(command, trigger_type, trigger)
 }else{
   runCommand(command);
 }
 
-function runCommand(com, arg, trigger_type){
-  main_lib[com](arg, trigger_type);
+function checkTriggerInfo(trigger_type, trigger){
+  if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
+  var config = require('../config.json');
+  var triggers = {
+    sync: config.server.sync_deploy_trigger,
+    hard: config.server.hard_deploy.trigger;
+  }
+  if (trigger != triggers[trigger_type]) throw 'Trigger incorrect!';
+  return true;
+}
+
+function deploy(command, trigger_type, trigger){
+  promzard(deploy_prompts, function (er, data) {
+    checkTriggerInfo(trigger_type, trigger);
+    
+    console.log(JSON.stringify(data, null, 2) + '\n');
+
+    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
+      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
+        console.log('Aborted.')
+      } else {
+        main_lib[command](data.trigger_type, data.trigger));
+      }
+    })
+  });
+}
+
+function runCommand(command){
+  main_lib[com](arg);
 }

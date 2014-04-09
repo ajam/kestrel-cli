@@ -22,7 +22,7 @@ exports.github.private_repos  = prompt('Create private repos by default?', Strin
   return repos;
 });
 
-exports.server.url          = prompt('Snowy Owl server url:port', package.server.url);
+exports.server.url                 = prompt('Snowy Owl server url:port', package.server.url);
 exports.server.sync_deploy_trigger = prompt('Sync trigger', package.server.sync_trigger);
 exports.server.hard_deploy = {};
 
