@@ -57,26 +57,35 @@ function checkTriggerInfo(trigger_type, trigger){
   var config = require('../config.json');
   var triggers = {
     sync: config.server.sync_deploy_trigger,
-    hard: config.server.hard_deploy.trigger;
+    hard: config.server.hard_deploy.trigger
   }
   if (trigger != triggers[trigger_type]) throw 'Trigger incorrect!';
   return true;
 }
 
-function deploy(command, trigger_type, trigger){
+function promptForDeployTriggers(){
   promzard(deploy_prompts, function (er, data) {
-    checkTriggerInfo(trigger_type, trigger);
+    checkTriggerInfo(data.trigger_type, data.trigger);
     
     console.log(JSON.stringify(data, null, 2) + '\n');
-
     read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
       if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
         console.log('Aborted.')
       } else {
-        main_lib[command](data.trigger_type, data.trigger));
+        deploy(command, data.trigger_type, data.trigger)
       }
     })
   });
+}
+
+function deploy(command, trigger_type, trigger){
+  var trigger_info;
+  // If triggers weren't set through flags, prompt for them
+  if (!trigger_type && !trigger) {
+    promptForDeployTriggers();
+  } else {
+    main_lib[command](trigger_type, trigger);
+  }
 }
 
 function runCommand(command){
