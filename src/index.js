@@ -9,6 +9,8 @@ var config,
 		gh_client,
 		gh_entity;
 
+var sh_commands = require('./sh-commands.js');
+
 /*    I N I T  C O M M A N D S   */
 function configClient(){
 	var dir = path.dirname(__dirname);
@@ -24,7 +26,7 @@ function setGitHubOrgType(gh_c){
 	}
 }
 function gitInit(current_dir, cb){
-	child.exec('git init && git remote add origin https://github.com/' + config.github.account_name + '/' + current_dir + '.git', cb);
+	child.exec( sh_commands.init(config.github.login_method, config.github.account_name, current_dir), cb );
 }
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
@@ -57,14 +59,14 @@ function initAll(){
 	setConfig();
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir, function(error, stdout, stderr){
-		if (error !== null) throw stderr;
+		(error !== null) ? console.error(stderr): console.log('1/1 Git init\'ed and origin set');
 		createGitHubRepo(current_dir, function(err){
 			if (err) reportError(err, 'GitHub repo creation failed!');
-			console.log('GitHub repo created...');
+			console.log('1/2 GitHub repo created!');
 
 			createGitHubHook(current_dir, function(err){
 				if (err) reportError(err, 'GitHub hook failed');
-				console.log('GitHub hook created. Preview at ' + config.server.url.split(':')[0] + ':3000/' + current_dir);
+				console.log('2/2 GitHub hook created. Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
 			});
 
 		});
@@ -83,24 +85,33 @@ function initHook(){
 /*    C R E A T I O N  C O M M A N D S   */
 function deployLastCommit(trigger_type, trigger){
 	var current_dir         = path.resolve('./'),
-			new_commit_msg      = trigger,
+			trigger_commit_msg  = trigger,
 			scrubbed_commit_msg = '::published:' + trigger_type + '::';
 
 	// Add the trigger as a commit message and push
-	child.exec('cd ' + current_dir + ' && git commit -m "' + new_commit_msg + '" --allow-empty && git push origin master', function(error, stdout, stderr){
+	child.exec( sh_commands.deployLastCommit(current_dir, trigger_commit_msg), function(error, stdout, stderr){
 		if (error !== null) throw stderr;
 		console.log('Push successful!', stdout.trim());
 
 		// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
-		child.exec('cd ' + current_dir + ' && git commit --amend -m "' + scrubbed_commit_msg + '" --allow-empty && git push origin master -f', function(err, stdo, stdr){
+		child.exec( sh_commands.scrubLastCommit(current_dir, scrubbed_commit_msg), function(err, stdo, stdr){
 			if (err !== null) throw stdr;
 			console.log('Scrub push successful!', stdo.trim());
 		});
 	});
 }
 
+/*    C R E A T E  A R C H I V E  B R A N C H   */
+
+function addToArchive(branches){
+	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
+		console.log('Archive to ' + config.archive.repo_name + ' / ' + branches.split(':')[1] + 'successful!')
+	});
+
+}
+
 function reportError(err, msg){
-	throw new Error(err);
+	throw err;
 	console.log(msg);
 }
 
@@ -108,5 +119,6 @@ module.exports = {
 	config: configClient,
 	init: initAll,
 	deploy: deployLastCommit,
-	hook: initHook
+	hook: initHook,
+	archive: addToArchive
 }

@@ -6,10 +6,15 @@ var fs        = require('fs'),
     promzard  = require('promzard'),
     read      = require('read');
 
-var deploy_prompts = require.resolve('./deploy-prompts.js')
+var prompts = {
+  deploy: require.resolve('./deploy-prompts.js'),
+  archive: require.resolve('./archive-prompts.js')
+}
+var commands = ['config', 'init', 'deploy', 'hook'];
+// TODO, ask for old branch name and new branch name
 
 var argv = optimist
-  .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks, create archive if enabled\n  archive\tDelete the GitHub repo. \n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.')
+  .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks\n  hook\t\tSet up the hook on an existing repo so that the server is notified on commit. Useful for repos that were not created with `init`.\n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.')
   .options('help', {
     describe: 'Display help'
   })
@@ -21,9 +26,14 @@ var argv = optimist
     alias: 'hard-trigger',
     describe: 'Hard deploy trigger for pubishing to S3.',
   })
+  .options('b', {
+    alias: 'branches',
+    describe: '<current_branch_name>:<new_branch_name>',
+  })
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
     if (argv['_'].length > 1) throw 'Please only supply one command.';
+    if (commands.indexOf(argv['_']) != -1) throw 'Your command must be either `config`, `init`, `hook` or `deploy`.'
   })
   .argv;
 
@@ -32,9 +42,9 @@ if (argv.help) return optimist.showHelp();
 
 function getTriggerType(dict){
   if (argv['s'] || argv['sync-trigger']){
-    return 'sync'
+    return 'sync';
   } else if (argv['h'] || argv['hard-trigger']) {
-    return 'hard'
+    return 'hard';
   }
 }
 
@@ -42,15 +52,6 @@ function getTrigger(dict){
   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'];
 }
 
-var command = argv['_'],
-    trigger_type = getTriggerType(argv),
-    trigger = getTrigger(argv);
-
-if (command == 'deploy'){
-  deploy(command, trigger_type, trigger)
-}else{
-  runCommand(command);
-}
 
 function checkTriggerInfo(trigger_type, trigger){
   if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
@@ -63,31 +64,53 @@ function checkTriggerInfo(trigger_type, trigger){
   return true;
 }
 
-function promptForDeployTriggers(){
-  promzard(deploy_prompts, function (er, data) {
-    checkTriggerInfo(data.trigger_type, data.trigger);
-    
+function promptForDeployTriggers(target){
+  promzard(prompts[target], function (er, data) {
+
     console.log(JSON.stringify(data, null, 2) + '\n');
     read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
       if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
-        console.log('Aborted.')
+        console.log('Aborted.');
       } else {
-        deploy(command, data.trigger_type, data.trigger)
+        if (target == 'deploy') {
+          deploy(data.trigger_type, data.trigger);
+        } else if (target == 'archive'){
+          archive(data.branches);
+        }
       }
     })
   });
 }
 
-function deploy(command, trigger_type, trigger){
-  var trigger_info;
+function deploy(trigger_type, trigger){
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
-    promptForDeployTriggers();
+    promptFor('deploy');
   } else {
-    main_lib[command](trigger_type, trigger);
+    if ( checkTriggerInfo(data.trigger_type, data.trigger) ) {
+      main_lib['deploy'](trigger_type, trigger);
+    }
   }
 }
 
-function runCommand(command){
-  main_lib[com](arg);
+function archive(branches){
+  // If branches weren't set through flags, prompt for them
+  if (!branches){
+    promptFor('archive');
+  } else {
+    main_lib['archive'](branches);
+  }
+}
+
+var command = argv['_'],
+    trigger_type = getTriggerType(argv),
+    trigger = getTrigger(argv),
+    branches = argv['b'] || argv['branches'];
+
+if (command == 'deploy'){
+  deploy(command, trigger_type, trigger);
+} else if (command == 'archive'){
+  archive(branches);
+}else{
+  main_lib[command]();
 }

@@ -1,8 +1,9 @@
 {
 	"github": {
 		"type": "org/individual",
-		"account_name": "Organization or individual account",
+		"account_name": "my-account",
 		"access_token": "gobbledygook",
+		"login_method": "https",
 		"private_repos": false
 	},
 	"server": {
@@ -14,9 +15,6 @@
 		}
 	},
 	"archive": {
-		"enabled": false,
-		"type": "bitbucket/github",
-		"account_name": "awesome-archive-account",
-		"access_token": "gobbledygook"
+		"repo_name": "archive"
 	}
 }

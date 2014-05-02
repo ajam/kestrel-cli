@@ -11,9 +11,11 @@ exports.github      = {};
 exports.server      = {};
 exports.archive     = {};
 
+console.log(package.github)
 exports.github.type           = prompt('GitHub account type', package.github.type);
-exports.github.account        = prompt('Account name', package.github.account);
+exports.github.account_name   = prompt('Account name', package.github.account_name);
 exports.github.access_token   = prompt('Github access token', package.github.access_token);
+exports.github.login_method   = prompt('Connect to GitHub with https or ssh?', package.github.login_method);
 exports.github.private_repos  = prompt('Create private repos by default?', String(package.github.private_repos), function(repos){
   var isJson = checkJson(repos);
   if (!isJson) console.error('ERROR: Please enter either true or false.');
@@ -23,7 +25,7 @@ exports.github.private_repos  = prompt('Create private repos by default?', Strin
 });
 
 exports.server.url                 = prompt('Snowy Owl server url:port', package.server.url);
-exports.server.sync_deploy_trigger = prompt('Sync trigger', package.server.sync_trigger);
+exports.server.sync_deploy_trigger = prompt('Sync trigger', package.server.sync_deploy_trigger);
 exports.server.hard_deploy = {};
 
 var hard_trigger_enabled;
@@ -41,27 +43,20 @@ exports.server.hard_deploy.trigger = function(cb){
   cb(null, response);
 }
 
-var archive_enabled;
-exports.archive.enabled = prompt('Enable archiving?', String(package.archive.enabled), function(enabled){
-  var isJson = checkJson(enabled);
-  if (!isJson) console.error('ERROR: Please enter either true or false.');
+exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
 
-  enabled = archive_enabled = JSON.parse(enabled);
-  return enabled;
-})
 
-exports.archive.type = function(cb){
-  response = null;
-  if (archive_enabled) response = prompt('Account type', package.archive.type);
-  cb(null, response);
-}
-exports.archive.account_name = function(cb){
-  response = null;
-  if (archive_enabled) response = prompt('Account name');
-  cb(null, response);
-}
-exports.archive.access_token = function(cb){
-  response = null;
-  if (archive_enabled) response = prompt('Access token');
-  cb(null, response);
-}
+// var archive_enabled;
+// exports.archive.enabled = prompt('Enable archiving?', String(package.archive.enabled), function(enabled){
+//   var isJson = checkJson(enabled);
+//   if (!isJson) console.error('ERROR: Please enter either true or false.');
+
+//   enabled = archive_enabled = JSON.parse(enabled);
+//   return enabled;
+// })
+
+// exports.archive.repo_name = function(cb){
+//   response = null;
+//   if (archive_enabled) response = prompt('Archive repo name?');
+//   cb(null, response);
+// }
