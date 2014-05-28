@@ -83,9 +83,10 @@ function initHook(){
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
-function deployLastCommit(trigger_type, trigger){
+function deployLastCommit(trigger_type, trigger, sub_dir_path){
 	var current_dir         = path.resolve('./'),
-			trigger_commit_msg  = trigger,
+			sub_dir_path        = sub_dir_path || '',
+			trigger_commit_msg  = trigger + '::' + sub_dir_path,
 			scrubbed_commit_msg = '::published:' + trigger_type + '::';
 
 	// Add the trigger as a commit message and push
@@ -102,7 +103,6 @@ function deployLastCommit(trigger_type, trigger){
 }
 
 /*    C R E A T E  A R C H I V E  B R A N C H   */
-
 function addToArchive(branches){
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
 		console.log('Archive to ' + config.archive.repo_name + ' / ' + branches.split(':')[1] + 'successful!')
