@@ -2,7 +2,8 @@ var fs          = require('fs'),
 		octonode    = require('octonode'),
 		path        = require('path'),
 		child       = require('child_process'),
-		pkg_config  = require('config-tree');
+		pkg_config  = require('config-tree'),
+		colors			= require('colors');
 
 // Github authentication
 var config,
@@ -58,15 +59,14 @@ function setConfig(){
 function initAll(){
 	setConfig();
 	var current_dir = path.basename(path.resolve('./'));
-	gitInit(current_dir, function(error, stdout, stderr){
-		(error !== null) ? console.error(stderr): console.log('1/1 Git init\'ed and origin set');
-		createGitHubRepo(current_dir, function(err){
-			if (err) reportError(err, 'GitHub repo creation failed!');
-			console.log('1/2 GitHub repo created!');
-
-			createGitHubHook(current_dir, function(err){
-				if (err) reportError(err, 'GitHub hook failed');
-				console.log('2/2 GitHub hook created. Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+	gitInit(current_dir, function(err1, stdout, stderr){
+		(err1) ? console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin ' + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1] + '`') : console.log('Step 1/3: Git init\'ed and origin set!'.green);
+		
+		createGitHubRepo(current_dir, function(err2, response){
+			(err2) ? console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow, '\nStated reason:', err2.message) : console.log('Step 2/3: GitHub repo created!'.green);
+			
+			createGitHubHook(current_dir, function(err3){
+				(err3) ? console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow, '\nStated reason:', err3.message) : console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
 			});
 
 		});
@@ -77,8 +77,8 @@ function initHook(){
 	setConfig();
 	var current_dir = path.basename(path.resolve('./'));
 	createGitHubHook(current_dir, function(err){
-		if (err) reportError(err, 'GitHub hook failed');
-		console.log('GitHub hook created. Preview at ' + config.server.url.split(':')[0] + ':3000/' + current_dir);
+		if (err) reportError(err, 'Step 1/1: GitHub hook failed'.red);
+		console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
 	});
 }
 
@@ -92,12 +92,12 @@ function deployLastCommit(trigger_type, trigger, sub_dir_path){
 	// Add the trigger as a commit message and push
 	child.exec( sh_commands.deployLastCommit(current_dir, trigger_commit_msg), function(error, stdout, stderr){
 		if (error !== null) throw stderr;
-		console.log('Push successful!', stdout.trim());
+		console.log('Push successful!'.green, stdout.trim());
 
 		// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
 		child.exec( sh_commands.scrubLastCommit(current_dir, scrubbed_commit_msg), function(err, stdo, stdr){
 			if (err !== null) throw stdr;
-			console.log('Scrub push successful!', stdo.trim());
+			console.log('Scrub push successful!'.green, stdo.trim());
 		});
 	});
 }
@@ -111,8 +111,8 @@ function addToArchive(branches){
 }
 
 function reportError(err, msg){
+	console.log(msg, '\nReason:');
 	throw err;
-	console.log(msg);
 }
 
 module.exports = {
