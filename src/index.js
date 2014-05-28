@@ -66,7 +66,7 @@ function initAll(){
 			(err2) ? console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow, '\nStated reason:', err2.message) : console.log('Step 2/3: GitHub repo created!'.green);
 			
 			createGitHubHook(current_dir, function(err3){
-				(err3) ? console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow, '\nStated reason:', err3.message) : console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+				(err3) ? console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow, '\nStated reason:', err3.message) : console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
 			});
 
 		});
@@ -78,7 +78,7 @@ function initHook(){
 	var current_dir = path.basename(path.resolve('./'));
 	createGitHubHook(current_dir, function(err){
 		if (err) reportError(err, 'Step 1/1: GitHub hook failed'.red);
-		console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n\t' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+		console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
 	});
 }
 
@@ -104,8 +104,10 @@ function deployLastCommit(trigger_type, trigger, sub_dir_path){
 
 /*    C R E A T E  A R C H I V E  B R A N C H   */
 function addToArchive(branches){
+  config = config || require('../config.json');
+  var repo_name = path.basename(path.resolve('./'));
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
-		console.log('Archive to ' + config.archive.repo_name + ' / ' + branches.split(':')[1] + 'successful!')
+		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.archive.repo_name + '/archive/tree/' + branches.split(':')[1] + '\n' + 'Note:'.yellow + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/ajam/' + repo_name + '/settings')
 	});
 
 }
