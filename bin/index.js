@@ -4,7 +4,8 @@ var fs        = require('fs'),
     optimist  = require('optimist'),
     path      = require('path'),
     promzard  = require('promzard'),
-    read      = require('read');
+    read      = require('read'),
+    colors    = require('colors');
 
 var prompts = {
   deploy: require.resolve('./deploy-prompts.js'),
@@ -72,21 +73,23 @@ function getSubDir(dict){
 
 function checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path){
   // Check trigger info
-  if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
+  if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
   var config = require('../config.json');
   var triggers = {
     sync: config.server.sync_deploy_trigger,
     hard: config.server.hard_deploy.trigger
   }
+  // If you're trying to deploy hard and it hasnt been set...
+  if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) throw 'Error: Hard deploy isn\'t enabled!'.red
   // Make sure it matches what you specified
-  if (trigger != triggers[trigger_type]) throw 'Trigger incorrect!';
+  if (trigger != triggers[trigger_type]) throw 'Error: Trigger incorrect!'.red;
 
   // Make sure your sub-directory exists
   var current_dir = path.resolve('./');
-  if ( sub_dir_path && !fs.existsSync(current_dir + '/' + sub_dir_path) ) throw 'Sub-directory `' + current_dir + '/' + sub_dir_path + '` does not exist.' 
+  if ( sub_dir_path && !fs.existsSync(current_dir + '/' + sub_dir_path) ) throw 'Error: Sub-directory `' + current_dir + '/' + sub_dir_path + '` does not exist.'.red 
   
   // Make sure you specified a bucket environment
-  if (bucket_environment != 'prod' && bucket_environment != 'staging') throw 'Bucket environment must be either `prod` or `staging`.'
+  if (bucket_environment != 'prod' && bucket_environment != 'staging') throw 'Error: Bucket environment must be either `prod` or `staging`.'.red
   return true;
 }
 
