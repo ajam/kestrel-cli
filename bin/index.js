@@ -93,7 +93,7 @@ function promptFor(target){
   });
 }
 
-function deploy(trigger_type, trigger){
+function deploy(trigger_type, trigger, sub_dir_path){
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
     promptFor('deploy');
@@ -120,7 +120,7 @@ var command = argv['_'],
     branches = argv['b'] || argv['branches'];
 
 if (command == 'deploy'){
-  deploy(trigger_type, trigger);
+  deploy(trigger_type, trigger, sub_dir_path);
 } else if (command == 'archive'){
   archive(branches);
 }else{
