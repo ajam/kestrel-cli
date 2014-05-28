@@ -82,11 +82,15 @@ function initHook(){
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
-function deployLastCommit(trigger_type, trigger, sub_dir_path){
-	var current_dir         = path.resolve('./'),
-			sub_dir_path        = sub_dir_path || '',
-			trigger_commit_msg  = trigger + '::' + sub_dir_path,
+function deployLastCommit(bucket_environment, trigger_type, trigger, local_path){
+  config  = config || require('../config.json');
+	var current_dir   = path.resolve('./'),
+			local_path    = local_path || '';
+
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' +  config.publishing.remote_path,
 			scrubbed_commit_msg = '::published:' + trigger_type + '::';
+
+	if (local_path) trigger_commit_msg += '::' + local_path;
 
 	// Add the trigger as a commit message and push
 	child.exec( sh_commands.deployLastCommit(current_dir, trigger_commit_msg), function(error, stdout, stderr){
@@ -108,7 +112,6 @@ function addToArchive(branches){
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
 		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.archive.repo_name + '/archive/tree/' + branches.split(':')[1] + '\n' + 'Note:'.yellow + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/ajam/' + repo_name + '/settings')
 	});
-
 }
 
 function reportError(err, msg){

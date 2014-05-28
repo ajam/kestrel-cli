@@ -14,6 +14,9 @@
 			"trigger": "String to trigger an overwrite of S3 files"
 		}
 	},
+  "publishing": {
+    "remote_path": "2014"
+  },
 	"archive": {
 		"repo_name": "archive"
 	}

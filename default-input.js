@@ -10,6 +10,7 @@ function checkJson(str) {
 exports.github      = {};
 exports.server      = {};
 exports.archive     = {};
+exports.publishing  = {};
 
 exports.github.type           = prompt('GitHub account type', package.github.type);
 exports.github.account_name   = prompt('Account name', package.github.account_name);
@@ -41,9 +42,9 @@ exports.server.hard_deploy.trigger = function(cb){
   if (hard_trigger_enabled) response = prompt('Hard trigger', package.server.hard_deploy.trigger);
   cb(null, response);
 }
+exports.publishing.remote_path = prompt('Default S3 folder to publish into', package.publishing.remote_path)
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
-
 
 // var archive_enabled;
 // exports.archive.enabled = prompt('Enable archiving?', String(package.archive.enabled), function(enabled){

@@ -18,6 +18,10 @@ var argv = optimist
   .options('help', {
     describe: 'Display help'
   })
+  .options('e', {
+    alias: 'environment',
+    describe: 'Staging or production environment.',
+  })
   .options('s', {
     alias: 'sync-trigger',
     describe: 'Sync deploy trigger for pubishing to S3.',
@@ -54,6 +58,10 @@ function getTriggerType(dict){
   }
 }
 
+function getBucketEnvironment(dict){
+  return dict['e'] || dict['environment'] || undefined;
+}
+
 function getTrigger(dict){
   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
 }
@@ -62,16 +70,23 @@ function getSubDir(dict){
   return dict['d'] || dict['dir'] || undefined;
 }
 
-function checkTriggerInfo(trigger_type, trigger, sub_dir_path){
+function checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path){
+  // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Trigger type must be either `sync` or `hard`.';
   var config = require('../config.json');
   var triggers = {
     sync: config.server.sync_deploy_trigger,
     hard: config.server.hard_deploy.trigger
   }
+  // Make sure it matches what you specified
   if (trigger != triggers[trigger_type]) throw 'Trigger incorrect!';
+
+  // Make sure your sub-directory exists
   var current_dir = path.resolve('./');
   if ( sub_dir_path && !fs.existsSync(current_dir + '/' + sub_dir_path) ) throw 'Sub-directory `' + current_dir + '/' + sub_dir_path + '` does not exist.' 
+  
+  // Make sure you specified a bucket environment
+  if (bucket_environment != 'prod' && bucket_environment != 'staging') throw 'Bucket environment must be either `prod` or `staging`.'
   return true;
 }
 
@@ -84,7 +99,7 @@ function promptFor(target){
         console.log('Aborted.');
       } else {
         if (target == 'deploy') {
-          deploy(data.trigger_type, data.trigger, data.sub_dir_path);
+          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.sub_dir_path);
         } else if (target == 'archive'){
           archive(data.branches);
         }
@@ -93,13 +108,16 @@ function promptFor(target){
   });
 }
 
-function deploy(trigger_type, trigger, sub_dir_path){
+function deploy(bucket_environment, trigger_type, trigger, sub_dir_path){
+  var repo_name = path.basename( path.resolve('./') );
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
     promptFor('deploy');
   } else {
-    if ( checkTriggerInfo(trigger_type, trigger, sub_dir_path) ) {
-      main_lib['deploy'](trigger_type, trigger, sub_dir_path);
+    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path) ) {
+      // If there's a path to a sub-directory, string it with the repo name
+      if (sub_dir_path) sub_dir_path = repo_name + '/' + sub_dir_path
+      main_lib['deploy'](bucket_environment, trigger_type, trigger, sub_dir_path);
     }
   }
 }
@@ -114,13 +132,14 @@ function archive(branches){
 }
 
 var command = argv['_'],
+    bucket_environment = getBucketEnvironment(argv),
     trigger_type = getTriggerType(argv),
     trigger = getTrigger(argv),
     sub_dir_path = getSubDir(argv),
     branches = argv['b'] || argv['branches'];
 
 if (command == 'deploy'){
-  deploy(trigger_type, trigger, sub_dir_path);
+  deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
 } else if (command == 'archive'){
   archive(branches);
 }else{
