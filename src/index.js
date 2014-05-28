@@ -84,13 +84,10 @@ function initHook(){
 /*    C R E A T I O N  C O M M A N D S   */
 function deployLastCommit(bucket_environment, trigger_type, trigger, local_path){
   config  = config || require('../config.json');
-	var current_dir   = path.resolve('./'),
-			local_path    = local_path || '';
+	var current_dir   = path.resolve('./');
 
-	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' +  config.publishing.remote_path,
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' +  local_path + '::' + config.publishing.remote_path,
 			scrubbed_commit_msg = '::published:' + trigger_type + '::';
-
-	if (local_path) trigger_commit_msg += '::' + local_path;
 
 	// Add the trigger as a commit message and push
 	child.exec( sh_commands.deployLastCommit(current_dir, trigger_commit_msg), function(error, stdout, stderr){

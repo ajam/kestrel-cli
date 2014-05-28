@@ -109,15 +109,15 @@ function promptFor(target){
 }
 
 function deploy(bucket_environment, trigger_type, trigger, sub_dir_path){
-  var repo_name = path.basename( path.resolve('./') );
+  var repo_path = path.basename( path.resolve('./') );
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
     promptFor('deploy');
   } else {
     if ( checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path) ) {
-      // If there's a path to a sub-directory, string it with the repo name
-      if (sub_dir_path) sub_dir_path = repo_name + '/' + sub_dir_path
-      main_lib['deploy'](bucket_environment, trigger_type, trigger, sub_dir_path);
+      // If there's a path to a sub-directory, Add it to the repo path
+      if (sub_dir_path) repo_path = repo_path + '/' + sub_dir_path
+      main_lib['deploy'](bucket_environment, trigger_type, trigger, repo_path);
     }
   }
 }
