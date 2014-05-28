@@ -11,7 +11,6 @@ exports.github      = {};
 exports.server      = {};
 exports.archive     = {};
 
-console.log(package.github)
 exports.github.type           = prompt('GitHub account type', package.github.type);
 exports.github.account_name   = prompt('Account name', package.github.account_name);
 exports.github.access_token   = prompt('Github access token', package.github.access_token);
@@ -24,7 +23,7 @@ exports.github.private_repos  = prompt('Create private repos by default?', Strin
   return repos;
 });
 
-exports.server.url                 = prompt('Snowy Owl server url:port', package.server.url);
+exports.server.url                 = prompt('Snow Owl server url:port', package.server.url);
 exports.server.sync_deploy_trigger = prompt('Sync trigger', package.server.sync_deploy_trigger);
 exports.server.hard_deploy = {};
 

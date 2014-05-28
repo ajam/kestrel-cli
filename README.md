@@ -1,14 +1,14 @@
-Snowy Owl Command-line interface
+Kestrel Command-line interface
 ========
 
 ##### Still under development.
 
-A command-line tool for staging and deploying static files with [Snowy Owl](https://github.com/mhkeller/snowy-owl).
+A command-line tool for staging and deploying static files with [Kestrel Server](https://github.com/mhkeller/kestrel).
 
 ## Installation
 
 ````
-npm install snowy-owl-cli -g
+npm install kestrel-cli -g
 ````
 
 ## Usage
