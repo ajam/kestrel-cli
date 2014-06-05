@@ -107,7 +107,7 @@ function addToArchive(branches){
   config = config || require('../config.json');
   var repo_name = path.basename(path.resolve('./'));
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
-		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.yellow + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
+		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
 	});
 }
 
