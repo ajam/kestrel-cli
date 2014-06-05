@@ -1,7 +1,11 @@
 var path = require('path');
-var repo_name = path.basename(path.resolve('./'));
-var current_year = new Date().getFullYear();
+var sh = require('execSync');
+// Get current year and repo name
+var current_year = new Date().getFullYear(),
+		repo_name = path.basename(path.resolve('./'));
+// Grab the current branch
+var branch = sh.exec('git rev-parse --abbrev-ref HEAD').stdout.trim();
 
 module.exports = {
-  "branches": prompt("What branch to archive and under what name?",  "master:" + current_year + '_' + repo_name )
+  "branches": prompt("What branch to archive and under what name?",  branch + ":" + current_year + '_' + repo_name )
  }
