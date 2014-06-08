@@ -45,18 +45,3 @@ exports.server.hard_deploy.trigger = function(cb){
 exports.publishing.remote_path = prompt('Default S3 folder to publish into', package.publishing.remote_path)
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
-
-// var archive_enabled;
-// exports.archive.enabled = prompt('Enable archiving?', String(package.archive.enabled), function(enabled){
-//   var isJson = checkJson(enabled);
-//   if (!isJson) console.error('ERROR: Please enter either true or false.');
-
-//   enabled = archive_enabled = JSON.parse(enabled);
-//   return enabled;
-// })
-
-// exports.archive.repo_name = function(cb){
-//   response = null;
-//   if (archive_enabled) response = prompt('Archive repo name?');
-//   cb(null, response);
-// }

@@ -15,7 +15,7 @@ var sh_commands = require('./sh-commands.js');
 /*    I N I T  C O M M A N D S   */
 function configClient(){
 	var dir = path.dirname(__dirname);
-	pkg_config.sprout(dir);
+	pkg_config.sprout(dir, 'kestrel');
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
@@ -51,13 +51,24 @@ function createGitHubHook(repo_name, cb){
 		cb(err, response);
 	}); 
 }
-function setConfig(){
-  config  = config || require('../config.json');
-	gh_client = gh_client || octonode.client(config.github.access_token);
-	gh_entity = gh_entity || setGitHubOrgType(gh_client);
+function setConfig(set_gh){
+  var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
+  		conf_dir_path = home_dir + '/.conf',
+  		config_path = home_dir + '/.conf/kestrel-config.json',
+  		conf_dir_exists = fs.existsSync( conf_dir_path ),
+  		config_exists = fs.existsSync( config_path );
+
+  if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
+  if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'
+
+  config = config || require('../config.json');
+	if (set_gh){
+		gh_client = gh_client || octonode.client(config.github.access_token);
+		gh_entity = gh_entity || setGitHubOrgType(gh_client);
+	}
 }
 function initAll(){
-	setConfig();
+	setConfig(true);
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir, function(err1, stdout, stderr){
 		(err1) ? console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin ' + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1] + '`') : console.log('Step 1/3: Git init\'ed and origin set!'.green);
@@ -74,7 +85,7 @@ function initAll(){
 }
 
 function initHook(){
-	setConfig();
+	setConfig(true);
 	var current_dir = path.basename(path.resolve('./'));
 	createGitHubHook(current_dir, function(err){
 		(err) ? console.log('Step 1/1: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err.message) : console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
@@ -83,7 +94,7 @@ function initHook(){
 
 /*    C R E A T I O N  C O M M A N D S   */
 function deployLastCommit(bucket_environment, trigger_type, trigger, local_path){
-  config  = config || require('../config.json');
+  setConfig(true);
 	var current_dir   = path.resolve('./');
 
 	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' +  local_path + '::' + config.publishing.remote_path,
@@ -104,7 +115,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path)
 
 /*    C R E A T E  A R C H I V E  B R A N C H   */
 function addToArchive(branches){
-  config = config || require('../config.json');
+  setConfig(true);
   var repo_name = path.basename(path.resolve('./'));
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
 		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
@@ -117,6 +128,7 @@ function reportError(err, msg){
 }
 
 module.exports = {
+	checkConfig: setConfig,
 	config: configClient,
 	init: initAll,
 	deploy: deployLastCommit,

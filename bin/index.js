@@ -141,6 +141,9 @@ var command = argv['_'],
     sub_dir_path = getSubDir(argv),
     branches = argv['b'] || argv['branches'];
 
+// If we aren't configuring the library, make sure it already has a config file.
+if (command != 'config') main_lib.checkConfig();
+
 if (command == 'deploy'){
   deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
 } else if (command == 'archive'){
