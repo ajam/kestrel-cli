@@ -12,7 +12,7 @@ var prompts = {
   archive: require.resolve('./archive-prompts.js')
 }
 var commands = ['config', 'init', 'deploy', 'hook', 'archive'];
-// TODO, ask for old branch name and new branch name
+var config;
 
 var argv = optimist
   .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks\n  hook\t\tSet up the hook on an existing repo so that the server is notified on commit. Useful for repos that were not created with `init`.\n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.\n  archive\tMake your current project a branch of your archives repo. Specify archive repo in config.json and branch names with `-b` or `--branches`')
@@ -71,10 +71,9 @@ function getSubDir(dict){
   return dict['d'] || dict['dir'] || undefined;
 }
 
-function checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path){
+function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path){
   // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
-  var config = require('../config.json');
   var triggers = {
     sync: config.server.sync_deploy_trigger,
     hard: config.server.hard_deploy.trigger
@@ -85,8 +84,8 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path
   if (trigger != triggers[trigger_type]) throw 'Error: Trigger incorrect!'.red;
 
   // Make sure your sub-directory exists
-  var current_dir = path.resolve('./');
-  if ( sub_dir_path && !fs.existsSync(current_dir + '/' + sub_dir_path) ) throw 'Error: Sub-directory `' + current_dir + '/' + sub_dir_path + '` does not exist.'.red 
+  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path
+  if ( !fs.existsSync(full_local_path) ) throw 'Error:'.red + ' Local directory `' + local_path.yellow + '` does not exist.' 
   
   // Make sure you specified a bucket environment
   if (bucket_environment != 'prod' && bucket_environment != 'staging') throw 'Error: Bucket environment must be either `prod` or `staging`.'.red
@@ -102,7 +101,7 @@ function promptFor(target){
         console.log('Aborted.');
       } else {
         if (target == 'deploy') {
-          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.sub_dir_path);
+          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path);
         } else if (target == 'archive'){
           archive(data.branches);
         }
@@ -111,16 +110,13 @@ function promptFor(target){
   });
 }
 
-function deploy(bucket_environment, trigger_type, trigger, sub_dir_path){
-  var repo_path = path.basename( path.resolve('./') );
+function deploy(bucket_environment, trigger_type, trigger, local_path, remote_path){
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
     promptFor('deploy');
   } else {
-    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, sub_dir_path) ) {
-      // If there's a path to a sub-directory, Add it to the repo path
-      if (sub_dir_path) repo_path = repo_path + '/' + sub_dir_path
-      main_lib['deploy'](bucket_environment, trigger_type, trigger, repo_path);
+    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, local_path) ) {
+      main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path);
     }
   }
 }
@@ -141,8 +137,8 @@ var command = argv['_'],
     sub_dir_path = getSubDir(argv),
     branches = argv['b'] || argv['branches'];
 
-// If we aren't configuring the library, make sure it already has a config file.
-if (command != 'config') main_lib.checkConfig();
+// If we aren't configuring the library, make sure it already has a config file and load it.
+if (command != 'config') config = main_lib.setConfig();
 
 if (command == 'deploy'){
   deploy(bucket_environment, trigger_type, trigger, sub_dir_path);

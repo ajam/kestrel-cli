@@ -1,9 +1,15 @@
+var path = require('path');
+
+var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
+		config_path = home_dir + '/.conf/kestrel-config.json';
+
+var config = require(config_path),
+		repo_name = path.basename(path.resolve('./'));
+
 module.exports = {
   "bucket_environment": prompt("Deploy to `staging` or `prod`?", "staging"),
   "trigger_type": prompt("Deploy method (sync/hard)?", "sync"),
   "trigger": prompt("Trigger?"),
-  "sub_dir_path": prompt("Deploy sub-directory? e.g. `output/myproject`", "false", function(subDirFlagOrPath){
-	  if (subDirFlagOrPath === 'false') return false
-	  return subDirFlagOrPath
-  })
+  "local_path": prompt("Deploy directory... e.g. `" + repo_name + "/output`", repo_name),
+  "remote_path": prompt("to directory... e.g. `" + config.publishing.remote_path + "/" + repo_name + "/audio`", config.publishing.remote_path + "/" + repo_name)
  }

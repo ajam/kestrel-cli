@@ -1,3 +1,2 @@
-* archive 
-	* Change push to a new branch on archive repo
+* check git status --porcelain before deploying, abort if changes have been made
 * make src style drier, more consistent

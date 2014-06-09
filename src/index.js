@@ -66,6 +66,7 @@ function setConfig(set_gh){
 		gh_client = gh_client || octonode.client(config.github.access_token);
 		gh_entity = gh_entity || setGitHubOrgType(gh_client);
 	}
+	return config;
 }
 function initAll(){
 	setConfig(true);
@@ -93,11 +94,11 @@ function initHook(){
 }
 
 /*    C R E A T I O N  C O M M A N D S   */
-function deployLastCommit(bucket_environment, trigger_type, trigger, local_path){
+function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path){
   setConfig(true);
 	var current_dir   = path.resolve('./');
 
-	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' +  local_path + '::' + config.publishing.remote_path,
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path,
 			scrubbed_commit_msg = '::published:' + bucket_environment + ':' + trigger_type + '::';
 
 	// Add the trigger as a commit message and push
@@ -128,7 +129,7 @@ function reportError(err, msg){
 }
 
 module.exports = {
-	checkConfig: setConfig,
+	setConfig: setConfig,
 	config: configClient,
 	init: initAll,
 	deploy: deployLastCommit,
