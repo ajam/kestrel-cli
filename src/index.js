@@ -61,7 +61,7 @@ function setConfig(set_gh){
   if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
   if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'
 
-  config = config || require('../config.json');
+  config = config || require(config_path);
 	if (set_gh){
 		gh_client = gh_client || octonode.client(config.github.access_token);
 		gh_entity = gh_entity || setGitHubOrgType(gh_client);
