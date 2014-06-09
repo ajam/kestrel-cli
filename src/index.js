@@ -93,7 +93,21 @@ function initHook(){
 	});
 }
 
-/*    C R E A T I O N  C O M M A N D S   */
+
+/*    D E P L O Y   C O M M A N D S   */
+function checkGitStatus(gitStatus){
+	gitStatus = gitStatus.trim();
+	var ahead_regex = new RegExp('ahead'),
+			behind_regex = new RegExp('behind');
+
+	// If the status has more than one line, we have uncommitted changes
+	if (gitStatus.split('\n').length > 1) return 'uncommitted';
+	// If the status has the word ahead and behind then we have to pull and push
+	if (ahead_regex.exec(gitStatus) && behind_regex.exec(gitStatus)) return 'ahead_and_behind';
+	if (ahead_regex.exec(gitStatus)) return 'ahead';
+	if (behind_regex.exec(gitStatus)) return 'behind';
+	return 'clean';
+}
 function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path){
   setConfig(true);
 	var current_dir   = path.resolve('./');
@@ -101,16 +115,38 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path,
 			scrubbed_commit_msg = '::published:' + bucket_environment + ':' + trigger_type + '::';
 
-	// Add the trigger as a commit message and push
-	child.exec( sh_commands.deployLastCommit(current_dir, trigger_commit_msg), function(error, stdout, stderr){
-		if (error !== null) throw stderr;
-		console.log('Push successful!'.green, stdout.trim());
+	// Make sure the working branch has no outstanding commits and is neither ahead or behind
+	// Normally outstanding commits wouldn't be a problem, but the push flag allows for an empty commit
+	// So if we had untracked or uncommitted files, it would just push the last commit.
+	child.exec( sh_commands.status(), function(err0, stdout0, stderr0){
+		if (err0 !== null) throw stderr1;
+		var branch_status = checkGitStatus(stdout0);
+		// If stdout is blank, we have nothing to commit
+		if (branch_status == 'clean') {
+			// // Add the trigger as a commit message and push
+			child.exec( sh_commands.deployLastCommit(trigger_commit_msg), function(err1, stdout1, stderr1){
+				if (err1 !== null) {  
+					// Erase the commit that has the trigger because the trigger push didn't go through
+					// This error is usually caused by being behind the remote
+					child.exec( sh_commands.revertToPreviousCommit(), function(err10, stdout10, stderr10){
+						if (err10) throw stderr1 + '\nAND\n' + err10;
+						throw stderr1; 
+					});
+				}
+				console.log('Push successful!'.green, stdout1.trim());
 
-		// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
-		child.exec( sh_commands.scrubLastCommit(current_dir, scrubbed_commit_msg), function(err, stdo, stdr){
-			if (err !== null) throw stdr;
-			console.log('Scrub push successful!'.green, stdo.trim());
-		});
+				// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
+				child.exec( sh_commands.scrubLastCommit(scrubbed_commit_msg), function(err2, stdout2, stderr2){
+					if (err2 !== null) throw stderr2;
+					console.log('Scrub push successful!'.green, stdout2.trim());
+				});
+			});
+		} else {
+			if (branch_status == 'uncommitted') throw 'Error!'.red + ' You have uncommitted changes on this branch.' + ' Please commit and push your changes before attempting to deploy.'.yellow;
+			if (branch_status == 'ahead_and_behind') throw 'Error'.red + ' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.'.yellow;
+			if (branch_status == 'ahead') throw 'Error!'.red + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
+			if (branch_status == 'behind') throw 'Error!'.red + ' Your local branch is behind your remote.' + ' Please pull, merge and push before attempting to deploy.'.yellow;
+		}
 	});
 }
 

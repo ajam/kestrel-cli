@@ -14,11 +14,17 @@ var sh_commands = {
 	archive: function(login_method, account, repo, branches){
 		return 'git push ' + helpers.createRemoteUrl(login_method, account, repo) + ' ' + branches;
 	},
-	deployLastCommit: function(repo, trigger_commit_msg){
-		return 'cd ' + repo + ' && git commit -m "' + trigger_commit_msg + '" --allow-empty && git push origin master'
+	status: function(){
+		return 'git status -sb';
 	},
-	scrubLastCommit: function(repo, scrubbed_commit_msg){
-		return 'cd ' + repo + ' && git commit --amend -m "' + scrubbed_commit_msg + '" --allow-empty && git push origin master -f'
+	revertToPreviousCommit: function(){
+		return 'git reset --soft \'HEAD^\'';
+	},
+	deployLastCommit: function(trigger_commit_msg){
+		return 'git commit -m "' + trigger_commit_msg + '" --allow-empty && git push origin master'
+	},
+	scrubLastCommit: function(scrubbed_commit_msg){
+		return 'git commit --amend -m "' + scrubbed_commit_msg + '" --allow-empty && git push origin master -f'
 	}
 }
 
