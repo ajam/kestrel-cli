@@ -11,6 +11,12 @@ A command-line tool for staging and deploying static files with [Kestrel Server]
 npm install kestrel-cli -g
 ````
 
+Note: You might have to run this as root user. To do that, simply begin the above command with `sudo` and then enter your password at the prompt. All together:
+
+````
+sudo npm install kestrel-cli -g
+````
+
 ## Usage
 
 ````
@@ -39,6 +45,8 @@ Run:
 ````
 npm update kestrel-cli -g
 ````
+
+Like the command above, this might need to be run with `sudo`.
 
 #### A note on deploying
 
