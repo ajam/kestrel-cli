@@ -32,6 +32,24 @@ Options:
 
 ````
 
+## Updating
+
+Run:
+
+````
+npm update kestrel-cli -g
+````
+
 #### A note on deploying
 
-Deploying will create an empty commit with your trigger as the message and push it to `origin master`. Then, it will run `git commit --ammend -m "::published:(sync|hard)" --allow-empty" && git push origin master --force` to scrub your triggers from the commit history.
+Deploying will create an empty commit with your trigger as the message and push it to `origin master` with the following structure:
+
+````
+Push successful! [master f4i90s3] <environment>::<sync-trigger>::<local-path>::<remote-path>
+````
+
+An example would look like:
+
+````
+Push successful! [master 1f01c80] prod::my-secret-password::my-project-folder::2014/my-project-folder
+````
