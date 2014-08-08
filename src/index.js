@@ -104,7 +104,10 @@ function checkGitStatus(gitStatus){
 	if (gitStatus.split('\n').length > 1) return 'uncommitted';
 	// If the status has the word ahead and behind then we have to pull and push
 	if (ahead_regex.exec(gitStatus) && behind_regex.exec(gitStatus)) return 'ahead_and_behind';
-	if (ahead_regex.exec(gitStatus)) return 'ahead';
+	// Allow for deployment if we are ahead
+	if (ahead_regex.exec(gitStatus)) return 'clean';
+	// if (ahead_regex.exec(gitStatus)) return 'ahead';
+	// Don't allow for deployment if we are behind. This condition will rarely be triggered and will also be caught by git itself when your push fails
 	if (behind_regex.exec(gitStatus)) return 'behind';
 	return 'clean';
 }
@@ -135,16 +138,18 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 				}
 				console.log('Push successful!'.green, stdout1.trim());
 
+				// EDIT: Let's get rid of the scrub push, it's bad practice and it adds an extra push that the server has to respond to.
 				// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
-				child.exec( sh_commands.scrubLastCommit(scrubbed_commit_msg), function(err2, stdout2, stderr2){
-					if (err2 !== null) throw stderr2;
-					console.log('Scrub push successful!'.green, stdout2.trim());
-				});
+				// child.exec( sh_commands.scrubLastCommit(scrubbed_commit_msg), function(err2, stdout2, stderr2){
+				// 	if (err2 !== null) throw stderr2;
+				// 	console.log('Scrub push successful!'.green, stdout2.trim());
+				// });
 			});
 		} else {
 			if (branch_status == 'uncommitted') throw 'Error!'.red + ' You have uncommitted changes on this branch.' + ' Please commit and push your changes before attempting to deploy.'.yellow;
 			if (branch_status == 'ahead_and_behind') throw 'Error'.red + ' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.'.yellow;
-			if (branch_status == 'ahead') throw 'Error!'.red + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
+			// EDIT: It's okay if they haven't push their commits. Like the edit above to the scrub push, removing this step will result in fewer pushes for the server to respond to.
+			// if (branch_status == 'ahead') throw 'Error!'.red + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
 			if (branch_status == 'behind') throw 'Error!'.red + ' Your local branch is behind your remote.' + ' Please pull, merge and push before attempting to deploy.'.yellow;
 		}
 	});

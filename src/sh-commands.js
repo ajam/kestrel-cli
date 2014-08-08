@@ -22,10 +22,10 @@ var sh_commands = {
 	},
 	deployLastCommit: function(trigger_commit_msg){
 		return 'git commit -m "' + trigger_commit_msg + '" --allow-empty && git push origin master'
-	},
-	scrubLastCommit: function(scrubbed_commit_msg){
-		return 'git commit --amend -m "' + scrubbed_commit_msg + '" --allow-empty && git push origin master -f'
 	}
+	//,scrubLastCommit: function(scrubbed_commit_msg){
+	// 	return 'git commit --amend -m "' + scrubbed_commit_msg + '" --allow-empty && git push origin master -f'
+	// }
 }
 
 module.exports = sh_commands;
