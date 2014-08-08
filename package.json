@@ -1,6 +1,6 @@
 {
   "name": "kestrel-cli",
-  "version": "0.5.1",
+  "version": "0.5.0",
   "description": "A command-line tool for staging, hosting and deploying static files To be used with http://github.com/mhkeller/kestrel.",
   "main": "./src/index.js",
   "scripts": {

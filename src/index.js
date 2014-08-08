@@ -148,7 +148,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 		} else {
 			if (branch_status == 'uncommitted') throw 'Error!'.red + ' You have uncommitted changes on this branch.' + ' Please commit and push your changes before attempting to deploy.'.yellow;
 			if (branch_status == 'ahead_and_behind') throw 'Error'.red + ' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.'.yellow;
-			// EDIT: It's okay if they haven't push their commits. Like the edit above to the scrub push, removing this step will result in fewer pushes for the server to respond to.
+			// EDIT: It's okay if they haven't push their commits. Like the edit above to the scrub push, removing this step will result in fewer pushes for the server to respond to. This alert is currently not being triggered because the branch status no longer as a condition where it is set to ahead.
 			// if (branch_status == 'ahead') throw 'Error!'.red + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
 			if (branch_status == 'behind') throw 'Error!'.red + ' Your local branch is behind your remote.' + ' Please pull, merge and push before attempting to deploy.'.yellow;
 		}
