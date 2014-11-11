@@ -23,7 +23,6 @@
   "dependencies": {
     "optimist": "~0.6.1",
     "octonode": "~0.6.0",
-    "execSync": "~1.0.1-pre",
     "config-tree": "~0.2.1",
     "promzard": "~0.2.1",
     "read": "~1.0.5",

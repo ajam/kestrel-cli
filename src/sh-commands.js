@@ -15,7 +15,7 @@ var sh_commands = {
 		return 'git push ' + helpers.createRemoteUrl(login_method, account, repo) + ' ' + branches;
 	},
 	status: function(){
-		return 'git status -sb';
+		return 'git status -s';
 	},
 	revertToPreviousCommit: function(){
 		return 'git reset --soft \'HEAD^\'';

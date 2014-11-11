@@ -1,16 +1,19 @@
 #!/usr/bin/env node
-var fs        = require('fs'),
-    main_lib  = require('../src/index.js'),
-    optimist  = require('optimist'),
-    path      = require('path'),
-    promzard  = require('promzard'),
-    read      = require('read'),
-    colors    = require('colors');
+var fs          = require('fs'),
+    main_lib    = require('../src/index.js'),
+    optimist    = require('optimist'),
+    path        = require('path'),
+    promzard    = require('promzard'),
+    read        = require('read'),
+    colors      = require('colors'),
+    child       = require('child_process'),
+    sh_commands = require('../src/sh-commands.js');
 
 var prompts = {
   deploy: require.resolve('./deploy-prompts.js'),
   archive: require.resolve('./archive-prompts.js')
-}
+};
+
 var commands = ['config', 'init', 'deploy', 'hook', 'archive'];
 var config;
 
@@ -138,10 +141,21 @@ var command = argv['_'],
     branches = argv['b'] || argv['branches'];
 
 // If we aren't configuring the library, make sure it already has a config file and load it.
-if (command != 'config') config = main_lib.setConfig();
+if (command != 'config') {
+  config = main_lib.setConfig();
+}
 
 if (command == 'deploy'){
-  deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
+  // Check if we have a clean working tree before allowing to deploy
+  child.exec('[[ -z $('+sh_commands.status()+') ]]', function(err, noCommits){
+    var stderr;
+    if (noCommits){
+      deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
+    } else {
+      stderr = 'One second... You have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.yellow;
+      console.log(stderr);
+    }
+  })
 } else if (command == 'archive'){
   archive(branches);
 }else{
