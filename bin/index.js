@@ -147,11 +147,11 @@ if (command != 'config') {
 
 if (command == 'deploy'){
   // Check if we have a clean working tree before allowing to deploy
-  child.exec('[[ -z $('+sh_commands.status()+') ]]', function(err, noCommits){
-    console.log(noCommits)
+  child.exec('[[ -z $('+sh_commands.status()+') ]]', function(err, stdout, stderr){
+    console.log(stdout, stderr)
     console.log(sh_commands.status())
     var stderr;
-    if (noCommits){
+    if (!stderr){
       deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
     } else {
       stderr = 'One second... You have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.yellow;
