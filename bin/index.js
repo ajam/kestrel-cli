@@ -149,11 +149,10 @@ if (command == 'deploy'){
   // Check if we have a clean working tree before allowing to deploy
   child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
     var stderr;
-    console.log(stdout)
     if (!stdout){
       deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
     } else {
-      stderr = 'One second... You have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.yellow;
+      stderr = 'One second...\nYou have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.inverse.blue;
       console.log(stderr);
     }
   })
