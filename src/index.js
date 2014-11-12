@@ -72,7 +72,7 @@ function initAll(){
 	setConfig(true);
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir, function(err1, stdout, stderr){
-		(err1) ? console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin ' + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1] + '`') : console.log('Step 1/3: Git init\'ed and origin set!'.green);
+		(err1) ? console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`') : console.log('Step 1/3: Git init\'ed and origin set!'.green);
 		
 		createGitHubRepo(current_dir, function(err2, response){
 			(err2) ? console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'\nStated reason:', err2.message) : console.log('Step 2/3: GitHub repo created!'.green);
@@ -126,7 +126,8 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 		var branch_status = checkGitStatus(stdout0);
 		// If stdout is blank, we have nothing to commit
 		if (branch_status == 'clean') {
-			// // Add the trigger as a commit message and push
+			// Add the trigger as a commit message and push
+			console.log('Pushing to GitHub...'.blue.inverse, 'Please wait...');
 			child.exec( sh_commands.deployLastCommit(trigger_commit_msg), function(err1, stdout1, stderr1){
 				if (err1 !== null) {  
 					// Erase the commit that has the trigger because the trigger push didn't go through
@@ -135,15 +136,10 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						if (err10) throw stderr1 + '\nAND\n' + err10;
 						throw stderr1; 
 					});
+				} else {
+					console.log('Push successful!'.green, stdout1.trim());
 				}
-				console.log('Push successful!'.green, stdout1.trim());
 
-				// EDIT: Let's get rid of the scrub push, it's bad practice and it adds an extra push that the server has to respond to.
-				// Replace the trigger in the commit message with a scrubbed message saying that it was published and with what message
-				// child.exec( sh_commands.scrubLastCommit(scrubbed_commit_msg), function(err2, stdout2, stderr2){
-				// 	if (err2 !== null) throw stderr2;
-				// 	console.log('Scrub push successful!'.green, stdout2.trim());
-				// });
 			});
 		} else {
 			if (branch_status == 'uncommitted') throw 'Error!'.red + ' You have uncommitted changes on this branch.' + ' Please commit your changes before attempting to deploy.'.yellow;
@@ -159,6 +155,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 function addToArchive(branches){
   setConfig(true);
   var repo_name = path.basename(path.resolve('./'));
+	console.log('Pushing to GitHub...'.blue.inverse, 'Please wait...');
 	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
 		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
 	});
