@@ -98,18 +98,23 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path){
 function promptFor(target){
   promzard(prompts[target], function (er, data) {
 
-    console.log(JSON.stringify(data, null, 2) + '\n');
-    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
-      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
-        console.log('Aborted.');
-      } else {
-        if (target == 'deploy') {
-          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path);
-        } else if (target == 'archive'){
-          archive(data.branches);
-        }
-      }
-    })
+  	if (data){
+	    console.log(JSON.stringify(data, null, 2) + '\n');
+	    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
+	      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
+	        console.log('\n\nDeploy aborted.'.red);
+	      } else {
+	        if (target == 'deploy') {
+	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path);
+	        } else if (target == 'archive'){
+	          archive(data.branches);
+	        }
+	      }
+	    })
+  	} else {
+  		console.log('\n\nDeploy aborted.'.red);
+  	}
+
   });
 }
 
