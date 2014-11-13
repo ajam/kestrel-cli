@@ -7,7 +7,8 @@ var fs          = require('fs'),
     read        = require('read'),
     colors      = require('colors'),
     child       = require('child_process'),
-    sh_commands = require('../src/sh-commands.js');
+    sh_commands = require('../src/sh-commands.js'),
+    moment			= require('moment-timezone');
 
 var prompts = {
   deploy: require.resolve('./deploy-prompts.js'),
@@ -74,24 +75,66 @@ function getSubDir(dict){
   return dict['d'] || dict['dir'] || undefined;
 }
 
-function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path){
+function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, when){
   // Check trigger info
-  if (trigger_type != 'sync' && trigger_type != 'hard') throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
+  if (trigger_type != 'sync' && trigger_type != 'hard') {
+  	throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
+  }
   var triggers = {
     sync: config.server.sync_deploy_trigger,
     hard: config.server.hard_deploy.trigger
   }
   // If you're trying to deploy hard and it hasnt been set...
-  if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) throw 'Error: Hard deploy isn\'t enabled!'.red
+  if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) {
+  	throw 'Error: Hard deploy isn\'t enabled!'.red;
+  }
   // Make sure it matches what you specified
-  if (trigger != triggers[trigger_type]) throw 'Error: Trigger incorrect!'.red;
+  if (trigger != triggers[trigger_type]) {
+  	throw 'Error: Trigger incorrect!'.red;
+  }
 
   // Make sure your sub-directory exists
-  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path
-  if ( !fs.existsSync(full_local_path) ) throw 'Error:'.red + ' Local directory `' + local_path.yellow + '` does not exist.' 
+  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
+  if ( !fs.existsSync(full_local_path) ) {
+  	throw 'Error:'.red + ' Local directory `' + local_path.yellow + '` does not exist.'.red;
+  }
   
   // Make sure you specified a bucket environment
-  if (bucket_environment != 'prod' && bucket_environment != 'staging') throw 'Error: Bucket environment must be either `prod` or `staging`.'.red
+  if (bucket_environment != 'prod' && bucket_environment != 'staging') {
+  	throw 'Error: Bucket environment must be either `prod` or `staging`.'.red;
+  }
+  
+  // Make sure your date is a proper date, unless it's `now`
+	var test_date,
+			test_date_string,
+			test_date_parts,
+			test_time_parts;
+
+	if (when != 'now'){
+		test_date = new Date(when);
+		test_date_string = test_date.toString();
+		if (test_date_string === 'Invalid Date'){
+			throw 'Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format'.red;
+		} else {
+			test_date_parts = when.split('T');
+			if (test_date_parts[0].length != 10){
+				throw 'Error: Publish date must be in YYYY-MM-DD format.'.red;
+			}
+			test_time_parts = test_date_parts[1].split(':');
+			if (test_time_parts.length != 2){
+				throw 'Error: Time must be 24 hour, separated by a colon'.red
+			}
+			test_time_parts.forEach(function(timePart){
+				if (+timePart < 10 && timePart.length < 1){
+					throw 'Error: Time in publish date must be zero-padded, e.g. 05:00'.red
+				}
+			});
+			var now = new moment().tz(config.timezone);
+			if (test_date < now){
+				throw 'Error: It appears your publish date is in the past.'.red
+			}
+		}
+	}
   return true;
 }
 
@@ -105,7 +148,7 @@ function promptFor(target){
 	        console.log('\n\nDeploy aborted.'.red);
 	      } else {
 	        if (target == 'deploy') {
-	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path);
+	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
 	        } else if (target == 'archive'){
 	          archive(data.branches);
 	        }
@@ -118,13 +161,13 @@ function promptFor(target){
   });
 }
 
-function deploy(bucket_environment, trigger_type, trigger, local_path, remote_path){
+function deploy(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && !trigger) {
     promptFor('deploy');
   } else {
-    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, local_path) ) {
-      main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path);
+    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, when) ) {
+      main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
     }
   }
 }

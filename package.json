@@ -21,11 +21,12 @@
   },
   "homepage": "https://github.com/mhkeller/kestrel-cli",
   "dependencies": {
-    "optimist": "~0.6.1",
-    "octonode": "~0.6.0",
+    "colors": "~0.6.2",
     "config-tree": "~0.2.1",
+    "moment-timezone": "^0.2.5",
+    "octonode": "~0.6.0",
+    "optimist": "~0.6.1",
     "promzard": "~0.2.1",
-    "read": "~1.0.5",
-    "colors": "~0.6.2"
+    "read": "~1.0.5"
   }
 }

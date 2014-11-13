@@ -19,5 +19,6 @@
   },
 	"archive": {
 		"repo_name": "archive"
-	}
+	},
+	"timezone": "US/Eastern"
 }

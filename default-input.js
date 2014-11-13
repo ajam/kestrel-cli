@@ -45,3 +45,5 @@ exports.server.hard_deploy.trigger = function(cb){
 exports.publishing.remote_path = prompt('Default S3 folder to publish into', package.publishing.remote_path);
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
+
+exports.timezone = prompt('What timezone are you in?', package.timezone);

@@ -111,12 +111,11 @@ function checkGitStatus(gitStatus){
 	if (behind_regex.exec(gitStatus)) return 'behind';
 	return 'clean';
 }
-function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path){
+function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
   setConfig(true);
 	var current_dir   = path.resolve('./');
 
-	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path,
-			scrubbed_commit_msg = '::published:' + bucket_environment + ':' + trigger_type + '::';
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when;
 
 	// Make sure the working branch has no outstanding commits and is neither ahead or behind
 	// Normally outstanding commits wouldn't be a problem, but the push flag allows for an empty commit
