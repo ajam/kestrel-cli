@@ -13,6 +13,6 @@ module.exports = {
   "local_path": prompt("Deploy directory... e.g. `" + repo_name + "/output`", repo_name),
   "remote_path": prompt("to directory... e.g. `" + config.publishing.remote_path + "/" + repo_name + "/audio`", config.publishing.remote_path + "/" + repo_name),
   "when": prompt("When? e.g. `1970-01-01 13:00`", "now", function(response){
-  	return response.trim().replace(/ /g, 'T');
+  	return response.trim();
   })
  }

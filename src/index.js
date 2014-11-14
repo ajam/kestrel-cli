@@ -115,7 +115,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
   setConfig(true);
 	var current_dir   = path.resolve('./');
 
-	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when;
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when.replace(/ /g,'T');
 
 	// Make sure the working branch has no outstanding commits and is neither ahead or behind
 	// Normally outstanding commits wouldn't be a problem, but the push flag allows for an empty commit
