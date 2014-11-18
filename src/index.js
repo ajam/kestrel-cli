@@ -122,24 +122,44 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 	// So if we had untracked or uncommitted files, it would just push the last commit.
 	child.exec( sh_commands.status(), function(err0, stdout0, stderr0){
 		if (err0 !== null) throw stderr1;
-		var branch_status = checkGitStatus(stdout0);
+		var branch_status = checkGitStatus(stdout0),
+				push,
+				erred_out = false,
+				spawnPush = sh_commands.spawnPush();
+
 		// If stdout is blank, we have nothing to commit
 		if (branch_status == 'clean') {
 			// Add the trigger as a commit message and push
-			console.log('Pushing to GitHub...'.blue.inverse, 'Please wait...');
-			child.exec( sh_commands.deployLastCommit(trigger_commit_msg), function(err1, stdout1, stderr1){
-				if (err1 !== null) {  
-					// Erase the commit that has the trigger because the trigger push didn't go through
-					// This error is usually caused by being behind the remote
-					child.exec( sh_commands.revertToPreviousCommit(), function(err10, stdout10, stderr10){
-						if (err10) throw stderr1 + '\nAND\n' + err10;
-						throw stderr1; 
-					});
+			console.log('Pushing to GitHub...'.blue.inverse);
+			child.exec( sh_commands.makeEmptyCommitMsg(trigger_commit_msg), function(err1, stdout1, stderr1){
+				if (!err1){
+					push = child.spawn( spawnPush[0], spawnPush[1], {stdio: 'inherit'} );
 				} else {
-					console.log('Push successful!'.green, stdout1.trim());
+					console.log('Error commiting!'.red);
 				}
 
+				// When done
+				push.on('close', function(code){
+					if (code != 0){
+						// On error, erase the commit that has the trigger because the trigger push didn't go through
+						child.exec( sh_commands.revertToPreviousCommit(), function(err2, stdout2, stderr2){
+							if (err2) {
+								console.log('Error pushing AND error scrubbing the push commit. You might want to grab the SHA of the last commit you made and run `git rest --soft INSERT-SHA-HERE` in order to manually remove Kestrel\'s deploy commit.'.red);
+								console.log('Once you do that, please check our internet connection and try again'.yellow);
+								throw stderr2 + '\nAND\n' + err2;
+							} else {
+								console.log('Push failed. Please try again. Error code: '.red + code.toString().red);
+								console.log('If your error is 128, `fatal: unable to access` your internet connection might simply be down.'.yellow);
+							}
+						});
+					} else {
+						// Otherwise, things went great!
+						console.log('Push finished successfully!'.green);
+					}
+				});
 			});
+
+
 		} else {
 			if (branch_status == 'uncommitted') throw 'Error!'.red + ' You have uncommitted changes on this branch.' + ' Please commit your changes before attempting to deploy.'.yellow;
 			if (branch_status == 'ahead_and_behind') throw 'Error'.red + ' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.'.yellow;
@@ -153,11 +173,18 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 /*    C R E A T E  A R C H I V E  B R A N C H   */
 function addToArchive(branches){
   setConfig(true);
-  var repo_name = path.basename(path.resolve('./'));
-	console.log('Pushing to GitHub...'.blue.inverse, 'Please wait...');
-	child.exec( sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches), function(err, stdout, stderr){
-		(err) ? console.log('Archive failed!'.red, 'Stated reason:' + err.message) : console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + ' `archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
-	});
+  var repo_name = path.basename(path.resolve('./')),
+  		archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches);
+	console.log('Pushing to GitHub...'.blue.inverse);
+	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
+	  .on('close', function(code){
+	  	if (code != 0){
+				console.log('Archive failed. Please try again. Error code: '.red + code.toString().red);
+				console.log('If your error is 128, `fatal: unable to access` your internet connection might simply be down.'.yellow);
+	  	} else {
+	  		console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + '` archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
+	  	}
+	  })
 }
 
 function reportError(err, msg){

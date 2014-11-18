@@ -23,6 +23,7 @@
   "dependencies": {
     "colors": "~0.6.2",
     "config-tree": "~0.2.1",
+    "execSync": "^1.0.2",
     "moment-timezone": "^0.2.5",
     "octonode": "~0.6.0",
     "optimist": "~0.6.1",

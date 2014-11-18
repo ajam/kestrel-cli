@@ -12,7 +12,7 @@ var sh_commands = {
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
 	},
 	archive: function(login_method, account, repo, branches){
-		return 'git push ' + helpers.createRemoteUrl(login_method, account, repo) + ' ' + branches;
+		return ['git', ['push', helpers.createRemoteUrl(login_method, account, repo), branches] ];
 	},
 	status: function(){
 		return 'git status -sb';
@@ -23,8 +23,11 @@ var sh_commands = {
 	revertToPreviousCommit: function(){
 		return 'git reset --soft \'HEAD^\'';
 	},
-	deployLastCommit: function(trigger_commit_msg){
-		return 'git commit -m "' + trigger_commit_msg + '" --allow-empty && git push origin master'
+	makeEmptyCommitMsg: function(trigger_commit_msg){
+		return 'git commit -m "' + trigger_commit_msg + '" --allow-empty';
+	},
+	spawnPush: function(){
+		return ['git', ['push', 'origin', 'master']];
 	}
 }
 

@@ -116,7 +116,7 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
 		if (test_date_string === 'Invalid Date'){
 			throw 'Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format'.red;
 		} else {
-			test_date_parts = when.split('T');
+			test_date_parts = when.split(' ');
 			if (test_date_parts[0].length != 10){
 				throw 'Error: Publish date must be in YYYY-MM-DD format.'.red;
 			}

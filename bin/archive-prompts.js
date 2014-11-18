@@ -6,6 +6,8 @@ var current_year = new Date().getFullYear(),
 // Grab the current branch
 var branch = sh.exec('git rev-parse --abbrev-ref HEAD').stdout.trim();
 
+console.log('branch')
+
 module.exports = {
   "branches": prompt("What branch to archive and under what name?",  branch + ":" + current_year + '_' + repo_name )
  }
