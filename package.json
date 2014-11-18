@@ -1,7 +1,7 @@
 {
   "name": "kestrel-cli",
-  "version": "0.7.0",
-  "description": "A command-line tool for staging, hosting and deploying static files To be used with http://github.com/mhkeller/kestrel.",
+  "version": "0.8.0",
+  "description": "The command-line tool interface for Kestrel — a tool for staging, hosting and deploying static files. Use in conjuntion with: http://github.com/mhkeller/kestrel.",
   "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
