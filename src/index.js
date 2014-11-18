@@ -154,7 +154,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						});
 					} else {
 						// Otherwise, things went great!
-						console.log('Push finished successfully!'.green);
+						console.log('Push successful!'.green);
 					}
 				});
 			});
