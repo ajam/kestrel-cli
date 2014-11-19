@@ -12,10 +12,11 @@ var fs          = require('fs'),
 
 var prompts = {
   deploy: require.resolve('./deploy-prompts.js'),
+  unschedule: require.resolve('./unschedule-prompts.js'),
   archive: require.resolve('./archive-prompts.js')
 };
 
-var commands = ['config', 'init', 'deploy', 'hook', 'archive'];
+var commands = ['config', 'init', 'deploy', 'hook', 'archive', 'unschedule'];
 var config;
 
 var argv = optimist
@@ -46,7 +47,7 @@ var argv = optimist
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?';
     if (argv['_'].length > 1) throw 'Please only supply one command.';
-    if (commands.indexOf(argv['_']) != -1) throw 'Your command must be either `config`, `init`, `hook`, `deploy` or `archive`.'
+    if (commands.indexOf(argv['_']) != -1) throw 'Your command must be either `config`, `init`, `hook`, `deploy`, `archive` or `unschedule`.'
   })
   .argv;
 
@@ -83,7 +84,7 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
   var triggers = {
     sync: config.server.sync_deploy_trigger,
     hard: config.server.hard_deploy.trigger
-  }
+  };
   // If you're trying to deploy hard and it hasnt been set...
   if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) {
   	throw 'Error: Hard deploy isn\'t enabled!'.red;
@@ -96,7 +97,7 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
   // Make sure your sub-directory exists
   var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
   if ( !fs.existsSync(full_local_path) ) {
-  	throw 'Error:'.red + ' Local directory `' + local_path.yellow + '` does not exist.'.red;
+  	throw 'Error:'.red + ' Local directory `'.red + local_path.yellow + '` does not exist.'.red;
   }
   
   // Make sure you specified a bucket environment
@@ -138,6 +139,23 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
   return true;
 }
 
+function checkUnscheduleInfo(bucket_environment, trigger, local_path){
+  // Verify they used the sync-trigger
+  var sync_trigger = config.server.sync_deploy_trigger;
+  console.log(sync_trigger, trigger)
+  if (sync_trigger != trigger){
+    throw 'Error: Trigger incorrect!'.red;
+  }
+
+  // Make sure your sub-directory exists
+  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
+  if ( !fs.existsSync(full_local_path) ) {
+    throw 'Error:'.red + ' Local directory `'.red + local_path.yellow + '` does not exist.'.red;
+  }
+
+  return true;
+}
+
 function promptFor(target){
   promzard(prompts[target], function (er, data) {
 
@@ -151,9 +169,11 @@ function promptFor(target){
 	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
 	        } else if (target == 'archive'){
 	          archive(data.branches);
-	        }
+	        } else if (target == 'unschedule'){
+            unschedule(data.bucket_environment, data.trigger, data.local_path);
+          }
 	      }
-	    })
+	    });
   	} else {
   		console.log('\n\nDeploy aborted.'.red);
   	}
@@ -163,11 +183,22 @@ function promptFor(target){
 
 function deploy(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
   // If triggers weren't set through flags, prompt for them
-  if (!trigger_type && !trigger) {
+  if (!trigger_type && trigger === undefined) {
     promptFor('deploy');
   } else {
     if ( checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, when) ) {
       main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
+    }
+  }
+}
+
+function unschedule(bucket_environment, trigger, local_path){
+  // If triggers weren't set through flags, prompt for them
+  if (!trigger_type && trigger === undefined) {
+    promptFor('unschedule');
+  } else {
+    if ( checkUnscheduleInfo(bucket_environment, trigger, local_path) ) {
+      main_lib['unschedule'](bucket_environment, 'sync', trigger, local_path, 'n/a', 'unschedule');
     }
   }
 }
@@ -203,9 +234,11 @@ if (command == 'deploy'){
       stderr = 'One second...\nYou have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.inverse.blue;
       console.log(stderr);
     }
-  })
+  });
 } else if (command == 'archive'){
   archive(branches);
+}else if (command == 'unschedule'){
+  unschedule(bucket_environment, trigger_type, trigger, sub_dir_path);
 }else{
   main_lib[command]();
 }

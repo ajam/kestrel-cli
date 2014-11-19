@@ -187,6 +187,7 @@ function addToArchive(branches){
 	  })
 }
 
+
 function reportError(err, msg){
 	console.log(msg, '\nReason:');
 	throw err;
@@ -198,5 +199,6 @@ module.exports = {
 	init: initAll,
 	deploy: deployLastCommit,
 	hook: initHook,
-	archive: addToArchive
+	archive: addToArchive,
+	unschedule: deployLastCommit
 }
