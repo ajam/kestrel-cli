@@ -26,7 +26,6 @@ Commands:
   deploy	Push your project to S3.
   archive	Make your current project a branch of your archive repo.
   unschedule	Clear a project's scheduled deployments.
-
 ````
 
 ## Updating
