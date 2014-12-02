@@ -139,18 +139,11 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
   return true;
 }
 
-function checkUnscheduleInfo(bucket_environment, trigger, local_path){
+function checkUnscheduleInfo(bucket_environment, trigger){
   // Verify they used the sync-trigger
   var sync_trigger = config.server.sync_deploy_trigger;
-  console.log(sync_trigger, trigger)
   if (sync_trigger != trigger){
     throw 'Error: Trigger incorrect!'.red;
-  }
-
-  // Make sure your sub-directory exists
-  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
-  if ( !fs.existsSync(full_local_path) ) {
-    throw 'Error:'.red + ' Local directory `'.red + local_path.yellow + '` does not exist.'.red;
   }
 
   return true;
@@ -170,7 +163,7 @@ function promptFor(target){
 	        } else if (target == 'archive'){
 	          archive(data.branches);
 	        } else if (target == 'unschedule'){
-            unschedule(data.bucket_environment, data.trigger, data.local_path);
+            unschedule(data.bucket_environment, data.trigger);
           }
 	      }
 	    });
@@ -192,13 +185,13 @@ function deploy(bucket_environment, trigger_type, trigger, local_path, remote_pa
   }
 }
 
-function unschedule(bucket_environment, trigger, local_path){
+function unschedule(bucket_environment, trigger){
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && trigger === undefined) {
     promptFor('unschedule');
   } else {
-    if ( checkUnscheduleInfo(bucket_environment, trigger, local_path) ) {
-      main_lib['unschedule'](bucket_environment, 'sync', trigger, local_path, 'n/a', 'unschedule');
+    if ( checkUnscheduleInfo(bucket_environment, trigger) ) {
+      main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
     }
   }
 }
