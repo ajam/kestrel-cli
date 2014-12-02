@@ -20,7 +20,7 @@ var commands = ['config', 'init', 'deploy', 'hook', 'archive', 'unschedule'];
 var config;
 
 var argv = optimist
-  .usage('Usage: swoop <command>\n\nCommands:\n  config\tConfigure your GitHub account and server settings\n  init\t\tGit init, create GitHub repo + hooks\n  hook\t\tSet up the hook on an existing repo so that the server is notified on commit. Useful for repos that were not created with `init`.\n  deploy\tAdd your deploy trigger as a commit message and push. Specify trigger with options below.\n  archive\tMake your current project a branch of your archives repo. Specify archive repo in config.json and branch names with `-b` or `--branches`')
+  .usage('\nUsage: swoop '+'<command>'.grey+'\nFor normal usage, "ignore the "Options" below.'.red+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+'hook'.yellow+'\t\tSet up the hook on an existing repo so that the server is notified on commit. Useful for repos that were not created with `swoop init`.\n  '+'deploy'.green+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
   .options('help', {
     describe: 'Display help'
   })
@@ -45,7 +45,7 @@ var argv = optimist
     describe: '<current_branch_name>:<new_branch_name>',
   })
   .check(function(argv) {
-    if (!argv['_'].length) throw 'What do you want to do?';
+    if (!argv['_'].length) throw 'What do you want to do?'.cyan+'\n';
     if (argv['_'].length > 1) throw 'Please only supply one command.';
     if (commands.indexOf(argv['_']) != -1) throw 'Your command must be either `config`, `init`, `hook`, `deploy`, `archive` or `unschedule`.'
   })
