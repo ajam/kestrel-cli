@@ -8,7 +8,10 @@ var helpers = {
 	}
 }
 var sh_commands = {
-	init: function(login_method, account, repo){
+	kestrelInit: function(){
+		return 'mkdir .kestrel';
+	},
+	gitInit: function(login_method, account, repo){
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
 	},
 	archive: function(login_method, account, repo, branches){

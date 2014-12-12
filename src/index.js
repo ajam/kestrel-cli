@@ -26,8 +26,11 @@ function setGitHubOrgType(gh_c){
 		return gh_c.me();
 	}
 }
+function kestrelInit(cb){
+	child.exec( sh_commands.kestrelInit(), cb );
+}
 function gitInit(current_dir, cb){
-	child.exec( sh_commands.init(config.github.login_method, config.github.account_name, current_dir), cb );
+	child.exec( sh_commands.gitInit(config.github.login_method, config.github.account_name, current_dir), cb );
 }
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
@@ -71,28 +74,38 @@ function setConfig(set_gh){
 function initAll(){
 	setConfig(true);
 	var current_dir = path.basename(path.resolve('./'));
-	gitInit(current_dir, function(err1, stdout, stderr){
-		if (err1) {
-			console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`');
+	kestrelInit(function(err0, stdout0, stderr1){
+		if (err0){
+			console.log('Step 1/4: Kestrel folder already exists, skipping...'.cyan );
 		} else {
-			console.log('Step 1/3: Git init\'ed and origin set!'.green);
-		} 
-		
-		createGitHubRepo(current_dir, function(err2, response){
-			if (err2) { 
-				console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'\nStated reason:', err2.message);
-			} else {
-				console.log('Step 2/3: GitHub repo created!'.green);
-			}
-			createGitHubHook(current_dir, function(err3){
-				if (err3) { 
-					console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err3.message); 
-				} else {
-					console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
-				}
-			});
+			console.log('Step 1/4: `.kestrel` folder created!'.green);
+		}
 
+		gitInit(current_dir, function(err1, stdout, stderr){
+			if (err1) {
+				console.log('Step 2/4: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`');
+			} else {
+				console.log('Step 2/4: Git init\'ed and origin set!'.green);
+			} 
+			
+			createGitHubRepo(current_dir, function(err2, response){
+				if (err2) { 
+					console.log('Step 3/4: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'\nStated reason:', err2.message);
+				} else {
+					console.log('Step 3/4: GitHub repo created!'.green);
+				}
+
+				createGitHubHook(current_dir, function(err3){
+					if (err3) { 
+						console.log('Step 4/4: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err3.message); 
+					} else {
+						console.log('Step 4/4: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+					}
+				});
+
+			});
 		});
+
 	});
 }
 
