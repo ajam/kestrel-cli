@@ -72,13 +72,24 @@ function initAll(){
 	setConfig(true);
 	var current_dir = path.basename(path.resolve('./'));
 	gitInit(current_dir, function(err1, stdout, stderr){
-		(err1) ? console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`') : console.log('Step 1/3: Git init\'ed and origin set!'.green);
+		if (err1) {
+			console.log('Step 1/3: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`');
+		} else {
+			console.log('Step 1/3: Git init\'ed and origin set!'.green);
+		} 
 		
 		createGitHubRepo(current_dir, function(err2, response){
-			(err2) ? console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'\nStated reason:', err2.message) : console.log('Step 2/3: GitHub repo created!'.green);
-			
+			if (err2) { 
+				console.log('Step 2/3: GitHub repo creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'\nStated reason:', err2.message);
+			} else {
+				console.log('Step 2/3: GitHub repo created!'.green);
+			}
 			createGitHubHook(current_dir, function(err3){
-				(err3) ? console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err3.message) : console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+				if (err3) { 
+					console.log('Step 3/3: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err3.message); 
+				} else {
+					console.log('Step 3/3: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+				}
 			});
 
 		});
