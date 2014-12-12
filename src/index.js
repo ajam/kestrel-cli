@@ -76,7 +76,7 @@ function initAll(){
 	var current_dir = path.basename(path.resolve('./'));
 	kestrelInit(function(err0, stdout0, stderr1){
 		if (err0){
-			console.log('Step 1/4: Kestrel folder already exists, skipping...'.cyan );
+			console.log('Step 1/4: `.kestrel` folder already exists, skipping...'.cyan );
 		} else {
 			console.log('Step 1/4: `.kestrel` folder created!'.green);
 		}
