@@ -218,7 +218,7 @@ if (command != 'config') {
 }
 
 // If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
-if (command == 'deploy' || command == 'archive' || command == 'unschedule') {
+if (command == 'deploy' || command == 'unschedule') {
   // Make sure your sub-directory exists
   var kestrel_path = path.resolve('./') + '/.kestrel'
   if ( !fs.existsSync(kestrel_path) ) {
