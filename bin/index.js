@@ -159,7 +159,7 @@ function promptFor(target){
 	        console.log('\n\nDeploy aborted.'.red);
 	      } else {
 	        if (target == 'deploy') {
-	          // deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
+	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
             writeDeploySettings(data);
 	        } else if (target == 'archive'){
 	          archive(data.branches);

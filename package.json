@@ -28,6 +28,7 @@
     "octonode": "~0.6.0",
     "optimist": "~0.6.1",
     "promzard": "~0.2.1",
-    "read": "~1.0.5"
+    "read": "~1.0.5",
+    "underscore": "^1.7.0"
   }
 }
