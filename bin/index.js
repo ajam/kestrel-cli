@@ -218,9 +218,10 @@ if (command != 'config') {
 }
 
 // If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
+var kestrel_path;
 if (command == 'deploy' || command == 'unschedule') {
   // Make sure your sub-directory exists
-  var kestrel_path = path.resolve('./') + '/.kestrel'
+  kestrel_path = path.resolve('./') + '/.kestrel'
   if ( !fs.existsSync(kestrel_path) ) {
     throw 'Error:'.red + ' You haven\'t initalized Kestrel for this project yet.\n'.red + 'Please run `swoop init` and try again.'.yellow;
   }
