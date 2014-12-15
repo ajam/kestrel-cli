@@ -76,14 +76,14 @@ function initAll(){
 	var current_dir = path.basename(path.resolve('./'));
 	kestrelInit(function(err0, stdout0, stderr1){
 		if (err0){
-			console.log('Step 1/4: `.kestrel` folder already exists, skipping...'.cyan );
+			console.log('Step 1/4: Skipping. .kestrel folder already exists.'.yellow );
 		} else {
 			console.log('Step 1/4: `.kestrel` folder created!'.green);
 		}
 
 		gitInit(current_dir, function(err1, stdout, stderr){
 			if (err1) {
-				console.log('Step 2/4: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.init(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`');
+				console.log('Step 2/4: Warning:'.yellow + ' Git remote origin already set. You should manually run `' + 'git remote set-url origin '.yellow + sh_commands.gitInit(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1].yellow + '`');
 			} else {
 				console.log('Step 2/4: Git init\'ed and origin set!'.green);
 			} 
