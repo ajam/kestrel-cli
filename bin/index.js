@@ -159,7 +159,8 @@ function promptFor(target){
 	        console.log('\n\nDeploy aborted.'.red);
 	      } else {
 	        if (target == 'deploy') {
-	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
+	          // deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
+            writeDeploySettings(data);
 	        } else if (target == 'archive'){
 	          archive(data.branches);
 	        } else if (target == 'unschedule'){
@@ -203,6 +204,14 @@ function archive(branches){
   } else {
     main_lib['archive'](branches);
   }
+}
+
+function writeDeploySettings(deploySettings){
+  // Our path is defined as a global when we check for `init` on `deploy` but get it again in its own namespace to make this function more self-contained.
+  var file_path_and_name = path.resolve('./') + '/.kestrel/deploy-settings.json';
+  // Let's not save the trigger
+  delete deploySettings.trigger;
+  fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings));
 }
 
 var command = argv['_'],

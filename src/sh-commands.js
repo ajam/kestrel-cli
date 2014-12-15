@@ -9,7 +9,7 @@ var helpers = {
 }
 var sh_commands = {
 	kestrelInit: function(){
-		return 'mkdir .kestrel';
+		return 'mkdir .kestrel && touch .kestrel/.gitignore && echo deploy-settings.json > .kestrel/.gitignore';
 	},
 	gitInit: function(login_method, account, repo){
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
