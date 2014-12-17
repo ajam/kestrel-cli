@@ -121,11 +121,16 @@ function initHook(){
 /*    D E P L O Y   C O M M A N D S   */
 function checkGitStatus(gitStatus){
 	gitStatus = gitStatus.trim();
+	// These could also be `.indexOf` and avoid escaping
 	var ahead_regex = new RegExp('ahead'),
-			behind_regex = new RegExp('behind');
+			behind_regex = new RegExp('behind'),
+			deploy_settings_regex = new RegExp('\.kestrel\/deploy-settings\.json'),
+			git_status_lines = gitStatus.split('\n');
 
+	// If it's just two lines and the second line describes a change to `.kestrel/deploy-settings.json` then we're okay.
+	if (git_status_lines.length == 2 && deploy_settings_regex.exec(git_status_lines[1]) ) return 'clean_with_deploy_change';
 	// If the status has more than one line, we have uncommitted changes
-	if (gitStatus.split('\n').length > 1) return 'uncommitted';
+	if (git_status_lines.length > 1) return 'uncommitted';
 	// If the status has the word ahead and behind then we have to pull and push
 	if (ahead_regex.exec(gitStatus) && behind_regex.exec(gitStatus)) return 'ahead_and_behind';
 	// Allow for deployment if we are ahead
@@ -152,7 +157,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 				spawnPush = sh_commands.spawnPush();
 
 		// If stdout is blank, we have nothing to commit
-		if (branch_status == 'clean') {
+		if (branch_status == 'clean' || branch_status == 'clean_with_deploy_change') {
 			// Add the trigger as a commit message and push
 			console.log('Pushing to GitHub...'.blue.inverse);
 			child.exec( sh_commands.makeEmptyCommitMsg(trigger_commit_msg), function(err1, stdout1, stderr1){

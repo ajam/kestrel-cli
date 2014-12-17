@@ -9,7 +9,7 @@ var helpers = {
 }
 var sh_commands = {
 	kestrelInit: function(){
-		return 'mkdir .kestrel && touch .kestrel/.gitignore && echo deploy-settings.json > .kestrel/.gitignore';
+		return 'mkdir .kestrel';
 	},
 	gitInit: function(login_method, account, repo){
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
@@ -27,7 +27,7 @@ var sh_commands = {
 		return 'git reset --soft \'HEAD^\'';
 	},
 	makeEmptyCommitMsg: function(trigger_commit_msg){
-		return 'git commit -m "' + trigger_commit_msg + '" --allow-empty';
+		return 'git add .kestrel/deploy-settings.json && git commit -m "' + trigger_commit_msg + '" --allow-empty';
 	},
 	spawnPush: function(){
 		return ['git', ['push', 'origin', 'master']];
