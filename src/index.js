@@ -124,11 +124,13 @@ function checkGitStatus(gitStatus){
 	// These could also be `.indexOf` and avoid escaping
 	var ahead_regex = new RegExp('ahead'),
 			behind_regex = new RegExp('behind'),
+			kestrel_init_regex = new RegExp('\.kestrel\/'),
 			deploy_settings_regex = new RegExp('\.kestrel\/deploy-settings\.json'),
 			git_status_lines = gitStatus.split('\n');
 
 	// If it's just two lines and the second line describes a change to `.kestrel/deploy-settings.json` then we're okay.
-	if (git_status_lines.length == 2 && deploy_settings_regex.exec(git_status_lines[1]) ) return 'clean_with_deploy_change';
+	// It should also ignore the creation of the `.kestrel` folder
+	if (git_status_lines.length == 2 && ( deploy_settings_regex.exec(git_status_lines[1]) || kestrel_init_regex.exec(git_status_lines[1])) ) return 'clean_with_deploy_change';
 	// If the status has more than one line, we have uncommitted changes
 	if (git_status_lines.length > 1) return 'uncommitted';
 	// If the status has the word ahead and behind then we have to pull and push
