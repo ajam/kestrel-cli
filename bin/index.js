@@ -8,9 +8,10 @@ var fs          = require('fs'),
     colors      = require('colors'),
     child       = require('child_process'),
     sh_commands = require('../src/sh-commands.js'),
-    moment			= require('moment-timezone');
+    moment			= require('moment-timezone')
+    _           = require('underscore');
 
-var prompts = {
+var prompts_dict = {
   deploy: require.resolve('./deploy-prompts.js'),
   unschedule: require.resolve('./unschedule-prompts.js'),
   archive: require.resolve('./archive-prompts.js')
@@ -45,9 +46,14 @@ var argv = optimist
     describe: '<current_branch_name>:<new_branch_name>',
   })
   .check(function(argv) {
-    if (!argv['_'].length) throw 'What do you want to do?'.cyan+'\n';
-    if (argv['_'].length > 1) throw 'ERROR: Please only supply one command.'.red;
-    if (commands.indexOf(argv['_']) == -1) throw 'ERROR: '.red+argv['_'][0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
+    var cmds = argv['_'];
+    if (!argv['_'].length) {
+      throw 'What do you want to do?'.cyan+'\n';
+    } else if (argv['_'].length > 1) {
+      throw 'ERROR: Please only supply one command.'.red;
+    } else if (commands.indexOf(cmds[0]) == -1) {
+      throw 'ERROR: '.red + argv['_'][0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
+    }
   })
   .argv;
 
@@ -65,22 +71,36 @@ if (argv.help) return optimist.showHelp();
 // }
 
 function getBucketEnvironment(dict){
-  return dict['e'] || dict['environment'] || undefined;
+  return dict['e'] || dict['env'] || undefined;
 }
 
 // function getTrigger(dict){
 //   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
 // }
 
-function getBranches(dic){
+function getBranches(dict){
  return dict['b'] || dict['branches'] || undefined;
 }
 
-function getSubDir(dict){
-  return dict['d'] || dict['dir'] || undefined;
+function getLocalPath(dict){
+  return dict['l'] || dict['local'] || undefined;
 }
 
-function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, when){
+function getRemotePath(dict){
+  return dict['r'] || dict['remote'] || undefined;
+}
+
+function getWhen(dict){
+  return dict['w'] || dict['when'] || undefined;
+}
+
+function checkDeployInfo(dplySettings){
+  var bucket_environment = dplySettings.bucket_environment,
+      trigger_type = dplySettings.trigger_type,
+      trigger = dplySettings.trigger,
+      local_path = dplySettings.local_path,
+      when = dplySettings.when;
+
   // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') {
   	throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
@@ -143,7 +163,9 @@ function checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, 
   return true;
 }
 
-function checkUnscheduleInfo(bucket_environment, trigger){
+function checkUnscheduleInfo(dplySettings){
+  var trigger = dplySettings.trigger;
+
   // Verify they used the sync-trigger
   var sync_trigger = config.server.sync_deploy_trigger;
   if (sync_trigger != trigger){
@@ -152,22 +174,27 @@ function checkUnscheduleInfo(bucket_environment, trigger){
   return true;
 }
 
-function promptFor(target){
-  promzard(prompts[target], function (er, data) {
+function pickTruthyKeys(dplySettings){
+  return _.pick(dplySettings, function(val){ return val !== undefined; });
+}
 
+function promptFor(target, dplySettings){
+  var settings_from_flags = pickTruthyKeys(dplySettings);
+
+  promzard(prompts_dict[target], {flaggedSettings: settings_from_flags}, function(er, data) {
   	if (data){
 	    console.log(JSON.stringify(data, null, 2) + '\n');
-	    read({prompt:'Is this ok? ', default: 'yes'}, function (er, ok) {
+	    read({prompt:'Is this ok? '.green, default: 'yes'}, function (er, ok) {
 	      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
 	        console.log('\n\nDeploy aborted.'.red);
 	      } else {
 	        if (target == 'deploy') {
-	          deploy(data.bucket_environment, data.trigger_type, data.trigger, data.local_path, data.remote_path, data.when);
+	          deploy(data);
             writeDeploySettings(data);
 	        } else if (target == 'archive'){
-	          archive(data.branches);
+	          archive(data);
 	        } else if (target == 'unschedule'){
-            unschedule(data.bucket_environment, data.trigger);
+            unschedule(data);
           }
 	      }
 	    });
@@ -178,32 +205,43 @@ function promptFor(target){
   });
 }
 
-function deploy(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
+function deploy(deploySettings){
+  var bucket_environment = deploySettings.bucket_environment,
+      trigger_type = deploySettings.trigger_type,
+      trigger = deploySettings.trigger,
+      local_path = deploySettings.local_path,
+      remote_path = deploySettings.remote_path,
+      when = deploySettings.when;
+
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && trigger === undefined) {
-    promptFor('deploy');
+    promptFor('deploy', deploySettings);
   } else {
-    if ( checkDeployInfo(bucket_environment, trigger_type, trigger, local_path, when) ) {
+    if ( checkDeployInfo(deploySettings) ) {
       main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
     }
   }
 }
 
-function unschedule(bucket_environment, trigger){
+function unschedule(deploySettings){
+  var bucket_environment = deploySettings.bucket_environment,
+      trigger_type = deploySettings.trigger_type,
+      trigger = deploySettings.trigger;
   // If triggers weren't set through flags, prompt for them
   if (!trigger_type && trigger === undefined) {
-    promptFor('unschedule');
+    promptFor('unschedule', deploySettings);
   } else {
-    if ( checkUnscheduleInfo(bucket_environment, trigger) ) {
+    if ( checkUnscheduleInfo(deploySettings) ) {
       main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
     }
   }
 }
 
-function archive(branches){
+function archive(deploySettings){
+  var branches = deploySettings.branches;
   // If branches weren't set through flags, prompt for them
   if (!branches){
-    promptFor('archive');
+    promptFor('archive', deploySettings);
   } else {
     main_lib['archive'](branches);
   }
@@ -218,11 +256,13 @@ function writeDeploySettings(deploySettings){
 }
 
 var command = argv['_'],
-    bucket_environment = getBucketEnvironment(argv),
-    sub_dir_path = getSubDir(argv),
-    branches = getBranches(argv),
-    trigger_type, // This and the trigger will always be requested via the prompt
-    trigger; // But we're declaring them globally here
+    deploy_settings = {
+      bucket_environment: getBucketEnvironment(argv),
+      local_path: getLocalPath(argv),
+      remote_path: getRemotePath(argv),
+      branches: getBranches(argv),
+      when: getWhen(argv)
+    };
 
 // If we aren't configuring the library, make sure it already has a config file and load it.
 if (command != 'config') {
@@ -244,7 +284,7 @@ if (command == 'deploy'){
   child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
     var stderr;
     if (!stdout){
-      deploy(bucket_environment, trigger_type, trigger, sub_dir_path);
+      deploy(deploy_settings);
     } else {
       stderr = 'One second...\nYou have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.inverse.blue;
       console.log(stderr);
@@ -253,7 +293,7 @@ if (command == 'deploy'){
 } else if (command == 'archive'){
   archive(branches);
 }else if (command == 'unschedule'){
-  unschedule(bucket_environment, trigger_type, trigger, sub_dir_path);
+  unschedule(deploy_settings);
 }else{
   main_lib[command]();
 }

@@ -28,13 +28,18 @@ var default_deploy = {
 
 _.extend(default_deploy, readDeploySettings());
 
-module.exports = {
+var prompts = {
   "bucket_environment": prompt("Deploy to `staging` or `prod`?", default_deploy.bucket_environment),
   "trigger_type": prompt("Deploy method (sync/hard)?", default_deploy.trigger_type),
   "trigger": prompt("Trigger?"),
-  "local_path": prompt("Deploy directory...", default_deploy.local_path),
-  "remote_path": prompt("to directory...", default_deploy.remote_path),
+  "local_path": prompt("Deploy from directory", default_deploy.local_path),
+  "remote_path": prompt("to directory", default_deploy.remote_path),
   "when": prompt("When? e.g. `2015-01-01 13:00`", default_deploy.when, function(response){
-  	return response.trim();
+    return response.trim();
   })
- }
+ };
+
+// Add what we've set through flags
+_.extend(prompts, this.flaggedSettings);
+
+module.exports = prompts;
