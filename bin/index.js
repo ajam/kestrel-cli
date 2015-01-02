@@ -64,6 +64,10 @@ function getBucketEnvironment(dict){
 //   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
 // }
 
+function getBranches(dic){
+ return dict['b'] || dict['branches'] || undefined;
+}
+
 function getSubDir(dict){
   return dict['d'] || dict['dir'] || undefined;
 }
@@ -137,7 +141,6 @@ function checkUnscheduleInfo(bucket_environment, trigger){
   if (sync_trigger != trigger){
     throw 'Error: Trigger incorrect!'.red;
   }
-
   return true;
 }
 
@@ -208,10 +211,10 @@ function writeDeploySettings(deploySettings){
 
 var command = argv['_'],
     bucket_environment = getBucketEnvironment(argv),
-    trigger_type = null,
-    trigger = null,
     sub_dir_path = getSubDir(argv),
-    branches = argv['b'] || argv['branches'];
+    branches = getBranches(argv),
+    trigger_type, // This and the trigger will always be requested via the prompt
+    trigger; // But we're declaring them globally here
 
 // If we aren't configuring the library, make sure it already has a config file and load it.
 if (command != 'config') {
