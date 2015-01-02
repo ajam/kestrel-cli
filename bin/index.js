@@ -26,11 +26,19 @@ var argv = optimist
   })
   .options('e', {
     alias: 'env',
-    describe: 'Staging or production environment.',
+    describe: '`staging` or `prod` environment.',
   })
-  .options('d', {
-    alias: 'dir',
-    describe: 'Deploy a sub-directory of this repo.',
+  .options('l', {
+    alias: 'local',
+    describe: 'The local path to deploy from.',
+  })
+  .options('r', {
+    alias: 'remote',
+    describe: 'The remote path to deploy to.',
+  })
+  .options('w', {
+    alias: 'when',
+    describe: 'Time to schedule a deploy in YYYY-MM-DD HH:MM format, 24-hour clock.',
   })
   .options('b', {
     alias: 'branches',
