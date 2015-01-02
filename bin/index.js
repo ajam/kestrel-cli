@@ -16,25 +16,17 @@ var prompts = {
   archive: require.resolve('./archive-prompts.js')
 };
 
-var commands = ['config', 'init', 'deploy', 'hook', 'archive', 'unschedule'];
+var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
 var config;
 
 var argv = optimist
-  .usage('\nUsage: swoop '+'<command>'.grey+'\nFor normal usage, "ignore the "Options" below.'.red+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+'hook'.yellow+'\t\tSet up the hook on an existing repo so that the server is notified on commit. Useful for repos that were not created with `swoop init`.\n  '+'deploy'.green+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
+  .usage('\nUsage: swoop '+'<command>'.grey+'\nFor normal usage, "ignore the "Options" below.'.red+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+'deploy'.green+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
   .options('help', {
     describe: 'Display help'
   })
   .options('e', {
-    alias: 'environment',
+    alias: 'env',
     describe: 'Staging or production environment.',
-  })
-  .options('s', {
-    alias: 'sync-trigger',
-    describe: 'Sync deploy trigger for pubishing to S3.',
-  })
-  .options('h', {
-    alias: 'hard-trigger',
-    describe: 'Hard deploy trigger for pubishing to S3.',
   })
   .options('d', {
     alias: 'dir',
@@ -46,31 +38,31 @@ var argv = optimist
   })
   .check(function(argv) {
     if (!argv['_'].length) throw 'What do you want to do?'.cyan+'\n';
-    if (argv['_'].length > 1) throw 'Please only supply one command.';
-    if (commands.indexOf(argv['_']) != -1) throw 'Your command must be either `config`, `init`, `hook`, `deploy`, `archive` or `unschedule`.'
+    if (argv['_'].length > 1) throw 'ERROR: Please only supply one command.'.red;
+    if (commands.indexOf(argv['_']) == -1) throw 'ERROR: '.red+argv['_'][0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
   })
   .argv;
 
 if (argv.help) return optimist.showHelp();
 
 
-function getTriggerType(dict){
-  if (argv['s'] || argv['sync-trigger']){
-    return 'sync';
-  } else if (argv['h'] || argv['hard-trigger']) {
-    return 'hard';
-  } else {
-    return undefined;
-  }
-}
+// function getTriggerType(dict){
+//   if (argv['s'] || argv['sync-trigger']){
+//     return 'sync';
+//   } else if (argv['h'] || argv['hard-trigger']) {
+//     return 'hard';
+//   } else {
+//     return undefined;
+//   }
+// }
 
 function getBucketEnvironment(dict){
   return dict['e'] || dict['environment'] || undefined;
 }
 
-function getTrigger(dict){
-  return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
-}
+// function getTrigger(dict){
+//   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
+// }
 
 function getSubDir(dict){
   return dict['d'] || dict['dir'] || undefined;
@@ -216,8 +208,8 @@ function writeDeploySettings(deploySettings){
 
 var command = argv['_'],
     bucket_environment = getBucketEnvironment(argv),
-    trigger_type = getTriggerType(argv),
-    trigger = getTrigger(argv),
+    trigger_type = null,
+    trigger = null,
     sub_dir_path = getSubDir(argv),
     branches = argv['b'] || argv['branches'];
 

@@ -109,13 +109,13 @@ function initAll(){
 	});
 }
 
-function initHook(){
-	setConfig(true);
-	var current_dir = path.basename(path.resolve('./'));
-	createGitHubHook(current_dir, function(err){
-		(err) ? console.log('Step 1/1: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err.message) : console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
-	});
-}
+// function initHook(){
+// 	setConfig(true);
+// 	var current_dir = path.basename(path.resolve('./'));
+// 	createGitHubHook(current_dir, function(err){
+// 		(err) ? console.log('Step 1/1: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err.message) : console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
+// 	});
+// }
 
 
 /*    D E P L O Y   C O M M A N D S   */
@@ -229,7 +229,6 @@ module.exports = {
 	config: configClient,
 	init: initAll,
 	deploy: deployLastCommit,
-	hook: initHook,
 	archive: addToArchive,
 	unschedule: deployLastCommit
 }
