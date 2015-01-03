@@ -29,6 +29,10 @@ var argv = optimist
     alias: 'env',
     describe: '`staging` or `prod` environment.',
   })
+  .options('m', {
+    alias: 'method',
+    describe: '`sync` or `hard` deploy method.',
+  })
   .options('l', {
     alias: 'local',
     describe: 'The local path to deploy from.',
@@ -59,24 +63,13 @@ var argv = optimist
 
 if (argv.help) return optimist.showHelp();
 
-
-// function getTriggerType(dict){
-//   if (argv['s'] || argv['sync-trigger']){
-//     return 'sync';
-//   } else if (argv['h'] || argv['hard-trigger']) {
-//     return 'hard';
-//   } else {
-//     return undefined;
-//   }
-// }
-
 function getBucketEnvironment(dict){
   return dict['e'] || dict['env'] || undefined;
 }
 
-// function getTrigger(dict){
-//   return dict['s'] || dict['sync-trigger'] || dict['h'] || dict['hard-trigger'] || undefined;
-// }
+function getTriggerType(dict){
+  return dict['m'] || dict['method'] || undefined;
+}
 
 function getBranches(dict){
  return dict['b'] || dict['branches'] || undefined;
@@ -91,7 +84,11 @@ function getRemotePath(dict){
 }
 
 function getWhen(dict){
-  return dict['w'] || dict['when'] || undefined;
+  var when = dict['w'] || dict['when'] || undefined;
+  if (when){
+  	when = when.replace('_', ' '); // When added through flags there is a `_` separator. Let's standardize to get rid of that.
+  }
+  return when;
 }
 
 function checkDeployInfo(dplySettings){
@@ -214,7 +211,7 @@ function deploy(deploySettings){
       when = deploySettings.when;
 
   // If triggers weren't set through flags, prompt for them
-  if (!trigger_type && trigger === undefined) {
+  if (!trigger_type || trigger === undefined) {
     promptFor('deploy', deploySettings);
   } else {
     if ( checkDeployInfo(deploySettings) ) {
@@ -258,6 +255,7 @@ function writeDeploySettings(deploySettings){
 var command = argv['_'],
     deploy_settings = {
       bucket_environment: getBucketEnvironment(argv),
+      trigger_type: getTriggerType(argv),
       local_path: getLocalPath(argv),
       remote_path: getRemotePath(argv),
       branches: getBranches(argv),

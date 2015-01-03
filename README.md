@@ -8,13 +8,15 @@ A command-line tool for staging and deploying static files with [Kestrel Server]
 npm install kestrel-cli -g
 ````
 
-Note: You might have to run this as root user. To do that, simply begin the above command with `sudo` and then enter your password at the prompt. All together:
-
-````
-sudo npm install kestrel-cli -g
-````
+Note: You might have to run this as root user. To do that, simply begin the above command with `sudo` and then enter your password at the prompt.
 
 ## Usage
+
+After installation, run `swoop config` to get all set up. 
+
+Initialize a new project with `swoop init`, which will initialize git, create a GitHub repo, create a `.kestrel` local folder and a webhook linking this project to the [Kestrel Server](http://github.com/mhkeller/kestrel).
+
+Below are the full commands and flag options. For more information about `swoop config` and how Kestrel works, [check out the Wiki](https://github.com/mhkeller/kestrel/wiki/Command-line-interface#3-usage).
 
 ````
 Usage: swoop <command>
@@ -33,6 +35,7 @@ You can also set a number of flags if you don't want to be prompted for the depl
 Options:
   --help          Display help
   -e, --env       `staging` or `prod` environment.
+  -m, --method    `sync` or `hard` deploy method.
   -l, --local     The local path to deploy from.
   -r, --remote    The remote path to deploy to.
   -w, --when      Time to schedule a deploy in YYYY-MM-DD HH:MM format, 24-hour clock.
@@ -50,16 +53,18 @@ npm update kestrel-cli -g
 
 Like the command above, this might need to be run with `sudo`.
 
-#### A note on deploying
+#### How it works
 
-Deploying will create a (sometimes) commit with your trigger as the message and push it to `origin master` with the following structure:
+Deploying will create a commit and push it to `origin master` with the following structure:
 
 ````
-Push successful! [master f4i90s3] <environment>::<sync-trigger>::<local-path>::<remote-path>::<when>
+<environment>::<sync-trigger>::<local-path>::<remote-path>::<when>
 ````
 
 An example would look like:
 
 ````
-Push successful! [master 1f01c80] prod::my-secret-password::my-project-folder::2014/my-project-folder-on-s3::2014-08-15 14:00
+prod::my-sync-password::my-project-folder::2014/my-project-folder-on-s3::2015-01-01 13:00
 ````
+
+For more information, [check out the Wiki](https://github.com/mhkeller/kestrel/wiki/Command-line-interface#3-usage).

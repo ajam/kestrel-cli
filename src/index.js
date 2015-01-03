@@ -109,14 +109,6 @@ function initAll(){
 	});
 }
 
-// function initHook(){
-// 	setConfig(true);
-// 	var current_dir = path.basename(path.resolve('./'));
-// 	createGitHubHook(current_dir, function(err){
-// 		(err) ? console.log('Step 1/1: GitHub hook creation failed!'.red + ' `Validation Failed` could mean it already exists.'.yellow + '\nCheck here: ' + 'https://github.com/'.cyan+config.github.account_name.cyan+'/'.cyan+current_dir.cyan+'/settings/hooks'.cyan+'\nStated reason:', err.message) : console.log('Step 1/1: GitHub hook created.'.green + ' Once you push you can preview it at:\n  ' + config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir);
-// 	});
-// }
-
 
 /*    D E P L O Y   C O M M A N D S   */
 function checkGitStatus(gitStatus){
@@ -142,9 +134,10 @@ function checkGitStatus(gitStatus){
 	if (behind_regex.exec(gitStatus)) return 'behind';
 	return 'clean';
 }
+
 function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
   setConfig(true);
-	var current_dir   = path.resolve('./');
+	var current_dir = path.resolve('./');
 
 	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when.replace(/ /g,'T');
 
@@ -185,6 +178,8 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						});
 					} else {
 						// Otherwise, things went great!
+						// Print the commands that got us to this auspicious moment.
+						console.log('Settings: '.green + 'swoop deploy -e ' + bucket_environment + ' -m ' + trigger_type + ' -l ' + local_path + ' -r ' + remote_path + ' -w ' + when.replace(' ', '_'));
 						console.log('Push successful!'.green);
 					}
 				});
