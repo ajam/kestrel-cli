@@ -289,7 +289,7 @@ if (command == 'deploy'){
     }
   });
 } else if (command == 'archive'){
-  archive(branches);
+  archive(deploy_settings);
 }else if (command == 'unschedule'){
   unschedule(deploy_settings);
 }else{
