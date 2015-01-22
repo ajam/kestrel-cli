@@ -86,7 +86,7 @@ function getRemotePath(dict){
 function getWhen(dict){
   var when = dict['w'] || dict['when'] || undefined;
   if (when){
-  	when = when.replace('_', ' '); // When added through flags there is a `_` separator. Let's standardize to get rid of that.
+  	when = when.replace('_', ' '); // When added through flags there is a `_` separator for the cli arg reader. Let's standardize to get rid of that.
   }
   return when;
 }
@@ -147,8 +147,8 @@ function checkDeployInfo(dplySettings){
 				throw 'Error: Time must be 24 hour, separated by a colon'.red
 			}
 			test_time_parts.forEach(function(timePart){
-				if (+timePart < 10 && timePart.length < 1){
-					throw 'Error: Time in publish date must be zero-padded, e.g. 05:00'.red
+				if (+timePart < 10){
+					throw 'Error: Time in publish date must be zero-padded, e.g. 06:00'.red
 				}
 			});
 			var now = new moment().tz(config.timezone);

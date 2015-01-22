@@ -139,7 +139,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
   setConfig(true);
 	var current_dir = path.resolve('./');
 
-	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when.replace(/ /g,'T');
+	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when;
 
 	// Make sure the working branch has no outstanding commits and is neither ahead or behind
 	// Normally outstanding commits wouldn't be a problem, but the push flag allows for an empty commit
@@ -179,6 +179,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 					} else {
 						// Otherwise, things went great!
 						// Print the commands that got us to this auspicious moment.
+						// Add a `_` for the `when` value because that needs to be one single string for the cli arg reader
 						console.log('Settings: '.green + 'swoop deploy -e ' + bucket_environment + ' -m ' + trigger_type + ' -l ' + local_path + ' -r ' + remote_path + ' -w ' + when.replace(' ', '_'));
 						console.log('Push successful!'.green);
 					}
