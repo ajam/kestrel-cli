@@ -34,7 +34,7 @@ var prompts = {
   "trigger": prompt("Trigger?"),
   "local_path": prompt("Deploy from directory", default_deploy.local_path),
   "remote_path": prompt("to directory", default_deploy.remote_path),
-  "when": prompt("When? e.g. `2015-01-01 06:00`", default_deploy.when, function(response){
+  "when": prompt("When? e.g. `2015-01-01 14:00`", default_deploy.when, function(response){
     return response.trim();
   })
  };
