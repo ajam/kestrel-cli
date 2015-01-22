@@ -147,7 +147,8 @@ function checkDeployInfo(dplySettings){
 				throw 'Error: Time must be 24 hour, separated by a colon'.red
 			}
 			test_time_parts.forEach(function(timePart){
-				if (+timePart < 10){
+        var time_part_numb = +timePart;
+				if (time_part_numb < 10 && time_part_numb != 0){
 					throw 'Error: Time in publish date must be zero-padded, e.g. 06:00'.red
 				}
 			});
