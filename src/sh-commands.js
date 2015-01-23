@@ -24,7 +24,7 @@ var sh_commands = {
 		return 'git status --porcelain';
 	},
 	revertToPreviousCommit: function(){
-		return 'git reset --soft \'HEAD^\'';
+		return 'git reset --soft \'HEAD^\' && git stash';
 	},
 	makeEmptyCommitMsg: function(trigger_commit_msg){
 		return 'git add .kestrel/deploy-settings.json && git commit -m "' + trigger_commit_msg + '" --allow-empty';

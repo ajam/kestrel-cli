@@ -172,8 +172,12 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 								console.log('Once you do that, please check our internet connection and try again'.yellow);
 								throw stderr2 + '\nAND\n' + err2;
 							} else {
-								console.log('Push failed. Please try again. Error code: '.red + code.toString().red);
-								console.log('If your error is 128, `fatal: unable to access` your internet connection might simply be down.'.yellow);
+								console.log('Archive failed. Error code: '.red + code.toString().red);
+								if (code == 128){
+									console.log('Reason: Your internet connection appears down'.yellow);
+								} else if (code == 1){
+									console.log('Reason: Please pull before pushing.'.yellow);
+								}
 							}
 						});
 					} else {
@@ -206,8 +210,10 @@ function addToArchive(branches){
 	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
 	  .on('close', function(code){
 	  	if (code != 0){
-				console.log('Archive failed. Please try again. Error code: '.red + code.toString().red);
-				console.log('If your error is 128, `fatal: unable to access` your internet connection might simply be down.'.yellow);
+				console.log('Archive failed. Error code: '.red + code.toString().red);
+				if (code == 128){
+					console.log('Reason: Your internet connection appears down'.red);
+				}
 	  	} else {
 	  		console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + '` archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
 	  	}
