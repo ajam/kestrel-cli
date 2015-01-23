@@ -146,12 +146,13 @@ function checkDeployInfo(dplySettings){
 			if (test_time_parts.length != 2){
 				throw 'Error: Time must be 24 hour, separated by a colon'.red
 			}
-			test_time_parts.forEach(function(timePart){
-        var time_part_numb = +timePart;
-				if (time_part_numb < 10 && time_part_numb != 0){
-					throw 'Error: Time in publish date must be zero-padded, e.g. 06:00'.red
-				}
-			});
+      /* Dates no longer need be zer-padded */
+			// test_time_parts.forEach(function(timePart){
+      //   var time_part_numb = +timePart;
+			// 	if (time_part_numb < 10 && time_part_numb != 0){
+			// 		throw 'Error: Time in publish date must be zero-padded, e.g. 06:00'.red
+			// 	}
+			// });
 			var now = new moment().tz(config.timezone);
 			if (test_date < now){
 				throw 'Error: It appears your publish date is in the past.'.red
