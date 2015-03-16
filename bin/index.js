@@ -181,6 +181,9 @@ function promptFor(target, dplySettings){
   var settings_from_flags = pickTruthyKeys(dplySettings);
 
   promzard(prompts_dict[target], {flaggedSettings: settings_from_flags}, function(er, data) {
+    if (er) {  
+      console.log('Error', er); 
+    }
   	if (data){
 	    console.log(JSON.stringify(data, null, 2) + '\n');
 	    read({prompt:'Is this ok? '.green, default: 'yes'}, function (er, ok) {

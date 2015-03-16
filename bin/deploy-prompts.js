@@ -24,7 +24,7 @@ var default_deploy = {
   local_path: repo_name,
   remote_path: config.publishing.remote_path + "/" + repo_name,
   when: 'now'
-}
+};
 
 _.extend(default_deploy, readDeploySettings());
 
