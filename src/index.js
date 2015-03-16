@@ -172,11 +172,14 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 								console.log('Once you do that, please check our internet connection and try again'.yellow);
 								throw stderr2 + '\nAND\n' + err2;
 							} else {
-								console.log('Archive failed. Error code: '.red + code.toString().red);
 								if (code == 128){
+									console.log('Failed!');
 									console.log('Reason: Your internet connection appears down'.yellow);
 								} else if (code == 1){
+									console.log('Failed!');
 									console.log('Reason: Please pull before pushing.'.yellow);
+								} else {
+									console.log('Failed! Error code: '.red + code.toString().red), 'Try Googling this reason code to find out more.';
 								}
 							}
 						});
