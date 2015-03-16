@@ -187,7 +187,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						// Otherwise, things went great!
 						// Print the commands that got us to this auspicious moment.
 						// Add a `_` for the `when` value because that needs to be one single string for the cli arg reader
-						console.log('Settings: '.green + 'swoop deploy -e ' + bucket_environment + ' -m ' + trigger_type + ' -l ' + local_path + ' -r ' + remote_path + ' -w ' + when.replace(' ', '_'));
+						console.log('Settings: '.cyan + 'swoop deploy -e ' + bucket_environment + ' -m ' + trigger_type + ' -l ' + local_path + ' -r ' + remote_path + ' -w ' + when.replace(' ', '_'));
 						console.log('Push successful!'.green);
 					}
 				});
