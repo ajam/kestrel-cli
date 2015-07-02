@@ -39,7 +39,7 @@ Options:
   -l, --local     The local path to deploy from.
   -r, --remote    The remote path to deploy to.
   -w, --when      Time to schedule a deploy in YYYY-MM-DD HH:MM format, 24-hour clock.
-  -b, --branches  <current_branch_name>:<new_branch_name>
+  -b, --branches  <current_branch_name>:<new_branch_name> (note, this means you should avoid putting `:` in branch names)
 
 ````
 
