@@ -146,7 +146,7 @@ function checkDeployInfo(dplySettings){
 			if (test_time_parts.length != 2){
 				throw 'Error: Time must be 24 hour, separated by a colon'.red
 			}
-      /* Dates no longer need be zer-padded */
+      /* Dates no longer need be zero-padded */
 			// test_time_parts.forEach(function(timePart){
       //   var time_part_numb = +timePart;
 			// 	if (time_part_numb < 10 && time_part_numb != 0){
@@ -173,12 +173,12 @@ function checkUnscheduleInfo(dplySettings){
   return true;
 }
 
-function pickTruthyKeys(dplySettings){
-  return _.pick(dplySettings, function(val){ return val !== undefined; });
+function pickTruthy(dplySettings){
+  return _.pick(dplySettings, _.identity);
 }
 
 function promptFor(target, dplySettings){
-  var settings_from_flags = pickTruthyKeys(dplySettings);
+  var settings_from_flags = pickTruthy(dplySettings);
 
   promzard(prompts_dict[target], {flaggedSettings: settings_from_flags}, function(er, data) {
     if (er) {  
