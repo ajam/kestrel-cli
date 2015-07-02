@@ -71,8 +71,11 @@ function getTriggerType(dict){
   return dict['m'] || dict['method'] || undefined;
 }
 
-function getBranches(dict){
- return dict['b'] || dict['branches'] || undefined;
+function getBranches(dict, which){
+ var branch_string = dict['b'] || dict['branches'] || undefined;
+ var branch_parts = branch_string.split(':');
+ var which_index = (which === 'local') ? 0 : 1;
+ return branch_parts[which_index];
 }
 
 function getLocalPath(dict){
@@ -262,7 +265,8 @@ var command = argv['_'],
       trigger_type: getTriggerType(argv),
       local_path: getLocalPath(argv),
       remote_path: getRemotePath(argv),
-      branches: getBranches(argv),
+      local_branch: getBranches(argv, 'local'),
+      remote_branch: getBranches(argv, 'remote'),
       when: getWhen(argv)
     };
 
