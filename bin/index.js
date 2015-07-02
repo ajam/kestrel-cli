@@ -73,9 +73,17 @@ function getTriggerType(dict){
 
 function getBranches(dict, which){
  var branch_string = dict['b'] || dict['branches'] || undefined;
- var branch_parts = branch_string.split(':');
- var which_index = (which === 'local') ? 0 : 1;
- return branch_parts[which_index];
+ var branch_parts,
+     which_index,
+     branches;
+
+ if (branch_string){
+    branch_parts = branch_string.split(':');
+    which_index = (which === 'local') ? 0 : 1;
+    branches = branch_parts[which_index];
+ }
+
+ return branches;
 }
 
 function getLocalPath(dict){
