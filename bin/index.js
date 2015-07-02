@@ -240,12 +240,11 @@ function unschedule(deploySettings){
 }
 
 function archive(deploySettings){
-  var branches = deploySettings.branches;
   // If branches weren't set through flags, prompt for them
-  if (!branches){
+  if (!deploySettings.local_branch || !deploySettings.remote_branch){
     promptFor('archive', deploySettings);
   } else {
-    main_lib['archive'](branches);
+    main_lib['archive'](deploySettings);
   }
 }
 

@@ -205,10 +205,13 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 }
 
 /*    C R E A T E  A R C H I V E  B R A N C H   */
-function addToArchive(branches){
+function addToArchive(deploySettings){
+	var local_branch = deploySettings.local_branch,
+			remote_branch = deploySettings.remote_branch;
+
   setConfig(true);
   var repo_name = path.basename(path.resolve('./')),
-  		archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, branches);
+  		archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, local_branch, remote_branch);
 	console.log('Pushing to GitHub...'.blue.inverse);
 	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
 	  .on('close', function(code){
@@ -218,7 +221,7 @@ function addToArchive(branches){
 					console.log('Reason: Your internet connection appears down'.red);
 				}
 	  	} else {
-	  		console.log('Success!'.green + ' `' + branches.split(':')[0] + '` branch of `' + repo_name + '` archived as `' + branches.split(':')[1] + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + branches.split(':')[1] + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
+	  		console.log('Success!'.green + ' `' + local_branch + '` branch of `' + repo_name + '` archived as `' + remote_branch + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + remote_branch + '\n' + 'Note:'.cyan + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
 	  	}
 	  })
 }

@@ -14,8 +14,8 @@ var sh_commands = {
 	gitInit: function(login_method, account, repo){
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
 	},
-	archive: function(login_method, account, repo, branches){
-		return ['git', ['push', helpers.createRemoteUrl(login_method, account, repo), branches] ];
+	archive: function(login_method, account, repo, local_branch, remote_branch){
+		return ['git', ['push', helpers.createRemoteUrl(login_method, account, repo), [local_branch,remote_branch].join(':') ] ];
 	},
 	status: function(){
 		return 'git status -sb';

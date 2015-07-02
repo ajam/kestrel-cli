@@ -42,6 +42,7 @@ exports.server.hard_deploy.trigger = function(cb){
   if (hard_trigger_enabled) response = prompt('Hard trigger', package.server.hard_deploy.trigger);
   cb(null, response);
 };
+
 exports.publishing.remote_path = prompt('Default S3 folder to publish into', package.publishing.remote_path);
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
