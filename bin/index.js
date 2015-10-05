@@ -200,31 +200,29 @@ function promptFor(target, dplySettings){
 
   // Only prompt for values we haven't yet set through flags
   var flagged_values = Object.keys(settings_from_flags)
-  // var non_flagged_questions = questions.filter(function(question){
-  //   return !_.contains(flagged_values, question.name)
-  // })
+  var non_flagged_questions = questions.filter(function(question){
+    return !_.contains(flagged_values, question.name)
+  })
 
-  inquirer.prompt(questions, function(answers) {
-  	if (answers){
-	    console.log(JSON.stringify(answers, null, 2) + '\n');
-	    // read({prompt:'Is this ok? '.green, default: 'yes'}, function (er, ok) {
-	    //   if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
-	    //     console.log('\n\nDeploy aborted.'.red);
-	    //   } else {
-	    //     if (target == 'deploy') {
-	    //       deploy(data);
-     //        writeDeploySettings(data);
-	    //     } else if (target == 'archive'){
-	    //       archive(data);
-	    //     } else if (target == 'unschedule'){
-     //        unschedule(data);
-     //      }
-	    //   }
-	    // });
-  	} else {
-  		console.log('\n\nDeploy aborted.'.red);
-  	}
-
+  inquirer.prompt(non_flagged_questions, function(answers) {
+      inquirer.prompt({
+        type: 'confirm',
+        name: 'confirmed',
+        message: 'Is this OK?'
+      }, function(confirmation){
+        if (!confirmation.confirmed) {
+          console.log('\n\nCancelled.'.red);
+        } else {
+          if (target == 'deploy') {
+            deploy(data);
+            writeDeploySettings(data);
+          } else if (target == 'archive'){
+            archive(data);
+          } else if (target == 'unschedule'){
+            unschedule(data);
+          }
+        }
+      })
   });
 }
 
