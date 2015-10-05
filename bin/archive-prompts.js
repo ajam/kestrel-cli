@@ -61,6 +61,9 @@ var questions = [
       var self = questions[1];
       self.selected_local_branch = answers.local_branch
       return true
+    },
+    filter: function(val){
+      return val.trim()
     }
   }
 ]

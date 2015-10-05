@@ -213,14 +213,14 @@ function promptFor(target, dplySettings){
         if (!confirmation.confirmed) {
           console.log('\n\nCancelled.'.red);
         } else {
-          if (target == 'deploy') {
-            deploy(answers);
-            writeDeploySettings(answers);
-          } else if (target == 'archive'){
-            archive(answers);
-          } else if (target == 'unschedule'){
-            unschedule(answers);
-          }
+          // if (target == 'deploy') {
+          //   deploy(answers);
+          //   writeDeploySettings(answers);
+          // } else if (target == 'archive'){
+          //   archive(answers);
+          // } else if (target == 'unschedule'){
+          //   unschedule(answers);
+          // }
         }
       })
   });
