@@ -31,6 +31,12 @@ var sh_commands = {
 	},
 	spawnPush: function(){
 		return ['git', ['push', 'origin', 'master']];
+	},
+	getLocalBranches: function(){
+		return 'git branch --list';
+	},
+	getCurrentBranch: function(){
+		return 'git rev-parse --abbrev-ref HEAD';
 	}
 }
 

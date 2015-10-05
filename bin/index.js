@@ -3,7 +3,7 @@ var fs          = require('fs'),
     main_lib    = require('../src/index.js'),
     optimist    = require('optimist'),
     path        = require('path'),
-    promzard    = require('promzard'),
+    inquirer    = require('inquirer'),
     read        = require('read'),
     colors      = require('colors'),
     child       = require('child_process'),
@@ -12,9 +12,15 @@ var fs          = require('fs'),
     _           = require('underscore');
 
 var prompts_dict = {
-  deploy: require.resolve('./deploy-prompts.js'),
-  unschedule: require.resolve('./unschedule-prompts.js'),
-  archive: require.resolve('./archive-prompts.js')
+  deploy: function(){
+    return require('./deploy-prompts.js')
+  },
+  unschedule: function(){
+    return require('./unschedule-prompts.js')
+  },
+  archive: function(){
+    return require('./archive-prompts.js')
+  }
 };
 
 var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
@@ -190,27 +196,31 @@ function pickTruthy(dplySettings){
 
 function promptFor(target, dplySettings){
   var settings_from_flags = pickTruthy(dplySettings);
+  var questions = prompts_dict[target]()
 
-  promzard(prompts_dict[target], {flaggedSettings: settings_from_flags}, function(er, data) {
-    if (er) {  
-      console.log('Error', er); 
-    }
-  	if (data){
-	    console.log(JSON.stringify(data, null, 2) + '\n');
-	    read({prompt:'Is this ok? '.green, default: 'yes'}, function (er, ok) {
-	      if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
-	        console.log('\n\nDeploy aborted.'.red);
-	      } else {
-	        if (target == 'deploy') {
-	          deploy(data);
-            writeDeploySettings(data);
-	        } else if (target == 'archive'){
-	          archive(data);
-	        } else if (target == 'unschedule'){
-            unschedule(data);
-          }
-	      }
-	    });
+  // Only prompt for values we haven't yet set through flags
+  var flagged_values = Object.keys(settings_from_flags)
+  // var non_flagged_questions = questions.filter(function(question){
+  //   return !_.contains(flagged_values, question.name)
+  // })
+
+  inquirer.prompt(questions, function(answers) {
+  	if (answers){
+	    console.log(JSON.stringify(answers, null, 2) + '\n');
+	    // read({prompt:'Is this ok? '.green, default: 'yes'}, function (er, ok) {
+	    //   if (!ok || ok.toLowerCase().charAt(0) !== 'y') {
+	    //     console.log('\n\nDeploy aborted.'.red);
+	    //   } else {
+	    //     if (target == 'deploy') {
+	    //       deploy(data);
+     //        writeDeploySettings(data);
+	    //     } else if (target == 'archive'){
+	    //       archive(data);
+	    //     } else if (target == 'unschedule'){
+     //        unschedule(data);
+     //      }
+	    //   }
+	    // });
   	} else {
   		console.log('\n\nDeploy aborted.'.red);
   	}

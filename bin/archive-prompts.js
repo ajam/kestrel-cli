@@ -1,6 +1,8 @@
 var path     = require('path');
 var fs       = require('fs');
 var execSync = require('child_process').execSync;
+var sh_commands = require('../src/sh-commands.js');
+var _ = require('underscore')
 
 // Get current year and repo name
 var current_year = new Date().getFullYear(),
@@ -25,28 +27,46 @@ if (deploy_settings && deploy_settings.remote_path){
 }
 
 // Grab the current branch
-var branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+// var branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
-// If our selected branch is not `master`, then prepopulate the remote branch name with that string, preceeded by a doubling of our delimiter
-// So a normal branch is `2014_05_test-kestrel
-// Any other branch is `2015_05_test-kestrel__other-branch-name`
-var local_branch_name;
-var prompts = {
-  "local_branch": prompt("What local branch to archive?",  branch , function(inputtedBranch){
-  	local_branch_name = inputtedBranch;
-  	return inputtedBranch;
-  }),
-  "remote_branch": function(cb){
-  	if (local_branch_name !== 'master'){
-  		deployed_remote_settings += name_delimiter + name_delimiter + local_branch_name;
-  	}
+var current_branch = execSyncClean(sh_commands.getCurrentBranch())
+var branches = execSyncClean(sh_commands.getLocalBranches()).replace('*', '').split('\n').map(function(str){ return str.trim() })
+var branches_sans_current = _.without(branches, current_branch)
 
-	  var response = prompt("What to call it on the archive repo?", deployed_remote_settings );
-	  cb(null, response);
+// Put the current branch first
+var all_branches = [current_branch].concat(branches_sans_current)
+
+var questions = [
+  {
+    type: 'list',
+    name: 'local_branch',
+    message: 'What local branch to archive?',
+    choices: all_branches
+  },{
+    type: 'input',
+    name: 'remote_branch',
+    message: 'What to call it on the archive repo?',
+    // If our selected branch is not `master`, then prepopulate the remote branch name with that string, preceeded by a doubling of our delimiter
+    // So a normal branch is `2014_05_test-kestrel
+    // Any other branch is `2015_05_test-kestrel__other-branch-name`
+    default: function(){
+      var self = questions[1];
+      if (self.selected_local_branch !== 'master'){
+        deployed_remote_settings += name_delimiter + name_delimiter + self.selected_local_branch;
+      }
+      return deployed_remote_settings
+    },
+    // Set this up as a way to pass input
+    when: function(answers){
+      var self = questions[1];
+      self.selected_local_branch = answers.local_branch
+      return true
+    }
   }
-};
+]
 
-// Add what we've set through flags
-_.extend(prompts, this.flaggedSettings);
+function execSyncClean(str){
+  return execSync(str).toString().trim()
+}
 
-module.exports = prompts;
+module.exports = questions;
