@@ -43,7 +43,7 @@ var questions = [
     type: 'list',
     name: 'bucket_environment',
     message: 'Deploy to which environment?',
-    choices: ['prod', 'staging'],
+    choices: ['staging', 'prod'],
     default: default_deploy.bucket_environment
   },{
     type: 'list',
@@ -54,7 +54,7 @@ var questions = [
   },{
     type: 'password',
     name: 'trigger',
-    message: 'Enter your trigger:'
+    message: 'Enter the trigger:'
   },{
     type: 'list',
     name: 'local_path',

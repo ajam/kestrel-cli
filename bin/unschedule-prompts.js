@@ -1,8 +1,15 @@
-var prompts = {
-  "bucket_environment": prompt("Unschedule from `staging` or `prod`?", "staging"),
-  "trigger": prompt("Enter the sync trigger")
- };
+var questions = [
+  {
+    type: 'list',
+    name: 'bucket_environment',
+    message: 'Unschedule from which environment?',
+    choices: ['staging', 'prod'],
+    default: 'staging'
+  },{
+    type: 'password',
+    name: 'trigger',
+    message: 'Enter the sync trigger:'
+  }
+]
 
- _.extend(prompts, this.flaggedSettings);
-
-module.exports = prompts;
+module.exports = questions;
