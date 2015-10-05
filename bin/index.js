@@ -214,12 +214,12 @@ function promptFor(target, dplySettings){
           console.log('\n\nCancelled.'.red);
         } else {
           if (target == 'deploy') {
-            deploy(data);
-            writeDeploySettings(data);
+            deploy(answers);
+            writeDeploySettings(answers);
           } else if (target == 'archive'){
-            archive(data);
+            archive(answers);
           } else if (target == 'unschedule'){
-            unschedule(data);
+            unschedule(answers);
           }
         }
       })
