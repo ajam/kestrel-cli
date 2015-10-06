@@ -61,10 +61,6 @@ var questions = [
     choices: ['sync', 'hard'],
     default: default_deploy.trigger_type
   },{
-    type: 'password',
-    name: 'trigger',
-    message: 'Enter the trigger:'
-  },{
     type: 'list',
     name: 'local_path',
     message: 'Deploy from directory:',
@@ -86,6 +82,10 @@ var questions = [
     filter: function(val){
       return val.trim()
     }
+  },{
+    type: 'password',
+    name: 'trigger',
+    message: 'Enter the trigger:'
   }
 ]
 

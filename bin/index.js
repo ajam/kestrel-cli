@@ -228,7 +228,7 @@ function promptFor(target, dplySettings){
       type: 'confirm',
       name: 'confirmed',
       message: 'Is this OK?',
-      default: false
+      default: true
     }, function(confirmation){
       if (!confirmation.confirmed) {
         console.log('\n\nCancelled.'.red);
