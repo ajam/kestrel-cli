@@ -5,7 +5,7 @@ var fs          = require('fs'),
     path        = require('path'),
     inquirer    = require('inquirer'),
     read        = require('read'),
-    chalk      = require('chalk'),
+    chalk       = require('chalk'),
     child       = require('child_process'),
     sh_commands = require('../src/sh-commands.js'),
     moment			= require('moment-timezone')
@@ -25,6 +25,7 @@ var prompts_dict = {
 
 var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
 var config;
+var pkg_json = require('../package.json');
 
 var argv = optimist
   .usage('\nUsage: swoop '+'<command>'.grey+'\nFor normal usage, "ignore the "Options" below.'.red+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+'deploy'.green+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
@@ -55,14 +56,20 @@ var argv = optimist
     alias: 'branches',
     describe: '<current_branch_name>:<new_branch_name>',
   })
+  .options('v', {
+    alias: 'version',
+    describe: 'Get the current package version.',
+  })
   .check(function(argv) {
     var cmds = argv['_'];
-    if (!argv['_'].length) {
+    if (!cmds.length && (argv['v'] || argv['version']) ) {
+      throw chalk.bold('Kestrel version: ') + pkg_json.version
+    } else if (!cmds.length) {
       throw 'What do you want to do?'.cyan+'\n';
-    } else if (argv['_'].length > 1) {
+    } else if (cmds.length > 1) {
       throw 'ERROR: Please only supply one command.'.red;
     } else if (commands.indexOf(cmds[0]) == -1) {
-      throw 'ERROR: '.red + argv['_'][0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
+      throw 'ERROR: '.red + cmds[0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
     }
   })
   .argv;
