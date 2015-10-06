@@ -44,6 +44,14 @@ exports.server.hard_deploy.trigger = function(cb){
 };
 
 exports.publishing.remote_path = prompt('Default S3 folder to publish into', package.publishing.remote_path);
+var is_moment_template = package.publishing.is_moment_template || false
+exports.publishing.is_moment_template = prompt('Is the remote path a date template?', String(is_moment_template), function(isMoment){
+  var isJson = checkJson(isMoment);
+  if (!isJson) console.error('ERROR: Please enter either true or false.');
+  
+  isMoment = JSON.parse(isMoment);
+  return isMoment;
+});
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
 

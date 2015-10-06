@@ -31,7 +31,7 @@ function getLocalDeployDirChoices(){
 
 function getConfigRemotePath(){
   var remote_path = config.publishing.remote_path
-  if (config.publishing.isMomentTemplate) {
+  if (config.publishing.is_moment_template) {
     remote_path = moment().format(remote_path)
   }
   return remote_path

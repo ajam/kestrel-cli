@@ -16,7 +16,7 @@
 	},
   "publishing": {
     "remote_path": "YYYY",
-    "isMomentTemplate": true
+    "is_moment_template": true
   },
 	"archive": {
 		"repo_name": "archive"
