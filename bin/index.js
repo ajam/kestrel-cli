@@ -34,31 +34,31 @@ var argv = optimist
   })
   .options('e', {
     alias: 'env',
-    describe: '`staging` or `prod` environment.',
+    describe: '`staging` or `prod` environment.'
   })
   .options('m', {
     alias: 'method',
-    describe: '`sync` or `hard` deploy method.',
+    describe: '`sync` or `hard` deploy method.'
   })
   .options('l', {
     alias: 'local',
-    describe: 'The local path to deploy from.',
+    describe: 'The local path to deploy from.'
   })
   .options('r', {
     alias: 'remote',
-    describe: 'The remote path to deploy to.',
+    describe: 'The remote path to deploy to.'
   })
   .options('w', {
     alias: 'when',
-    describe: 'Time to schedule a deploy in YYYY-MM-DD HH:MM format, 24-hour clock.',
+    describe: 'Time to schedule a deploy in YYYY-MM-DD HH:MM format, 24-hour clock.'
   })
   .options('b', {
     alias: 'branches',
-    describe: '<current_branch_name>:<new_branch_name>',
+    describe: '<current_branch_name>:<new_branch_name>'
   })
   .options('v', {
     alias: 'version',
-    describe: 'Get the current package version.',
+    describe: 'Get the current package version.'
   })
   .check(function(argv) {
     var cmds = argv['_'];
