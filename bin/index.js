@@ -5,7 +5,7 @@ var fs          = require('fs'),
     path        = require('path'),
     inquirer    = require('inquirer'),
     read        = require('read'),
-    colors      = require('colors'),
+    chalk      = require('chalk'),
     child       = require('child_process'),
     sh_commands = require('../src/sh-commands.js'),
     moment			= require('moment-timezone')
@@ -205,25 +205,37 @@ function promptFor(target, dplySettings){
   })
 
   inquirer.prompt(non_flagged_questions, function(answers) {
-      inquirer.prompt({
-        type: 'confirm',
-        name: 'confirmed',
-        message: 'Is this OK?',
-        default: false
-      }, function(confirmation){
-        if (!confirmation.confirmed) {
-          console.log('\n\nCancelled.'.red);
-        } else {
-          if (target == 'deploy') {
-            deploy(answers);
-            writeDeploySettings(answers);
-          } else if (target == 'archive'){
-            archive(answers);
-          } else if (target == 'unschedule'){
-            unschedule(answers);
-          }
+    var flags_as_arr
+    var flags_styled
+    // If we have settings from flags, display them
+    if (!_.isEmpty(settings_from_flags)) {
+      flags_as_arr = _.pairs(settings_from_flags)
+      flags_styled = flags_as_arr.map(function(settingPair){
+        return chalk.bold(settingPair[0]) + ': ' + chalk.cyan(settingPair[1])
+      }).join('\n')
+      console.log('\n' + chalk.magenta('Plus you added these settings via flags:'), '\n' + flags_styled + '\n')
+    }
+    // We omitted these questions above, now we want to add their values to our answers
+    _.extend(answers, settings_from_flags)
+    inquirer.prompt({
+      type: 'confirm',
+      name: 'confirmed',
+      message: 'Is this OK?',
+      default: false
+    }, function(confirmation){
+      if (!confirmation.confirmed) {
+        console.log('\n\nCancelled.'.red);
+      } else {
+        if (target == 'deploy') {
+          deploy(answers);
+          writeDeploySettings(answers);
+        } else if (target == 'archive'){
+          archive(answers);
+        } else if (target == 'unschedule'){
+          unschedule(answers);
         }
-      })
+      }
+    })
   });
 }
 
