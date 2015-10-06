@@ -3,6 +3,7 @@ var _ = require('underscore')
 var fs = require('fs')
 var execSync = require('child_process').execSync
 var sh_commands = require('../src/sh-commands.js')
+var moment = require('moment-timezone')
 
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json')
@@ -28,11 +29,19 @@ function getLocalDeployDirChoices(){
   return [repo_name].concat(dirs_with_basename);
 }
 
+function getConfigRemotePath(){
+  var remote_path = config.publishing.remote_path
+  if (config.publishing.isMomentTemplate) {
+    remote_path = moment().format(remote_path)
+  }
+  return remote_path
+}
+
 var default_deploy = {
   bucket_environment: 'staging',
   trigger_type: 'sync',
   local_path: repo_name,
-  remote_path: config.publishing.remote_path + '/' + repo_name,
+  remote_path: getConfigRemotePath() + '/' + repo_name,
   when: 'now'
 };
 

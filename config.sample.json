@@ -15,7 +15,8 @@
 		}
 	},
   "publishing": {
-    "remote_path": "2014"
+    "remote_path": "YYYY",
+    "isMomentTemplate": true
   },
 	"archive": {
 		"repo_name": "archive"
