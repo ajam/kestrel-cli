@@ -81,7 +81,7 @@ var questions = [
   },{
     type: 'input',
     name: 'when',
-    message: 'When?',
+    message: 'When? e.g. `2015-01-01 14:00`',
     default: default_deploy.when,
     filter: function(val){
       return val.trim()

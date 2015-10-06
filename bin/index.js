@@ -208,19 +208,20 @@ function promptFor(target, dplySettings){
       inquirer.prompt({
         type: 'confirm',
         name: 'confirmed',
-        message: 'Is this OK?'
+        message: 'Is this OK?',
+        default: false
       }, function(confirmation){
         if (!confirmation.confirmed) {
           console.log('\n\nCancelled.'.red);
         } else {
-          // if (target == 'deploy') {
-          //   deploy(answers);
-          //   writeDeploySettings(answers);
-          // } else if (target == 'archive'){
-          //   archive(answers);
-          // } else if (target == 'unschedule'){
-          //   unschedule(answers);
-          // }
+          if (target == 'deploy') {
+            deploy(answers);
+            writeDeploySettings(answers);
+          } else if (target == 'archive'){
+            archive(answers);
+          } else if (target == 'unschedule'){
+            unschedule(answers);
+          }
         }
       })
   });
