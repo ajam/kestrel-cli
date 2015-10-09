@@ -1,7 +1,7 @@
 Kestrel tipsheet
 ================
 
-> Handy commands to remember while using Kestrel-cli
+*Handy commands to remember while using Kestrel-cli*
 
 You can list all commands by running `swoop` or `swoop --help`
 
