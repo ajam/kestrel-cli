@@ -154,7 +154,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 		// If stdout is blank, we have nothing to commit
 		if (branch_status == 'clean' || branch_status == 'clean_with_deploy_change') {
 			// Add the trigger as a commit message and push
-			console.log(chalk.bgBlue('Pushing to GitHub...'));
+			console.log(chalk.bgBlue.black('Pushing to GitHub...'));
 			child.exec( sh_commands.makeEmptyCommitMsg(trigger_commit_msg), function(err1, stdout1, stderr1){
 				if (!err1){
 					push = child.spawn( spawnPush[0], spawnPush[1], {stdio: 'inherit'} );
@@ -212,7 +212,7 @@ function addToArchive(deploySettings){
   setConfig(true);
   var repo_name = path.basename(path.resolve('./')),
   		archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, local_branch, remote_branch);
-	console.log(chalk.bgBlue('Pushing to GitHub...'));
+	console.log(chalk.bgBlue.black('Pushing to GitHub...'));
 	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
 	  .on('close', function(code){
 	  	if (code != 0){

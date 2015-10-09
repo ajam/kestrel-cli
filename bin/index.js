@@ -321,7 +321,7 @@ if (command == 'deploy'){
     if (!stdout){
       deploy(deploy_settings);
     } else {
-      stderr = chalk.red('One second...\nYou have uncommited changes on your git working tree.') + chalk.bgBlue('\nPlease track all files and commit all changes before deploying.');
+      stderr = chalk.yellow('One second...\n') + 'You have uncommited changes on your git working tree.\n' + chalk.black.bgMagenta('Please track all files and commit all changes before deploying.');
       console.log(stderr);
     }
   });
