@@ -21,7 +21,12 @@ function readDeploySettings(){
 }
 
 function getLocalDeployDirChoices(){
-  var dirs = execSync(sh_commands.listDirs()).toString().replace(/\//g, '').trim().split('\n');
+  var dirs
+  try {
+    dirs = execSync(sh_commands.listDirs()).toString().replace(/\//g, '').trim().split('\n');
+  } catch (err) {
+    dirs = []
+  }
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
     return repo_name + '/' + dir; // Don't use `path.join` for os-specific paths because it needs to be the linux path for the server
