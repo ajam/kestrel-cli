@@ -8,11 +8,12 @@ var moment = require('moment-timezone')
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json')
 
+var project_dir = path.resolve('./')
 var config = require(config_path)
-var repo_name = path.basename(path.resolve('./'))
+var repo_name = path.basename(project_dir)
 
 function readDeploySettings(){
-  var file_path_and_name = path.join(path.resolve('./'), '.kestrel', 'deploy-settings.json'),
+  var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
       settings = {};
   if (fs.existsSync(file_path_and_name)){
     settings = require(file_path_and_name);
@@ -20,13 +21,20 @@ function readDeploySettings(){
   return settings;
 }
 
+function getDirectories(srcpath, opts) {
+  return fs.readdirSync(srcpath).filter(function(file) {
+    var is_directory = fs.statSync(path.join(srcpath, file)).isDirectory()
+    // Test for folders that start with a dot
+    if (is_directory && opts.excludeHidden) {
+      is_directory = !/^\./.test(file)
+    }
+    return is_directory;
+  });
+}
+
 function getLocalDeployDirChoices(){
-  var dirs
-  try {
-    dirs = execSync(sh_commands.listDirs()).toString().replace(/\//g, '').trim().split('\n');
-  } catch (err) {
-    dirs = []
-  }
+  var dirs = getDirectories(project_dir, {excludeHidden: true})
+
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
     return repo_name + '/' + dir; // Don't use `path.join` for os-specific paths because it needs to be the linux path for the server

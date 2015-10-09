@@ -1,15 +1,29 @@
 #!/usr/bin/env node
-var fs          = require('fs'),
-    main_lib    = require('../src/index.js'),
-    optimist    = require('optimist'),
-    path        = require('path'),
-    inquirer    = require('inquirer'),
-    read        = require('read'),
-    chalk       = require('chalk'),
-    child       = require('child_process'),
-    sh_commands = require('../src/sh-commands.js'),
-    moment			= require('moment-timezone')
-    _           = require('underscore');
+var fs          = require('fs')
+var main_lib    = require('../src/index.js')
+var optimist    = require('optimist')
+var path        = require('path')
+var inquirer    = require('inquirer')
+var read        = require('read')
+var chalk       = require('chalk')
+var child       = require('child_process')
+var sh_commands = require('../src/sh-commands.js')
+var moment			= require('moment-timezone')
+var _           = require('underscore')
+
+// var updateNotifier = require('update-notifier');
+// var pkg = require('../package.json');
+
+// Checks for available update and returns an instance
+// var notifier = updateNotifier({pkg: pkg});
+
+// Notify using the built-in convenience method
+// notifier.notify();
+
+// `notifier.update` contains some useful info about the update
+// console.log('notifier', notifier.update);
+
+// console.log('Update available: ' + JSON.stringify(notifier, null, 2));
 
 var prompts_dict = {
   deploy: function(){

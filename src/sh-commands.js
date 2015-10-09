@@ -37,9 +37,6 @@ var sh_commands = {
 	},
 	getCurrentBranch: function(){
 		return 'git rev-parse --abbrev-ref HEAD';
-	},
-	listDirs: function(){
-		return 'ls -d */';
 	}
 }
 
