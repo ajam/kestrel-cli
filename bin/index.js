@@ -28,7 +28,7 @@ var config;
 var pkg_json = require('../package.json');
 
 var argv = optimist
-  .usage('\nUsage: swoop '+chalk.bold('<command>')+chalk.cyan('\nFor normal usage, "ignore the "Options" below and follow the prompts.')+chalk.magenta('\n\nTo update: ')+chalk.magenta.bold('sudo npm update kestrel-cli -g')+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+chalk.green('deploy')+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
+  .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, "ignore the "Options" below and follow the prompts.') + chalk.magenta('\n\nTo update: ') + chalk.magenta.bold('sudo npm update kestrel-cli -g') + '\n\nCommands:\n  ' + chalk.yellow('config') + '\tConfigure your GitHub account and server settings\n  ' + chalk.yellow('init') + '\t\tGit init, create GitHub repo + hooks\n  ' + chalk.green('deploy') + '\tPush your project to S3.\n  ' + chalk.green('archive') + '\tMake your current project a branch of your archive repo.\n  ' + chalk.green('unschedule') + '\tClear an environment\'s scheduled deployments.')
   .options('help', {
     describe: 'Display help'
   })
@@ -63,13 +63,13 @@ var argv = optimist
   .check(function(argv) {
     var cmds = argv['_'];
     if (!cmds.length && (argv['v'] || argv['version']) ) {
-      throw chalk.bold('Kestrel version: ') + pkg_json.version
+      throw 'Kestrel version: ' + chalk.bold(pkg_json.version)
     } else if (!cmds.length) {
-      throw 'What do you want to do?'.cyan+'\n';
+      throw chalk.cyan('What do you want to do?')+'\n';
     } else if (cmds.length > 1) {
-      throw 'ERROR: Please only supply one command.'.red;
+      throw chalk.red('ERROR: Please only supply one command.');
     } else if (commands.indexOf(cmds[0]) == -1) {
-      throw 'ERROR: '.red + cmds[0].yellow + ' is not a valid command.'.red+'\nValid commands: '.cyan+commands.map(function(cmd){ return '`'+cmd+'`'}).join(', ')+'.';
+      throw chalk.red('ERROR: ') + chalk.yellow(cmds[0]) + chalk.red(' is not a valid command.') + chalk.cyan('\nValid commands: ') + commands.map(function(cmd){ return '`' + cmd + '`'}).join(', ') + '.';
     }
   })
   .argv;
@@ -124,7 +124,7 @@ function checkDeployInfo(dplySettings){
 
   // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') {
-  	throw 'Error: Trigger type must be either `sync` or `hard`.'.red;
+  	throw chalk.red('Error: Trigger type must be either `sync` or `hard`.');
   }
   var triggers = {
     sync: config.server.sync_deploy_trigger,
@@ -132,22 +132,22 @@ function checkDeployInfo(dplySettings){
   };
   // If you're trying to deploy hard and it hasnt been set...
   if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) {
-  	throw 'Error: Hard deploy isn\'t enabled!'.red;
+  	throw chalk.red('Error: Hard deploy isn\'t enabled!');
   }
   // Make sure it matches what you specified
   if (trigger != triggers[trigger_type]) {
-  	throw 'Error: Trigger incorrect!'.red;
+  	throw chalk.red('Error: Trigger incorrect!');
   }
 
   // Make sure your sub-directory exists
   var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
   if ( !fs.existsSync(full_local_path) ) {
-  	throw 'Error:'.red + ' Local directory `'.red + local_path.yellow + '` does not exist.'.red;
+  	throw chalk.red('Error: Local directory `') + chalk.yellow(local_path.yellow) + chalk.red('` does not exist.');
   }
   
   // Make sure you specified a bucket environment
   if (bucket_environment != 'prod' && bucket_environment != 'staging') {
-  	throw 'Error: Bucket environment must be either `prod` or `staging`.'.red;
+  	throw chalk.red('Error: Bucket environment must be either `prod` or `staging`.');
   }
   
   // Make sure your date is a proper date, unless it's `now`
@@ -160,26 +160,19 @@ function checkDeployInfo(dplySettings){
 		test_date = new Date(when);
 		test_date_string = test_date.toString();
 		if (test_date_string === 'Invalid Date'){
-			throw 'Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format'.red;
+			throw chalk.red('Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format');
 		} else {
 			test_date_parts = when.split(' ');
 			if (test_date_parts[0].length != 10){
-				throw 'Error: Publish date must be in YYYY-MM-DD format.'.red;
+				throw chalk.red('Error: Publish date must be in YYYY-MM-DD format.');
 			}
 			test_time_parts = test_date_parts[1].split(':');
 			if (test_time_parts.length != 2){
-				throw 'Error: Time must be 24 hour, separated by a colon'.red
+				throw chalk.red('Error: Time must be 24 hour, separated by a colon')
 			}
-      /* Dates no longer need be zero-padded */
-			// test_time_parts.forEach(function(timePart){
-      //   var time_part_numb = +timePart;
-			// 	if (time_part_numb < 10 && time_part_numb != 0){
-			// 		throw 'Error: Time in publish date must be zero-padded, e.g. 06:00'.red
-			// 	}
-			// });
 			var now = new moment().tz(config.timezone);
 			if (test_date < now){
-				throw 'Error: It appears your publish date is in the past.'.red
+				throw chalk.red('Error: It appears your publish date is in the past.')
 			}
 		}
 	}
@@ -192,7 +185,7 @@ function checkUnscheduleInfo(dplySettings){
   // Verify they used the sync-trigger
   var sync_trigger = config.server.sync_deploy_trigger;
   if (sync_trigger != trigger){
-    throw 'Error: Trigger incorrect!'.red;
+    throw chalk.red('Error: Trigger incorrect!');
   }
   return true;
 }
@@ -231,7 +224,7 @@ function promptFor(target, dplySettings){
       default: true
     }, function(confirmation){
       if (!confirmation.confirmed) {
-        console.log('\n\nCancelled.'.red);
+        console.log(chalk.red('\n\nCancelled.'));
       } else {
         if (target == 'deploy') {
           deploy(answers);
@@ -317,7 +310,7 @@ if (command == 'deploy' || command == 'unschedule') {
   // Make sure your sub-directory exists
   kestrel_path = path.resolve('./') + '/.kestrel';
   if ( !fs.existsSync(kestrel_path) ) {
-    throw 'Error:'.red + ' You haven\'t initalized Kestrel for this project yet.\n'.red + 'Please run `swoop init` and try again.'.yellow;
+    throw chalk.red('Error: You haven\'t initalized Kestrel for this project yet.\n') + chalk.yellow('Please run `swoop init` and try again.');
   }
 }
 
@@ -328,7 +321,7 @@ if (command == 'deploy'){
     if (!stdout){
       deploy(deploy_settings);
     } else {
-      stderr = 'One second...\nYou have uncommited changes on your git working tree.'.red + '\nPlease track all files and commit all changes before deploying.'.inverse.blue;
+      stderr = chalk.red('One second...\nYou have uncommited changes on your git working tree.') + chalk.bgBlue('\nPlease track all files and commit all changes before deploying.');
       console.log(stderr);
     }
   });
