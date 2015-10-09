@@ -28,7 +28,7 @@ var config;
 var pkg_json = require('../package.json');
 
 var argv = optimist
-  .usage('\nUsage: swoop '+'<command>'.grey+'\nFor normal usage, "ignore the "Options" below.'.red+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+'deploy'.green+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
+  .usage('\nUsage: swoop '+chalk.bold('<command>')+chalk.cyan('\nFor normal usage, "ignore the "Options" below and follow the prompts.')+chalk.magenta('\n\nTo update: ')+chalk.magenta.bold('sudo npm update kestrel-cli -g')+'\n\nCommands:\n  '+'config'.yellow+'\tConfigure your GitHub account and server settings\n  '+'init'.yellow+'\t\tGit init, create GitHub repo + hooks\n  '+chalk.green('deploy')+'\tPush your project to S3.\n  '+'archive'.green+'\tMake your current project a branch of your archive repo.\n  '+'unschedule'.green+'\tClear a project\'s scheduled deployments.')
   .options('help', {
     describe: 'Display help'
   })
