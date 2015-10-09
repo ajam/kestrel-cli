@@ -1,14 +1,14 @@
-var fs          = require('fs'),
-		octonode    = require('octonode'),
-		path        = require('path'),
-		child       = require('child_process'),
-		pkg_config  = require('config-tree'),
-		chalk			  = require('chalk');
+var fs          = require('fs')
+var octonode    = require('octonode')
+var path        = require('path')
+var child       = require('child_process')
+var pkg_config  = require('config-tree')
+var chalk			  = require('chalk')
 
 // Github authentication
-var config,
-		gh_client,
-		gh_entity;
+var config
+var gh_client
+var gh_entity
 
 var sh_commands = require('./sh-commands.js');
 

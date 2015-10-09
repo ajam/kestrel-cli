@@ -11,19 +11,17 @@ var sh_commands = require('../src/sh-commands.js')
 var moment			= require('moment-timezone')
 var _           = require('underscore')
 
-// var updateNotifier = require('update-notifier');
-// var pkg = require('../package.json');
+var updateNotifier = require('update-notifier')
+var pkg = require('../package.json')
 
 // Checks for available update and returns an instance
-// var notifier = updateNotifier({pkg: pkg});
+var notifier = updateNotifier({
+  pkg: pkg,
+  updateCheckInterval: 1000 * 60 * 60 * 24 * 3 // Every three days
+})
 
 // Notify using the built-in convenience method
-// notifier.notify();
-
-// `notifier.update` contains some useful info about the update
-// console.log('notifier', notifier.update);
-
-// console.log('Update available: ' + JSON.stringify(notifier, null, 2));
+notifier.notify();
 
 var prompts_dict = {
   deploy: function(){
