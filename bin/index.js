@@ -227,7 +227,7 @@ function promptFor(target, dplySettings){
     inquirer.prompt({
       type: 'confirm',
       name: 'confirmed',
-      message: 'Is this OK?',
+      message: 'Does everything look good?',
       default: true
     }, function(confirmation){
       if (!confirmation.confirmed) {
