@@ -67,9 +67,9 @@ var argv = optimist
     } else if (!cmds.length) {
       throw chalk.cyan('What do you want to do?')+'\n';
     } else if (cmds.length > 1) {
-      throw chalk.red('ERROR: Please only supply one command.');
+      throw chalk.red.bold('Error: Please only supply one command.');
     } else if (commands.indexOf(cmds[0]) == -1) {
-      throw chalk.red('ERROR: ') + chalk.yellow(cmds[0]) + chalk.red(' is not a valid command.') + chalk.cyan('\nValid commands: ') + commands.map(function(cmd){ return '`' + cmd + '`'}).join(', ') + '.';
+      throw chalk.red.bold('Error: ') + chalk.yellow(cmds[0]) + chalk.red(' is not a valid command.') + chalk.cyan('\nValid commands: ') + commands.map(function(cmd){ return '`' + cmd + '`'}).join(', ') + '.';
     }
   })
   .argv;
@@ -124,7 +124,7 @@ function checkDeployInfo(dplySettings){
 
   // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') {
-  	throw chalk.red('Error: Trigger type must be either `sync` or `hard`.');
+  	throw chalk.red.bold('Error: Trigger type must be either `sync` or `hard`.');
   }
   var triggers = {
     sync: config.server.sync_deploy_trigger,
@@ -132,22 +132,22 @@ function checkDeployInfo(dplySettings){
   };
   // If you're trying to deploy hard and it hasnt been set...
   if (trigger_type == 'hard' && !config.server.hard_deploy.enabled) {
-  	throw chalk.red('Error: Hard deploy isn\'t enabled!');
+  	throw chalk.red.bold('Error: Hard deploy isn\'t enabled!');
   }
   // Make sure it matches what you specified
   if (trigger != triggers[trigger_type]) {
-  	throw chalk.red('Error: Trigger incorrect!');
+  	throw chalk.red.bold('Error: Trigger incorrect!');
   }
 
   // Make sure your sub-directory exists
   var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
   if ( !fs.existsSync(full_local_path) ) {
-  	throw chalk.red('Error: Local directory `') + chalk.yellow(local_path.yellow) + chalk.red('` does not exist.');
+  	throw chalk.red.bold('Error: Local directory `') + chalk.yellow.bold(local_path) + chalk.red('` does not exist.');
   }
   
   // Make sure you specified a bucket environment
   if (bucket_environment != 'prod' && bucket_environment != 'staging') {
-  	throw chalk.red('Error: Bucket environment must be either `prod` or `staging`.');
+  	throw chalk.red.bold('Error: Bucket environment must be either `prod` or `staging`.');
   }
   
   // Make sure your date is a proper date, unless it's `now`
@@ -160,19 +160,19 @@ function checkDeployInfo(dplySettings){
 		test_date = new Date(when);
 		test_date_string = test_date.toString();
 		if (test_date_string === 'Invalid Date'){
-			throw chalk.red('Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format');
+			throw chalk.red.bold('Error: Invalid publish date. Must be in YYYY-MM-DD HH:MM format');
 		} else {
 			test_date_parts = when.split(' ');
 			if (test_date_parts[0].length != 10){
-				throw chalk.red('Error: Publish date must be in YYYY-MM-DD format.');
+				throw chalk.red.bold('Error: Publish date must be in YYYY-MM-DD format.');
 			}
 			test_time_parts = test_date_parts[1].split(':');
 			if (test_time_parts.length != 2){
-				throw chalk.red('Error: Time must be 24 hour, separated by a colon')
+				throw chalk.red.bold('Error: Time must be 24 hour, separated by a colon')
 			}
 			var now = new moment().tz(config.timezone);
 			if (test_date < now){
-				throw chalk.red('Error: It appears your publish date is in the past.')
+				throw chalk.red.bold('Error: It appears your publish date is in the past.')
 			}
 		}
 	}
@@ -185,7 +185,7 @@ function checkUnscheduleInfo(dplySettings){
   // Verify they used the sync-trigger
   var sync_trigger = config.server.sync_deploy_trigger;
   if (sync_trigger != trigger){
-    throw chalk.red('Error: Trigger incorrect!');
+    throw chalk.red.bold('Error: Trigger incorrect!');
   }
   return true;
 }
@@ -310,7 +310,7 @@ if (command == 'deploy' || command == 'unschedule') {
   // Make sure your sub-directory exists
   kestrel_path = path.resolve('./') + '/.kestrel';
   if ( !fs.existsSync(kestrel_path) ) {
-    throw chalk.red('Error: You haven\'t initalized Kestrel for this project yet.\n') + chalk.yellow('Please run `swoop init` and try again.');
+    throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
   }
 }
 

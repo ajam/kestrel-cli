@@ -90,14 +90,14 @@ function initAll(){
 			
 			createGitHubRepo(current_dir, function(err2, response){
 				if (err2) { 
-					console.log(chalk.red('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir) + '\nStated reason:', err2.message);
+					console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir) + '\nStated reason:', err2.message);
 				} else {
 					console.log(chalk.green('Step 3/4: GitHub repo created!'));
 				}
 
 				createGitHubHook(current_dir, function(err3){
 					if (err3) { 
-						console.log(chalk.red('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir + '/settings/hooks') + '\nStated reason:', err3.message); 
+						console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir + '/settings/hooks') + '\nStated reason:', err3.message); 
 					} else {
 						console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir) );
 					}
@@ -159,7 +159,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 				if (!err1){
 					push = child.spawn( spawnPush[0], spawnPush[1], {stdio: 'inherit'} );
 				} else {
-					console.log(chalk.red('Error commiting!'));
+					console.log(chalk.red.bold('Error commiting!'));
 				}
 
 				// When done
@@ -168,18 +168,18 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						// On error, erase the commit that has the trigger because the trigger push didn't go through
 						child.exec( sh_commands.revertToPreviousCommit(), function(err2, stdout2, stderr2){
 							if (err2) {
-								console.log(chalk.red('Error pushing AND error scrubbing the push commit. You might want to grab the SHA of the last commit you made and run `git rest --soft INSERT-SHA-HERE` in order to manually remove Kestrel\'s deploy commit.'));
+								console.log(chalk.red.bold('Error pushing AND error scrubbing the push commit. You might want to grab the SHA of the last commit you made and run `git rest --soft INSERT-SHA-HERE` in order to manually remove Kestrel\'s deploy commit.'));
 								console.log(chalk.yellow('Once you do that, please check our internet connection and try again'));
 								throw stderr2 + '\nAND\n' + err2;
 							} else {
 								if (code == 128){
-									console.log(chalk.red('Failed!'))
+									console.log(chalk.red.bold('Failed!'))
 									console.log(chalk.yellow('Reason: Your internet connection appears down'));
 								} else if (code == 1){
-									console.log(chalk.red('Failed!'))
+									console.log(chalk.red.bold('Failed!'))
 									console.log(chalk.yellow('Reason: Please pull before pushing.'));
 								} else {
-									console.log(chalk.red('Failed! Error code: ' + code.toString()), 'Try Googling this reason code to find out more.');
+									console.log(chalk.red.bold('Failed! Error code: ' + code.toString()), 'Try Googling this reason code to find out more.');
 								}
 							}
 						});
@@ -195,11 +195,11 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 
 
 		} else {
-			if (branch_status == 'uncommitted') throw chalk.red('Error!') + chalk.yellow(' You have uncommitted changes on this branch.' + ' Please commit your changes before attempting to deploy.')
-			if (branch_status == 'ahead_and_behind') throw chalk.red('Error!') + chalk.yellow(' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.')
+			if (branch_status == 'uncommitted') throw chalk.red.bold('Error!') + chalk.yellow(' You have uncommitted changes on this branch.' + ' Please commit your changes before attempting to deploy.')
+			if (branch_status == 'ahead_and_behind') throw chalk.red.bold('Error!') + chalk.yellow(' You have unpushed commits on this branch and your local branch is behind your remote.' + ' Please pull and then push your changes before attempting to deploy.')
 			// EDIT: It's okay if they haven't push their commits. Like the edit above to the scrub push, removing this step will result in fewer pushes for the server to respond to. This alert is currently not being triggered because the branch status no longer as a condition where it is set to ahead.
-			// if (branch_status == 'ahead') throw chalk.red('Error!') + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
-			if (branch_status == 'behind') throw chalk.red('Error!') + chalk.yellow(' Your local branch is behind your remote.' + ' Please pull, merge and push before attempting to deploy.')
+			// if (branch_status == 'ahead') throw chalk.red.bold('Error!') + ' You have unpushed commits on this branch.' + ' Please push your changes before attempting to deploy.'.yellow;
+			if (branch_status == 'behind') throw chalk.red.bold('Error!') + chalk.yellow(' Your local branch is behind your remote.' + ' Please pull, merge and push before attempting to deploy.')
 		}
 	});
 }
@@ -216,9 +216,9 @@ function addToArchive(deploySettings){
 	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
 	  .on('close', function(code){
 	  	if (code != 0){
-				console.log(chalk.red('Archive failed. Error code: ' + code.toString()));
+				console.log(chalk.red.bold('Archive failed.', 'Error code: ' + chalk.bold( code.toString()) ));
 				if (code == 128){
-					console.log(chalk.red('Reason: Your internet connection appears down'));
+					console.log(chalk.yellow('Reason:') + chalk.bold('Your internet connection appears down'));
 				}
 	  	} else {
 	  		console.log(chalk.green('Success!') + ' `' + local_branch + '` branch of `' + repo_name + '` archived as `' + remote_branch + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + remote_branch + '\n' + chalk.cyan('Note:') + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
