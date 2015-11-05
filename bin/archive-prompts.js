@@ -7,8 +7,8 @@ var _ = require('underscore')
 // Get current year and repo name
 var current_year = new Date().getFullYear(),
 		current_month = new Date().getMonth() + 1,
-		repo_path = path.resolve('./'),
-		repo_name = path.basename(repo_path),
+		project_dir = path.resolve('./'),
+		repo_name = path.basename(project_dir),
 		name_delimiter = '_';
 
 // Zero pad months below 10
@@ -17,7 +17,7 @@ if (current_month < 10){
 }
 
 // Try and extract the pub year and month from `.kestrel/deploy-settings.json`. Fall back to the vals above if unsuccessful
-var deploy_settings = JSON.parse(fs.readFileSync(path.join(repo_path, '.kestrel','deploy-settings.json'), 'utf-8'));
+var deploy_settings = readDeploySettings()
 var deployed_remote_settings;
 
 if (deploy_settings && deploy_settings.remote_path){
@@ -67,6 +67,16 @@ var questions = [
     }
   }
 ]
+
+function readDeploySettings(){
+  var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
+      settings = {};
+  if (fs.existsSync(file_path_and_name)){
+    settings = require(file_path_and_name);
+  }
+  return settings;
+}
+
 
 function execSyncClean(str){
   return execSync(str).toString().trim()
