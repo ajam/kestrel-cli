@@ -14,6 +14,9 @@ var sh_commands = {
 	gitInit: function(login_method, account, repo){
 		return 'git init && git remote add origin ' + helpers.createRemoteUrl(login_method, account, repo);
 	},
+	getGitRemoteProjectName: function(){
+		return 'git remote show origin -n | grep "Fetch URL:"'
+	},
 	archive: function(login_method, account, repo, local_branch, remote_branch){
 		return ['git', ['push', helpers.createRemoteUrl(login_method, account, repo), [local_branch,remote_branch].join(':') ] ];
 	},
