@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## Next
+
+* Remove update info from help screen since `update-notifier` includes this already.
+  * [b8696996af49eb5a5c8d74df86a5bc9169fa50b4](https://github.com/mhkeller/kestrel-cli/commit/b8696996af49eb5a5c8d74df86a5bc9169fa50b4)
+
 ## 1.2.8
 
 > 2015-11-07
