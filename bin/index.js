@@ -296,7 +296,7 @@ function writeDeploySettings(deploySettings){
   var file_path_and_name = path.resolve('./') + '/.kestrel/deploy-settings.json';
   // Let's not save the trigger
   delete deploySettings.trigger;
-  fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings));
+  fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings, null, 2));
 }
 
 var command = argv['_'],
