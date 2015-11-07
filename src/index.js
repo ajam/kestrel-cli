@@ -64,8 +64,8 @@ function setConfig(set_gh){
   var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
   		conf_dir_path = home_dir + '/.conf',
   		config_path = home_dir + '/.conf/kestrel-config.json',
-  		conf_dir_exists = fs.existsSync( conf_dir_path ),
-  		config_exists = fs.existsSync( config_path );
+  		conf_dir_exists = io.existsSync( conf_dir_path ),
+  		config_exists = io.existsSync( config_path );
 
   if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
   if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'

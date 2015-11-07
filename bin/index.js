@@ -9,7 +9,7 @@ var child       = require('child_process')
 var sh_commands = require('../src/sh-commands.js')
 var moment			= require('moment-timezone')
 var _           = require('underscore')
-
+var io          = require('indian-ocean')
 var updateNotifier = require('update-notifier')
 var pkg = require('../package.json')
 
@@ -152,7 +152,7 @@ function checkDeployInfo(dplySettings){
 
   // Make sure your sub-directory exists
   var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
-  if ( !fs.existsSync(full_local_path) ) {
+  if ( !io.existsSync(full_local_path) ) {
   	throw chalk.red.bold('Error: Local directory `') + chalk.yellow.bold(local_path) + chalk.red('` does not exist.');
   }
   
@@ -320,7 +320,7 @@ var kestrel_path;
 if (command == 'deploy' || command == 'unschedule') {
   // Make sure your sub-directory exists
   kestrel_path = path.resolve('./') + '/.kestrel';
-  if ( !fs.existsSync(kestrel_path) ) {
+  if ( !io.existsSync(kestrel_path) ) {
     throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
   }
 }

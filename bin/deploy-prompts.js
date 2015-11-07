@@ -5,6 +5,7 @@ var io = require('indian-ocean')
 var execSync = require('child_process').execSync
 var sh_commands = require('../src/sh-commands.js')
 var moment = require('moment-timezone')
+var io = require('indian-ocean')
 
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json')
@@ -16,7 +17,7 @@ var repo_name = path.basename(project_dir)
 function readDeploySettings(){
   var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
       settings = {};
-  if (fs.existsSync(file_path_and_name)){
+  if (io.existsSync(file_path_and_name)){
     settings = require(file_path_and_name);
   }
   return settings;

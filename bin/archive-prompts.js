@@ -3,6 +3,7 @@ var fs       = require('fs');
 var execSync = require('child_process').execSync;
 var sh_commands = require('../src/sh-commands.js');
 var _ = require('underscore')
+var io = require('indian-ocean')
 
 // Get current year and repo name
 var current_year = new Date().getFullYear(),
@@ -71,7 +72,7 @@ var questions = [
 function readDeploySettings(){
   var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
       settings = {};
-  if (fs.existsSync(file_path_and_name)){
+  if (io.existsSync(file_path_and_name)){
     settings = require(file_path_and_name);
   }
   return settings;
