@@ -1,43 +1,45 @@
 #!/usr/bin/env node
-var fs          = require('fs')
-var main_lib    = require('../src/index.js')
-var optimist    = require('optimist')
-var path        = require('path')
-var inquirer    = require('inquirer')
-var read        = require('read')
-var chalk       = require('chalk')
-var child       = require('child_process')
-var sh_commands = require('../src/sh-commands.js')
-var moment			= require('moment-timezone')
-var _           = require('underscore')
+var main_lib    = require('../src/index.js');
+var optimist    = require('optimist');
+var path        = require('path');
+var inquirer    = require('inquirer');
+var chalk       = require('chalk');
+var child       = require('child_process');
+var sh_commands = require('../src/sh-commands.js');
+var moment			= require('moment-timezone');
+var _           = require('underscore');
+var queue       = require('queue-async');
+var io          = require('indian-ocean');
 
-var updateNotifier = require('update-notifier')
-var pkg = require('../package.json')
+var updateNotifier = require('update-notifier');
+var pkg = require('../package.json');
 
 // Checks for available update and returns an instance
 var notifier = updateNotifier({
   pkg: pkg,
   updateCheckInterval: 1000 * 60 * 60 * 24 * 3 // Every three days
-})
+});
 
 // Notify using the built-in convenience method
 notifier.notify();
 
 var prompts_dict = {
   deploy: function(){
-    return require('./deploy-prompts.js')
+    return require('./deploy-prompts.js');
   },
   unschedule: function(){
-    return require('./unschedule-prompts.js')
+    return require('./unschedule-prompts.js');
   },
   archive: function(){
-    return require('./archive-prompts.js')
+    return require('./archive-prompts.js');
   }
 };
 
 var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
 var config;
 var pkg_json = require('../package.json');
+var PROJECT_PATH = path.resolve('./');
+var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 
 var argv = optimist
   .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, "ignore the "Options" below and follow the prompts.') + chalk.magenta('\n\nTo update: ') + chalk.magenta.bold('sudo npm update kestrel-cli -g') + '\n\nCommands:\n  ' + chalk.yellow('config') + '\tConfigure your GitHub account and server settings\n  ' + chalk.yellow('init') + '\t\tGit init, create GitHub repo + hooks\n  ' + chalk.green('deploy') + '\tPush your project to S3.\n  ' + chalk.green('archive') + '\tMake your current project a branch of your archive repo.\n  ' + chalk.green('unschedule') + '\tClear an environment\'s scheduled deployments.')
@@ -86,7 +88,9 @@ var argv = optimist
   })
   .argv;
 
-if (argv.help) return optimist.showHelp();
+if (argv.help) {
+  return optimist.showHelp();
+}
 
 function getBucketEnvironment(dict){
   return dict['e'] || dict['env'] || undefined;
@@ -98,9 +102,9 @@ function getTriggerType(dict){
 
 function getBranches(dict, which){
  var branch_string = dict['b'] || dict['branches'] || undefined;
- var branch_parts,
-     which_index,
-     branches;
+ var branch_parts;
+ var which_index;
+ var branches;
 
  if (branch_string){
     branch_parts = branch_string.split(':');
@@ -128,11 +132,11 @@ function getWhen(dict){
 }
 
 function checkDeployInfo(dplySettings){
-  var bucket_environment = dplySettings.bucket_environment,
-      trigger_type = dplySettings.trigger_type,
-      trigger = dplySettings.trigger,
-      local_path = dplySettings.local_path,
-      when = dplySettings.when;
+  var bucket_environment = dplySettings.bucket_environment;
+  var trigger_type = dplySettings.trigger_type;
+  var trigger = dplySettings.trigger;
+  var local_path = dplySettings.local_path;
+  var when = dplySettings.when;
 
   // Check trigger info
   if (trigger_type != 'sync' && trigger_type != 'hard') {
@@ -152,8 +156,8 @@ function checkDeployInfo(dplySettings){
   }
 
   // Make sure your sub-directory exists
-  var full_local_path = path.dirname( path.resolve('./') )  + '/' + local_path;
-  if ( !fs.existsSync(full_local_path) ) {
+  var full_local_path = path.join(LOCAL_FOLDER, local_path);
+  if ( !io.existsSync(full_local_path) ) {
   	throw chalk.red.bold('Error: Local directory `') + chalk.yellow.bold(local_path) + chalk.red('` does not exist.');
   }
   
@@ -163,10 +167,10 @@ function checkDeployInfo(dplySettings){
   }
   
   // Make sure your date is a proper date, unless it's `now`
-	var test_date,
-			test_date_string,
-			test_date_parts,
-			test_time_parts;
+	var test_date;
+	var test_date_string;
+	var test_date_parts;
+	var test_time_parts;
 
 	if (when != 'now'){
 		test_date = new Date(when);
@@ -214,21 +218,23 @@ function promptFor(target, dplySettings){
   var flagged_values = Object.keys(settings_from_flags)
   var non_flagged_questions = questions.filter(function(question){
     return !_.contains(flagged_values, question.name)
-  })
+  });
 
   inquirer.prompt(non_flagged_questions, function(answers) {
-    var flags_as_arr
-    var flags_styled
+    var flags_as_arr;
+    var flags_styled;
     // If we have settings from flags, display them
     if (!_.isEmpty(settings_from_flags)) {
-      flags_as_arr = _.pairs(settings_from_flags)
+      flags_as_arr = _.pairs(settings_from_flags);
       flags_styled = flags_as_arr.map(function(settingPair){
-        return chalk.bold(settingPair[0]) + ': ' + chalk.cyan(settingPair[1])
+        return chalk.bold(settingPair[0]) + ': ' + chalk.cyan(settingPair[1]);
       }).join('\n')
       console.log('\n' + chalk.magenta('Plus you added these settings via flags:'), '\n' + flags_styled + '\n')
     }
+
     // We omitted these questions above, now we want to add their values to our answers
-    _.extend(answers, settings_from_flags)
+    _.extend(answers, settings_from_flags);
+
     inquirer.prompt({
       type: 'confirm',
       name: 'confirmed',
@@ -251,96 +257,145 @@ function promptFor(target, dplySettings){
   });
 }
 
-function deploy(deploySettings){
-  var bucket_environment = deploySettings.bucket_environment,
-      trigger_type = deploySettings.trigger_type,
-      trigger = deploySettings.trigger,
-      local_path = deploySettings.local_path,
-      remote_path = deploySettings.remote_path,
-      when = deploySettings.when;
+var prelights = {
+  fns: {},
+  commands: {}
+};
 
-  // If triggers weren't set through flags, prompt for them
-  if (!trigger_type || trigger === undefined) {
-    promptFor('deploy', deploySettings);
-  } else {
-    if ( checkDeployInfo(deploySettings) ) {
-      main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
-    }
-  }
-}
-
-function unschedule(deploySettings){
-  var bucket_environment = deploySettings.bucket_environment,
-      trigger_type = deploySettings.trigger_type,
-      trigger = deploySettings.trigger;
-  // If triggers weren't set through flags, prompt for them
-  if (!trigger_type && trigger === undefined) {
-    promptFor('unschedule', deploySettings);
-  } else {
-    if ( checkUnscheduleInfo(deploySettings) ) {
-      main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
-    }
-  }
-}
-
-function archive(deploySettings){
-  // If branches weren't set through flags, prompt for them
-  if (!deploySettings.local_branch || !deploySettings.remote_branch){
-    promptFor('archive', deploySettings);
-  } else {
-    main_lib['archive'](deploySettings);
-  }
-}
-
-function writeDeploySettings(deploySettings){
-  // Our path is defined as a global when we check for `init` on `deploy` but get it again in its own namespace to make this function more self-contained.
-  var file_path_and_name = path.resolve('./') + '/.kestrel/deploy-settings.json';
-  // Let's not save the trigger
-  delete deploySettings.trigger;
-  fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings));
-}
-
-var command = argv['_'],
-    deploy_settings = {
-      bucket_environment: getBucketEnvironment(argv),
-      trigger_type: getTriggerType(argv),
-      local_path: getLocalPath(argv),
-      remote_path: getRemotePath(argv),
-      local_branch: getBranches(argv, 'local'),
-      remote_branch: getBranches(argv, 'remote'),
-      when: getWhen(argv)
-    };
-
-// If we aren't configuring the library, make sure it already has a config file and load it.
-if (command != 'config') {
-  config = main_lib.setConfig();
-}
-
-// If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
-var kestrel_path;
-if (command == 'deploy' || command == 'unschedule') {
-  // Make sure your sub-directory exists
-  kestrel_path = path.resolve('./') + '/.kestrel';
-  if ( !fs.existsSync(kestrel_path) ) {
-    throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
-  }
-}
-
-if (command == 'deploy'){
-  // Check if we have a clean working tree before allowing to deploy
-  child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
-    var stderr;
-    if (!stdout){
-      deploy(deploy_settings);
+preflights.fns.localDirMatchesGhRemote = function(cb){
+  exec( sh_commands.getRemote, function(err, stdout, stderr){
+    var repo_name = getRepoName(stdout);
+    var matches = LOCAL_FOLDER == repo_name;
+    var err;
+    if (matches) {
+      err = null;
     } else {
-      stderr = chalk.yellow('One second...\n') + 'You have uncommited changes on your git working tree.\n' + chalk.black.bgMagenta('Please track all files and commit all changes before deploying.');
-      console.log(stderr);
+      err = chalk.red.bold('Folder names don\'t match!') + '\nYour local folder is named ' + chalk.bold(LOCAL_FOLDER) + ' but your GitHub repo is named ' + chalk.bold(repo_name) + '\nPlease rename your local folder to match the GitHub repo name.';
     }
+    cb(err);
   });
-} else if (command == 'archive'){
-  archive(deploy_settings);
-}else if (command == 'unschedule'){
-  unschedule(deploy_settings);
-}else{
-  main_lib[command]();
+
+  function getRepoName(ghRemote){
+    // TODO, this function to extract name from that string
+    return ghRemote
+  }
 }
+preflights.fns.cleanWorkingTree = function(cb){
+  child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
+    var err;
+    if (!stdout){
+      cb(null)
+    } else {
+      err = chalk.yellow('One second...\n') + 'You have uncommited changes on your git working tree.\n' + chalk.black.bgMagenta('Please track all files and commit all changes before deploying.');
+      cb(err);
+    }
+  })
+}
+
+preflights.commands.deploy = function(cb){
+  var q = queue()
+  q.defer(preflights.fns.cleanWorkingTree)
+  q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.awaitAll(cb)
+}
+preflights.commands.unschedule = function(cb){
+  var q = queue()
+  q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.awaitAll(cb)
+}
+preflights.commands.unschedule = function(cb){
+  var q = queue()
+  q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.awaitAll(cb)
+}
+
+// var commands = {};
+
+// commands.deploy = function(deploySettings){
+//   var bucket_environment = deploySettings.bucket_environment;
+//   var trigger_type = deploySettings.trigger_type;
+//   var trigger = deploySettings.trigger;
+//   var local_path = deploySettings.local_path;
+//   var remote_path = deploySettings.remote_path;
+//   var when = deploySettings.when;
+
+//   // If triggers weren't set through flags, prompt for them
+//   if (!trigger_type || trigger === undefined) {
+//     promptFor('deploy', deploySettings);
+//   } else {
+//     if ( checkDeployInfo(deploySettings) ) {
+//       main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
+//     }
+//   }
+// }
+
+// commands.unschedule = function(deploySettings){
+//   var bucket_environment = deploySettings.bucket_environment;
+//   var trigger_type = deploySettings.trigger_type;
+//   var trigger = deploySettings.trigger;
+
+//   // If triggers weren't set through flags, prompt for them
+//   if (!trigger_type && trigger === undefined) {
+//     promptFor('unschedule', deploySettings);
+//   } else {
+//     if ( checkUnscheduleInfo(deploySettings) ) {
+//       main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
+//     }
+//   }
+// }
+
+// commands.archive = function(deploySettings){
+//   // If branches weren't set through flags, prompt for them
+//   if (!deploySettings.local_branch || !deploySettings.remote_branch){
+//     promptFor('archive', deploySettings);
+//   } else {
+//     main_lib['archive'](deploySettings);
+//   }
+// }
+
+// function writeDeploySettings(deploySettings){
+//   // Our path is defined as a global when we check for `init` on `deploy` but get it again in its own namespace to make this function more self-contained.
+//   var file_path_and_name = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json');
+//   // Let's not save the trigger
+//   delete deploySettings.trigger;
+//   io.fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings, null, 2));
+// }
+
+// var command = argv['_'];
+// var deploy_settings = {
+//   bucket_environment: getBucketEnvironment(argv),
+//   trigger_type: getTriggerType(argv),
+//   local_path: getLocalPath(argv),
+//   remote_path: getRemotePath(argv),
+//   local_branch: getBranches(argv, 'local'),
+//   remote_branch: getBranches(argv, 'remote'),
+//   when: getWhen(argv)
+// };
+
+// // If we aren't configuring the library, make sure it already has a config file and load it.
+// if (command != 'config') {
+//   config = main_lib.setConfig();
+// }
+
+// // If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
+// var kestrel_path;
+// if (command == 'deploy' || command == 'unschedule') {
+//   // Make sure your sub-directory exists
+//   kestrel_path = path.join(PROJECT_PATH, '.kestrel');
+//   if ( !io.existsSync(kestrel_path) ) {
+//     throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
+//   }
+// }
+
+// if (commands[command]) {
+//   preflights.commands[command](function(err){
+//     if (!err) {
+//       commands[command](deploy_settings)
+//     } else {
+//       console.log(err)
+//     }
+//   })
+// } else {
+//   // If the cli doesn't have a specific function related to this command, pass it to the main library
+//   main_lib[command]();
+// }

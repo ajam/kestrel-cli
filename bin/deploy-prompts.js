@@ -1,17 +1,17 @@
-var path = require('path')
-var _ = require('underscore')
-var fs = require('fs')
-var io = require('indian-ocean')
-var execSync = require('child_process').execSync
-var sh_commands = require('../src/sh-commands.js')
-var moment = require('moment-timezone')
+var path        = require('path');
+var _           = require('underscore');
+var fs          = require('fs');
+var io          = require('indian-ocean');
+var execSync    = require('child_process').execSync;
+var sh_commands = require('../src/sh-commands.js');
+var moment      = require('moment-timezone');
 
-var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE
-var config_path = path.join(home_dir, '.conf', 'kestrel-config.json')
+var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+var config_path = path.join(home_dir, '.conf', 'kestrel-config.json');
 
-var project_dir = path.resolve('./')
-var config = require(config_path)
-var repo_name = path.basename(project_dir)
+var project_dir = path.resolve('./');
+var config = require(config_path);
+var repo_name = path.basename(project_dir);
 
 function readDeploySettings(){
   var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),

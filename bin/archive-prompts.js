@@ -1,15 +1,15 @@
-var path     = require('path');
-var fs       = require('fs');
-var execSync = require('child_process').execSync;
+var path        = require('path');
+var execSync    = require('child_process').execSync;
 var sh_commands = require('../src/sh-commands.js');
-var _ = require('underscore')
+var _           = require('underscore');
+var io          = require('indian-ocean');
 
 // Get current year and repo name
-var current_year = new Date().getFullYear(),
-		current_month = new Date().getMonth() + 1,
-		project_dir = path.resolve('./'),
-		repo_name = path.basename(project_dir),
-		name_delimiter = '_';
+var current_year = new Date().getFullYear();
+var current_month = new Date().getMonth() + 1;
+var PROJECT_PATH = path.resolve('./');
+var LOCAL_FOLDER = path.basename(PROJECT_PATH);
+var name_delimiter = '_';
 
 // Zero pad months below 10
 if (current_month < 10){
@@ -17,24 +17,24 @@ if (current_month < 10){
 }
 
 // Try and extract the pub year and month from `.kestrel/deploy-settings.json`. Fall back to the vals above if unsuccessful
-var deploy_settings = readDeploySettings()
+var deploy_settings = readDeploySettings();
 var deployed_remote_settings;
 
 if (deploy_settings && deploy_settings.remote_path){
 	deployed_remote_settings = deploy_settings.remote_path.replace(/\//g, name_delimiter) // The convention we use is `YYYY_MM_REPONAME`. `2014/05/test-kestrel` => 2014_05_test-kestrel
 } else {
-	deployed_remote_settings = [current_year, current_month, repo_name].join(name_delimiter)
+	deployed_remote_settings = [current_year, current_month, LOCAL_FOLDER].join(name_delimiter)
 }
 
 // Grab the current branch
 // var branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
-var current_branch = execSyncClean(sh_commands.getCurrentBranch())
-var branches = execSyncClean(sh_commands.getLocalBranches()).replace('*', '').split('\n').map(function(str){ return str.trim() })
+var current_branch = execSyncClean(sh_commands.getCurrentBranch());
+var branches = execSyncClean(sh_commands.getLocalBranches()).replace('*', '').split('\n').map(function(str){ return str.trim() });
 var branches_sans_current = _.without(branches, current_branch)
 
 // Put the current branch first
-var all_branches = [current_branch].concat(branches_sans_current)
+var all_branches = [current_branch].concat(branches_sans_current);
 
 var questions = [
   {
@@ -66,12 +66,13 @@ var questions = [
       return val.trim()
     }
   }
-]
+];
 
 function readDeploySettings(){
-  var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
-      settings = {};
-  if (fs.existsSync(file_path_and_name)){
+  var file_path_and_name = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json');
+  var settings = {};
+
+  if (io.existsSync(file_path_and_name)) {
     settings = require(file_path_and_name);
   }
   return settings;
@@ -79,7 +80,7 @@ function readDeploySettings(){
 
 
 function execSyncClean(str){
-  return execSync(str).toString().trim()
+  return execSync(str).toString().trim();
 }
 
 module.exports = questions;

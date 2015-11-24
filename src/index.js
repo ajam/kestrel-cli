@@ -1,9 +1,9 @@
-var fs          = require('fs')
-var octonode    = require('octonode')
-var path        = require('path')
-var child       = require('child_process')
-var pkg_config  = require('config-tree')
-var chalk			  = require('chalk')
+var octonode    = require('octonode');
+var path        = require('path');
+var child       = require('child_process');
+var pkg_config  = require('config-tree');
+var chalk			  = require('chalk');
+var io 					= require('indian-ocean');
 
 // Github authentication
 var config
@@ -55,14 +55,18 @@ function createGitHubHook(repo_name, cb){
 	}); 
 }
 function setConfig(set_gh){
-  var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
-  		conf_dir_path = home_dir + '/.conf',
-  		config_path = home_dir + '/.conf/kestrel-config.json',
-  		conf_dir_exists = fs.existsSync( conf_dir_path ),
-  		config_exists = fs.existsSync( config_path );
+  var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+  var conf_dir_path = path.join(home_dir, '.conf');
+  var config_path = path.join(home_dir,  '.conf', 'kestrel-config.json');
+  var conf_dir_exists = io.existsSync( conf_dir_path );
+  var config_exists = io.existsSync( config_path );
 
-  if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
-  if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'
+  if (!conf_dir_exists) {
+  	throw '~/.conf folder not found. Please run `swoop config`.';
+  }
+  if (!config_exists) {
+  	throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.';
+  }
 
   config = config || require(config_path);
 	if (set_gh){
@@ -114,11 +118,11 @@ function initAll(){
 function checkGitStatus(gitStatus){
 	gitStatus = gitStatus.trim();
 	// These could also be `.indexOf` and avoid escaping
-	var ahead_regex = new RegExp('ahead'),
-			behind_regex = new RegExp('behind'),
-			kestrel_init_regex = new RegExp('\.kestrel\/'),
-			deploy_settings_regex = new RegExp('\.kestrel\/deploy-settings\.json'),
-			git_status_lines = gitStatus.split('\n');
+	var ahead_regex = new RegExp('ahead');
+	var behind_regex = new RegExp('behind');
+	var kestrel_init_regex = new RegExp('\.kestrel\/');
+	var deploy_settings_regex = new RegExp('\.kestrel\/deploy-settings\.json');
+	var git_status_lines = gitStatus.split('\n');
 
 	// If it's just two lines and the second line describes a change to `.kestrel/deploy-settings.json` then we're okay.
 	// It should also ignore the creation of the `.kestrel` folder
@@ -206,12 +210,13 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 
 /*    C R E A T E  A R C H I V E  B R A N C H   */
 function addToArchive(deploySettings){
-	var local_branch = deploySettings.local_branch,
-			remote_branch = deploySettings.remote_branch;
+	var local_branch = deploySettings.local_branch;
+	var remote_branch = deploySettings.remote_branch;
 
   setConfig(true);
-  var repo_name = path.basename(path.resolve('./')),
-  		archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, local_branch, remote_branch);
+  var repo_name = path.basename(path.resolve('./'));
+  var archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, local_branch, remote_branch);
+	
 	console.log(chalk.bgBlue.black('Pushing to GitHub...'));
 	child.spawn( archive_push[0], archive_push[1], {stdio: 'inherit'} )
 	  .on('close', function(code){
