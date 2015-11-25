@@ -9,7 +9,7 @@ var moment      = require('moment-timezone');
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json');
 
-var project_dir = path.resolve('./');
+var project_dir = path.resolve('.');
 var config = require(config_path);
 var repo_name = path.basename(project_dir);
 

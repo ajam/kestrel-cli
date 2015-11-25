@@ -6,9 +6,9 @@ var chalk			  = require('chalk');
 var io 					= require('indian-ocean');
 
 // Github authentication
-var config
-var gh_client
-var gh_entity
+var config;
+var gh_client;
+var gh_entity;
 
 var sh_commands = require('./sh-commands.js');
 
@@ -77,7 +77,7 @@ function setConfig(set_gh){
 }
 function initAll(){
 	setConfig(true);
-	var current_dir = path.basename(path.resolve('./'));
+	var current_dir = path.basename(path.resolve('.'));
 	kestrelInit(function(err0, stdout0, stderr1){
 		if (err0){
 			console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
@@ -141,7 +141,7 @@ function checkGitStatus(gitStatus){
 
 function deployLastCommit(bucket_environment, trigger_type, trigger, local_path, remote_path, when){
   setConfig(true);
-	var current_dir = path.resolve('./');
+	var current_dir = path.resolve('.');
 
 	var trigger_commit_msg  = bucket_environment + '::' + trigger + '::' + local_path + '::' + remote_path + '::' + when;
 
@@ -214,7 +214,7 @@ function addToArchive(deploySettings){
 	var remote_branch = deploySettings.remote_branch;
 
   setConfig(true);
-  var repo_name = path.basename(path.resolve('./'));
+  var repo_name = path.basename(path.resolve('.'));
   var archive_push = sh_commands.archive(config.github.login_method, config.github.account_name, config.archive.repo_name, local_branch, remote_branch);
 	
 	console.log(chalk.bgBlue.black('Pushing to GitHub...'));

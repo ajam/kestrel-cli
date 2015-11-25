@@ -38,7 +38,7 @@ var prompts_dict = {
 var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
 var config;
 var pkg_json = require('../package.json');
-var PROJECT_PATH = path.resolve('./');
+var PROJECT_PATH = path.resolve('.');
 var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 
 var argv = optimist

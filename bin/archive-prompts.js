@@ -7,7 +7,7 @@ var io          = require('indian-ocean');
 // Get current year and repo name
 var current_year = new Date().getFullYear();
 var current_month = new Date().getMonth() + 1;
-var PROJECT_PATH = path.resolve('./');
+var PROJECT_PATH = path.resolve('.');
 var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 var name_delimiter = '_';
 
