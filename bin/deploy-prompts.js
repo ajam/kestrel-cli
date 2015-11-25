@@ -38,7 +38,7 @@ function getLocalDeployDirChoices(){
 
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
-    return repo_name + '/' + dir; // Don't use `path.join` for os-specific paths because it needs to be the linux path for the server
+    return [repo_name, dir].join('>>'); // Use this as the file delimiter to avoid os-mismatch between client and server
   })
   return [repo_name].concat(dirs_with_basename);
 }

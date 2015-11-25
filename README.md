@@ -64,7 +64,9 @@ Deploying will create a commit and push it to `origin master` with the following
 An example would look like:
 
 ````
-prod::my-sync-password::my-project-folder::2014/my-project-folder-on-s3::2015-01-01 13:00
+prod::my-sync-password::my-project-folder::2014>>my-project-folder-on-s3::2015-01-01 13:00
 ````
+
+**Note**: Kestrel uses `:` and `>` to encode its commands so it's best to avoid these characters in your file names.
 
 For more information, [check out the Wiki](https://github.com/mhkeller/kestrel/wiki/Command-line-interface#3-usage).
