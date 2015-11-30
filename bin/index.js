@@ -36,7 +36,7 @@ var prompts_dict = {
   }
 };
 
-var commands = ['config', 'init', 'deploy', 'archive', 'unschedule'];
+var commands = ['config', 'init', 'deploy', 'archive', 'unschedule', 'preflight'];
 var config;
 var pkg_json = require('../package.json');
 var PROJECT_PATH = path.resolve('.');
@@ -287,22 +287,43 @@ preflights.fns.remoteHasWebhook = function(cb){
   var gh_repo = gh_client.repo(config.github.account_name + '/' + LOCAL_FOLDER);
 
   gh_repo.hooks(function(err, response){
+    var msg = ''
     if (err) {
+      if (err.code == 'ENOTFOUND') {
+        err = chalk.red.bold('Error: ') + 'You do not seem to be connected to the internet.'
+      } else if (err.statusCode === 404) {
+        err = chalk.red.bold('Error: ') + 'The repo `' + config.github.account_name + '/' + LOCAL_FOLDER + '` does not seem to exist.'
+        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      }
       cb(err)
     } else {
       var config_urls = _.chain(response).pluck('config').pluck('url').value()
       if (!_.contains(config_urls, config.server.url)) {
         err = chalk.red.bold('Error: ') + 'No webhook found at `https://github.com/'+ config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks`'
         err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      } else {
+        msg = chalk.green('Webook present!')
       }
-      cb(err);
+      cb(err, msg);
     }
   }); 
-
+}
+preflights.fns.kestrelInited = function (cb){
+  var kestrel_path = path.join(PROJECT_PATH, '.kestrel');
+  var err
+  var msg
+  if ( !io.existsSync(kestrel_path) ) {
+    err = chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.'
+    err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+    cb(err)
+  } else {
+    cb(null, chalk.green('Kestrel init\'ed!'))
+  }
 }
 preflights.fns.localDirMatchesGhRemote = function(cb){
   preflights.helpers.getGitHubRemote(function(err, repoName){
     var matches
+    var msg = ''
     if (err) {
       cb(err)
       return false
@@ -314,20 +335,22 @@ preflights.fns.localDirMatchesGhRemote = function(cb){
       matches = LOCAL_FOLDER == repoName;
       if (matches) {
         err = null;
+        msg = chalk.green('Names match!')
       } else {
         err = chalk.red.bold('ERROR: ') + 'Folder names don\'t match!';
         err += '\nYour local folder is named `' + chalk.bold(LOCAL_FOLDER) + '` but your GitHub repo is named `' + chalk.bold(repoName) + '`';
         err += '\nPlease rename your local folder to match the GitHub repo name.';
       }
     }
-    cb(err);
+    cb(err, msg);
   });
 }
 preflights.fns.cleanWorkingTree = function(cb){
   child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
     var err = '';
+    var msg = ''
     if (!stdout){
-      cb(null)
+      cb(null, chalk.green('Clean working tree!'))
     } else {
       err = chalk.yellow('One second...')
       err += '\nYou have uncommited changes on your git working tree.' 
@@ -342,7 +365,7 @@ preflights.fns.isGit = function(cb){
       cb(err)
     } else {
       if (exists) {
-        cb(null)
+        cb(null, chalk.green('Git init\'ed!'))
       } else {
         err = '';
         err = chalk.red.bold('Error:') + ' You have not yet initialized git.'
@@ -352,10 +375,18 @@ preflights.fns.isGit = function(cb){
     }
   })
 }
-
+preflights.commands.preflight = function(cb){
+  var q = queue(1)
+  q.defer(preflights.fns.isGit)
+  q.defer(preflights.fns.kestrelInited)
+  q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.defer(preflights.fns.remoteHasWebhook)
+  q.awaitAll(cb)
+}
 preflights.commands.deploy = function(cb){
   var q = queue(1)
   q.defer(preflights.fns.isGit)
+  q.defer(preflights.fns.kestrelInited)
   q.defer(preflights.fns.cleanWorkingTree)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.defer(preflights.fns.remoteHasWebhook)
@@ -363,11 +394,15 @@ preflights.commands.deploy = function(cb){
 }
 preflights.commands.unschedule = function(cb){
   var q = queue(1)
+  q.defer(preflights.fns.isGit)
+  q.defer(preflights.fns.kestrelInited)
   q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.defer(preflights.fns.remoteHasWebhook)
   q.awaitAll(cb)
 }
 preflights.commands.archive = function(cb){
   var q = queue(1)
+  q.defer(preflights.fns.isGit)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
 }
@@ -440,16 +475,6 @@ if (command != 'config') {
   config = main_lib.setConfig();
 }
 
-// If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
-var kestrel_path;
-if (command == 'deploy' || command == 'unschedule') {
-  // Make sure your sub-directory exists
-  kestrel_path = path.join(PROJECT_PATH, '.kestrel');
-  if ( !io.existsSync(kestrel_path) ) {
-    throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
-  }
-}
-
 if (commands[command]) {
   preflights.commands[command](function(err){
     if (!err) {
@@ -458,7 +483,17 @@ if (commands[command]) {
       console.log(err)
     }
   })
-} else {
+} else if (command == 'preflight'){
+  preflights.commands[command](function(err, responses){
+    var msg
+    if (!err) {
+      msg = chalk.underline('Preflight checks')
+      msg += '\n' + responses.map(function(response, idx){ return (idx + 1) + '/' + responses.length + ' ' + response }).join('\n')
+      console.log(msg)
+    } else {
+      console.log(err)
+    }
+  })} else {
   // If the cli doesn't have a specific function related to this command, pass it to the main library
   main_lib[command]();
 }
