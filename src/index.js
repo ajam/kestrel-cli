@@ -1,19 +1,9 @@
-<<<<<<< HEAD
 var octonode    = require('octonode');
 var path        = require('path');
 var child       = require('child_process');
 var pkg_config  = require('config-tree');
 var chalk			  = require('chalk');
 var io 					= require('indian-ocean');
-=======
-var fs          = require('fs')
-var octonode    = require('octonode')
-var path        = require('path')
-var child       = require('child_process')
-var pkg_config  = require('config-tree')
-var chalk			  = require('chalk')
-var io          = require('indian-ocean')
->>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
 
 // Github authentication
 var config;
@@ -70,7 +60,6 @@ function createGitHubHook(repo_name, cb){
 }
 
 function setConfig(set_gh){
-<<<<<<< HEAD
   var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
   var conf_dir_path = path.join(home_dir, '.conf');
   var config_path = path.join(home_dir,  '.conf', 'kestrel-config.json');
@@ -83,16 +72,6 @@ function setConfig(set_gh){
   if (!config_exists) {
   	throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.';
   }
-=======
-  var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
-  		conf_dir_path = home_dir + '/.conf',
-  		config_path = home_dir + '/.conf/kestrel-config.json',
-  		conf_dir_exists = io.existsSync( conf_dir_path ),
-  		config_exists = io.existsSync( config_path );
-
-  if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
-  if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'
->>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
 
   config = config || require(config_path);
 	if (set_gh){
@@ -124,19 +103,8 @@ function getProjectName(cb){
 
 function initAll(){
 	setConfig(true);
-<<<<<<< HEAD
-	var current_dir = path.basename(path.resolve('.'));
-	kestrelInit(function(err0, stdout0, stderr1){
-		if (err0){
-			console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
-		} else {
-			console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
-		}
-=======
->>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
-
 	getProjectName(function(project_name){
-		console.log('Setting repo name as:', chalk.bold(project_name))
+		console.log('Using project name:', chalk.bold(project_name))
 		kestrelInit(function(err0, stdout0, stderr1){
 			if (err0){
 				console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
