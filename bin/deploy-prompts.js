@@ -38,9 +38,9 @@ function getLocalDeployDirChoices(){
 
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
-    return [LOCAL_FOLDER, dir].join('>>'); // Use this as the file delimiter to avoid os-mismatch between client and server
+    return ['.', dir].join('/'); // Kestrel server will run with `/` file paths for Linux
   })
-  return [LOCAL_FOLDER].concat(dirs_with_basename);
+  return ['./'].concat(dirs_with_basename);
 }
 
 function getConfigRemotePath(){
@@ -54,7 +54,7 @@ function getConfigRemotePath(){
 var default_deploy = {
   bucket_environment: 'staging',
   trigger_type: 'sync',
-  local_path: LOCAL_FOLDER,
+  local_path: './',
   remote_path: getConfigRemotePath() + '/' + LOCAL_FOLDER,
   when: 'now'
 };
@@ -72,14 +72,27 @@ var questions = [
     type: 'list',
     name: 'trigger_type',
     message: 'Deploy method?',
-    choices: ['sync', 'hard'],
+    choices: function(){
+      var choices = ['sync']
+      if (!config.server.hard_deploy.enabled) {
+        choices.push('hard')
+      }
+      return choices
+    },
     default: default_deploy.trigger_type
   },{
     type: 'list',
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: getLocalDeployDirChoices(),
-    default: default_deploy.local_path
+    default: './',
+    filter: function(input){
+      if (input == './') {
+        return LOCAL_FOLDER
+      } else {
+        return input.replace('.', LOCAL_FOLDER)
+      }
+    }
   },{
     type: 'input',
     name: 'remote_path',

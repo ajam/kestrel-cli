@@ -157,14 +157,9 @@ function checkDeployInfo(dplySettings){
   }
 
   // Make sure your sub-directory exists
-  var full_local_path = path.join(LOCAL_FOLDER, local_path);
-  if ( !io.existsSync(full_local_path) ) {
-  	throw chalk.red.bold('Error: Local directory `') + chalk.yellow.bold(local_path) + chalk.red('` does not exist.');
-  }
-  
-  // Make sure you specified a bucket environment
-  if (bucket_environment != 'prod' && bucket_environment != 'staging') {
-  	throw chalk.red.bold('Error: Bucket environment must be either `prod` or `staging`.');
+  // var full_local_path = path.join(LOCAL_FOLDER, local_path);
+  if ( !io.existsSync(local_path.replace(LOCAL_FOLDER, '.')) ) {
+    throw chalk.red.bold('Error:') + ' Local directory `' + chalk.bold(local_path) + '` does not exist.';
   }
   
   // Make sure your date is a proper date, unless it's `now`
@@ -246,12 +241,12 @@ function promptFor(target, dplySettings){
         console.log(chalk.red('\n\nCancelled.'));
       } else {
         if (target == 'deploy') {
-          deploy(answers);
+          commands.deploy(answers);
           writeDeploySettings(answers);
         } else if (target == 'archive'){
-          archive(answers);
+          commands.archive(answers);
         } else if (target == 'unschedule'){
-          unschedule(answers);
+          commands.unschedule(answers);
         }
       }
     })
