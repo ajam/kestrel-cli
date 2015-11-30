@@ -257,58 +257,102 @@ function promptFor(target, dplySettings){
   });
 }
 
-var prelights = {
+var preflights = {
   fns: {},
-  commands: {}
+  commands: {},
+  helpers: {}
 };
+
+// Callback is `(err, project_name)` or `'Git remote not set'` if git is initialized but no remote is set
+preflights.helpers.getGitHubRemote = function(cb){
+  child.exec(sh_commands.getGitRemoteProjectName(), function(err, stdout, stderr ) {
+    if (err) {
+      cb(err)
+    } else if (stdout.trim() == 'Fetch URL: origin') {
+      // console.log(chalk.yellow('Warning: Could not get remote project name from .git folder.'))
+      // console.log('> This could simply mean you have initialized git but haven\'t connected it to a GitHub repository.')
+      cb(null, 'Git remote not set')
+    } else {
+      // Grab the repo name from the url, if that doesn't work, default to current directory name
+      var url_parts = stdout.trim().split('/')
+      var project_name = url_parts[url_parts.length - 1].replace(/\.git/, '')
+      cb(null, project_name)
+    }
+  })
+}
 
 preflights.fns.remoteHasWebhook = function(cb){
   cb(null)
 }
 preflights.fns.localDirMatchesGhRemote = function(cb){
-  exec( sh_commands.getRemote, function(err, stdout, stderr){
-    var repo_name = getRepoName(stdout);
-    var matches = LOCAL_FOLDER == repo_name;
-    var err;
-    if (matches) {
-      err = null;
+  preflights.helpers.getGitHubRemote(function(err, repoName){
+    var matches
+    if (err) {
+      cb(err)
+      return false
+    } else if (repoName == 'Git remote not set'){
+      err = '';
+      err = chalk.red.bold('Error: ') + 'You haven\'t connected this project to GitHub.'
+      err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
     } else {
-      err = chalk.red.bold('Folder names don\'t match!') + '\nYour local folder is named ' + chalk.bold(LOCAL_FOLDER) + ' but your GitHub repo is named ' + chalk.bold(repo_name) + '\nPlease rename your local folder to match the GitHub repo name.';
+      matches = LOCAL_FOLDER == repoName;
+      console.log(LOCAL_FOLDER, repoName)
+      if (matches) {
+        err = null;
+      } else {
+        err = chalk.red.bold('ERROR: ') + 'Folder names don\'t match!';
+        err += '\nYour local folder is named `' + chalk.bold(LOCAL_FOLDER) + '` but your GitHub repo is named `' + chalk.bold(repoName) + '`';
+        err += '\nPlease rename your local folder to match the GitHub repo name.';
+      }
     }
     cb(err);
   });
-
-  function getRepoName(ghRemote){
-    // TODO, this function to extract name from that string
-    return ghRemote
-  }
 }
 preflights.fns.cleanWorkingTree = function(cb){
   child.exec(sh_commands.statusPorcelain(), function(err, stdout, stderr){
-    var err;
+    var err = '';
     if (!stdout){
       cb(null)
     } else {
-      err = chalk.yellow('One second...\n') + 'You have uncommited changes on your git working tree.\n' + chalk.black.bgMagenta('Please track all files and commit all changes before deploying.');
+      err = chalk.yellow('One second...')
+      err += '\nYou have uncommited changes on your git working tree.' 
+      err += chalk.bold('\nPlease track all files and commit all changes before deploying.');
       cb(err);
+    }
+  })
+}
+preflights.fns.isGit = function(cb){
+  io.exists('.git', function(err, exists){
+    if (err) {
+      cb(err)
+    } else {
+      if (exists) {
+        cb(null)
+      } else {
+        err = '';
+        err = chalk.red.bold('Error:') + ' You have not yet initialized git.'
+        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+        cb(err)
+      }
     }
   })
 }
 
 preflights.commands.deploy = function(cb){
-  var q = queue()
+  var q = queue(1)
+  q.defer(preflights.fns.isGit)
   q.defer(preflights.fns.remoteHasWebhook)
   q.defer(preflights.fns.cleanWorkingTree)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
 }
 preflights.commands.unschedule = function(cb){
-  var q = queue()
+  var q = queue(1)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
 }
 preflights.commands.archive = function(cb){
-  var q = queue()
+  var q = queue(1)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
 }

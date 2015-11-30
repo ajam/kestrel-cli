@@ -12,6 +12,9 @@ var gh_entity;
 
 var sh_commands = require('./sh-commands.js');
 
+var PROJECT_PATH = path.resolve('.');
+var LOCAL_FOLDER = path.basename(PROJECT_PATH);
+
 /*    I N I T  C O M M A N D S   */
 function configClient(){
 	var dir = path.dirname(__dirname);
@@ -103,36 +106,34 @@ function getProjectName(cb){
 
 function initAll(){
 	setConfig(true);
-	getProjectName(function(project_name){
-		console.log('Using project name:', chalk.bold(project_name))
-		kestrelInit(function(err0, stdout0, stderr1){
-			if (err0){
-				console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
+	console.log('Using project name:', chalk.bold(LOCAL_FOLDER))
+	kestrelInit(function(err0, stdout0, stderr1){
+		if (err0){
+			console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
+		} else {
+			console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
+		}
+
+		gitInit(LOCAL_FOLDER, function(err1, stdout, stderr){
+			if (err1) {
+				console.log(chalk.yellow('Step 2/4: Warning:') + ' Git remote origin already set. You should manually run ' + chalk.bold('git remote set-url origin ' + sh_commands.gitInit(config.github.login_method, config.github.account_name, LOCAL_FOLDER).split('origin ')[1]) );
 			} else {
-				console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
-			}
-
-			gitInit(project_name, function(err1, stdout, stderr){
-				if (err1) {
-					console.log(chalk.yellow('Step 2/4: Warning:') + ' Git remote origin already set. You should manually run ' + chalk.bold('git remote set-url origin ' + sh_commands.gitInit(config.github.login_method, config.github.account_name, project_name).split('origin ')[1]) );
+				console.log(chalk.green('Step 2/4: Git init\'ed and origin set!'));
+			} 
+			
+			createGitHubRepo(LOCAL_FOLDER, function(err2, response){
+				if (err2) { 
+					console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + LOCAL_FOLDER) + '\nStated reason:', err2.message);
 				} else {
-					console.log(chalk.green('Step 2/4: Git init\'ed and origin set!'));
-				} 
-				
-				createGitHubRepo(project_name, function(err2, response){
-					if (err2) { 
-						console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + project_name) + '\nStated reason:', err2.message);
-					} else {
-						console.log(chalk.green('Step 3/4: GitHub repo created!'));
-					}
+					console.log(chalk.green('Step 3/4: GitHub repo created!'));
+				}
 
-					createGitHubHook(project_name, function(err3){
-						if (err3) { 
-							console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + project_name + '/settings/hooks') + '\nStated reason:', err3.message); 
-						} else {
-							console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + project_name) );
-						}
-					});
+				createGitHubHook(LOCAL_FOLDER, function(err3){
+					if (err3) { 
+						console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks') + '\nStated reason:', err3.message); 
+					} else {
+						console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + LOCAL_FOLDER) );
+					}
 				});
 			});
 		});
