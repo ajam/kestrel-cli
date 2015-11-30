@@ -42,7 +42,7 @@ var PROJECT_PATH = path.resolve('.');
 var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 
 var argv = optimist
-  .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, "ignore the "Options" below and follow the prompts.') + chalk.magenta('\n\nTo update: ') + chalk.magenta.bold('sudo npm update kestrel-cli -g') + '\n\nCommands:\n  ' + chalk.yellow('config') + '\tConfigure your GitHub account and server settings\n  ' + chalk.yellow('init') + '\t\tGit init, create GitHub repo + hooks\n  ' + chalk.green('deploy') + '\tPush your project to S3.\n  ' + chalk.green('archive') + '\tMake your current project a branch of your archive repo.\n  ' + chalk.green('unschedule') + '\tClear an environment\'s scheduled deployments.')
+  .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, ignore the "Options" below and follow the prompts.') + '\n\nCommands:\n  ' + chalk.yellow('config') + '\tConfigure your GitHub account and server settings\n  ' + chalk.yellow('init') + '\t\tGit init, create GitHub repo + hooks\n  ' + chalk.green('deploy') + '\tPush your project to S3.\n  ' + chalk.green('archive') + '\tMake your current project a branch of your archive repo.\n  ' + chalk.green('unschedule') + '\tClear an environment\'s scheduled deployments.')
   .options('help', {
     describe: 'Display help'
   })
@@ -313,93 +313,93 @@ preflights.commands.archive = function(cb){
   q.awaitAll(cb)
 }
 
-// var commands = {};
+var commands = {};
 
-// commands.deploy = function(deploySettings){
-//   var bucket_environment = deploySettings.bucket_environment;
-//   var trigger_type = deploySettings.trigger_type;
-//   var trigger = deploySettings.trigger;
-//   var local_path = deploySettings.local_path;
-//   var remote_path = deploySettings.remote_path;
-//   var when = deploySettings.when;
+commands.deploy = function(deploySettings){
+  var bucket_environment = deploySettings.bucket_environment;
+  var trigger_type = deploySettings.trigger_type;
+  var trigger = deploySettings.trigger;
+  var local_path = deploySettings.local_path;
+  var remote_path = deploySettings.remote_path;
+  var when = deploySettings.when;
 
-//   // If triggers weren't set through flags, prompt for them
-//   if (!trigger_type || trigger === undefined) {
-//     promptFor('deploy', deploySettings);
-//   } else {
-//     if ( checkDeployInfo(deploySettings) ) {
-//       main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
-//     }
-//   }
-// }
+  // If triggers weren't set through flags, prompt for them
+  if (!trigger_type || trigger === undefined) {
+    promptFor('deploy', deploySettings);
+  } else {
+    if ( checkDeployInfo(deploySettings) ) {
+      main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
+    }
+  }
+}
 
-// commands.unschedule = function(deploySettings){
-//   var bucket_environment = deploySettings.bucket_environment;
-//   var trigger_type = deploySettings.trigger_type;
-//   var trigger = deploySettings.trigger;
+commands.unschedule = function(deploySettings){
+  var bucket_environment = deploySettings.bucket_environment;
+  var trigger_type = deploySettings.trigger_type;
+  var trigger = deploySettings.trigger;
 
-//   // If triggers weren't set through flags, prompt for them
-//   if (!trigger_type && trigger === undefined) {
-//     promptFor('unschedule', deploySettings);
-//   } else {
-//     if ( checkUnscheduleInfo(deploySettings) ) {
-//       main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
-//     }
-//   }
-// }
+  // If triggers weren't set through flags, prompt for them
+  if (!trigger_type && trigger === undefined) {
+    promptFor('unschedule', deploySettings);
+  } else {
+    if ( checkUnscheduleInfo(deploySettings) ) {
+      main_lib['unschedule'](bucket_environment, 'sync', trigger, 'all-local-directories', 'no-remote', 'unschedule');
+    }
+  }
+}
 
-// commands.archive = function(deploySettings){
-//   // If branches weren't set through flags, prompt for them
-//   if (!deploySettings.local_branch || !deploySettings.remote_branch){
-//     promptFor('archive', deploySettings);
-//   } else {
-//     main_lib['archive'](deploySettings);
-//   }
-// }
+commands.archive = function(deploySettings){
+  // If branches weren't set through flags, prompt for them
+  if (!deploySettings.local_branch || !deploySettings.remote_branch){
+    promptFor('archive', deploySettings);
+  } else {
+    main_lib['archive'](deploySettings);
+  }
+}
 
-// function writeDeploySettings(deploySettings){
-//   // Our path is defined as a global when we check for `init` on `deploy` but get it again in its own namespace to make this function more self-contained.
-//   var file_path_and_name = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json');
-//   // Let's not save the trigger
-//   delete deploySettings.trigger;
-//   io.fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings, null, 2));
-// }
+function writeDeploySettings(deploySettings){
+  // Our path is defined as a global when we check for `init` on `deploy` but get it again in its own namespace to make this function more self-contained.
+  var file_path_and_name = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json');
+  // Let's not save the trigger
+  delete deploySettings.trigger;
+  io.fs.writeFileSync(file_path_and_name, JSON.stringify(deploySettings, null, 2));
+}
 
-// var command = argv['_'];
-// var deploy_settings = {
-//   bucket_environment: getBucketEnvironment(argv),
-//   trigger_type: getTriggerType(argv),
-//   local_path: getLocalPath(argv),
-//   remote_path: getRemotePath(argv),
-//   local_branch: getBranches(argv, 'local'),
-//   remote_branch: getBranches(argv, 'remote'),
-//   when: getWhen(argv)
-// };
+var command = argv['_'];
+var deploy_settings = {
+  bucket_environment: getBucketEnvironment(argv),
+  trigger_type: getTriggerType(argv),
+  local_path: getLocalPath(argv),
+  remote_path: getRemotePath(argv),
+  local_branch: getBranches(argv, 'local'),
+  remote_branch: getBranches(argv, 'remote'),
+  when: getWhen(argv)
+};
 
-// // If we aren't configuring the library, make sure it already has a config file and load it.
-// if (command != 'config') {
-//   config = main_lib.setConfig();
-// }
+// If we aren't configuring the library, make sure it already has a config file and load it.
+if (command != 'config') {
+  config = main_lib.setConfig();
+}
 
-// // If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
-// var kestrel_path;
-// if (command == 'deploy' || command == 'unschedule') {
-//   // Make sure your sub-directory exists
-//   kestrel_path = path.join(PROJECT_PATH, '.kestrel');
-//   if ( !io.existsSync(kestrel_path) ) {
-//     throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
-//   }
-// }
+// If we are doing any of these things, make sure we've `init`d by looking for the `.kestrel` folder
+var kestrel_path;
+if (command == 'deploy' || command == 'unschedule') {
+  // Make sure your sub-directory exists
+  kestrel_path = path.join(PROJECT_PATH, '.kestrel');
+  if ( !io.existsSync(kestrel_path) ) {
+    throw chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.\n' + chalk.yellow('Please run '+ chalk.bold('swoop init') + ' and try again.');
+  }
+}
 
-// if (commands[command]) {
-//   preflights.commands[command](function(err){
-//     if (!err) {
-//       commands[command](deploy_settings)
-//     } else {
-//       console.log(err)
-//     }
-//   })
-// } else {
-//   // If the cli doesn't have a specific function related to this command, pass it to the main library
-//   main_lib[command]();
-// }
+if (commands[command]) {
+  preflights.commands[command](function(err){
+    if (!err) {
+      commands[command](deploy_settings)
+    } else {
+      console.log(err)
+    }
+  })
+} else {
+  // If the cli doesn't have a specific function related to this command, pass it to the main library
+  main_lib[command]();
+}

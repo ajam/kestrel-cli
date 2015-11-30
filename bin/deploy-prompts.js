@@ -8,15 +8,15 @@ var moment      = require('moment-timezone');
 
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json');
-
-var project_dir = path.resolve('.');
 var config = require(config_path);
-var repo_name = path.basename(project_dir);
+
+var PROJECT_PATH = path.resolve('.');
+var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 
 function readDeploySettings(){
-  var file_path_and_name = path.join(project_dir, '.kestrel', 'deploy-settings.json'),
+  var file_path_and_name = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json'),
       settings = {};
-  if (fs.existsSync(file_path_and_name)){
+  if (io.existsSync(file_path_and_name)){
     settings = require(file_path_and_name);
   }
   return settings;
@@ -34,13 +34,13 @@ function getDirectories(srcpath, opts) {
 }
 
 function getLocalDeployDirChoices(){
-  var dirs = getDirectories(project_dir, {excludeHidden: true})
+  var dirs = getDirectories(PROJECT_PATH, {excludeHidden: true})
 
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
-    return [repo_name, dir].join('>>'); // Use this as the file delimiter to avoid os-mismatch between client and server
+    return [LOCAL_FOLDER, dir].join('>>'); // Use this as the file delimiter to avoid os-mismatch between client and server
   })
-  return [repo_name].concat(dirs_with_basename);
+  return [LOCAL_FOLDER].concat(dirs_with_basename);
 }
 
 function getConfigRemotePath(){
@@ -54,8 +54,8 @@ function getConfigRemotePath(){
 var default_deploy = {
   bucket_environment: 'staging',
   trigger_type: 'sync',
-  local_path: repo_name,
-  remote_path: getConfigRemotePath() + '/' + repo_name,
+  local_path: LOCAL_FOLDER,
+  remote_path: getConfigRemotePath() + '/' + LOCAL_FOLDER,
   when: 'now'
 };
 

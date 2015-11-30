@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 var octonode    = require('octonode');
 var path        = require('path');
 var child       = require('child_process');
 var pkg_config  = require('config-tree');
 var chalk			  = require('chalk');
 var io 					= require('indian-ocean');
+=======
+var fs          = require('fs')
+var octonode    = require('octonode')
+var path        = require('path')
+var child       = require('child_process')
+var pkg_config  = require('config-tree')
+var chalk			  = require('chalk')
+var io          = require('indian-ocean')
+>>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
 
 // Github authentication
 var config;
@@ -26,12 +36,15 @@ function setGitHubOrgType(gh_c){
 		return gh_c.me();
 	}
 }
+
 function kestrelInit(cb){
 	child.exec( sh_commands.kestrelInit(), cb );
 }
+
 function gitInit(current_dir, cb){
 	child.exec( sh_commands.gitInit(config.github.login_method, config.github.account_name, current_dir), cb );
 }
+
 function createGitHubRepo(repo_name, cb){
 	gh_entity.repo({
 	  "name": repo_name,
@@ -40,6 +53,7 @@ function createGitHubRepo(repo_name, cb){
 		cb(err, response);
 	}); 
 }
+
 function createGitHubHook(repo_name, cb){
 	var gh_repo = gh_client.repo(config.github.account_name + '/' + repo_name);
 
@@ -54,7 +68,9 @@ function createGitHubHook(repo_name, cb){
 		cb(err, response);
 	}); 
 }
+
 function setConfig(set_gh){
+<<<<<<< HEAD
   var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
   var conf_dir_path = path.join(home_dir, '.conf');
   var config_path = path.join(home_dir,  '.conf', 'kestrel-config.json');
@@ -67,6 +83,16 @@ function setConfig(set_gh){
   if (!config_exists) {
   	throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.';
   }
+=======
+  var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE,
+  		conf_dir_path = home_dir + '/.conf',
+  		config_path = home_dir + '/.conf/kestrel-config.json',
+  		conf_dir_exists = io.existsSync( conf_dir_path ),
+  		config_exists = io.existsSync( config_path );
+
+  if (!conf_dir_exists) throw '~/.conf folder not found. Please run `swoop config`.'
+  if (!config_exists) throw '~/.conf/kestrel-config.json not found. Please run `swoop config`.'
+>>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
 
   config = config || require(config_path);
 	if (set_gh){
@@ -75,8 +101,30 @@ function setConfig(set_gh){
 	}
 	return config;
 }
+
+function getProjectName(cb){
+	var current_dir = path.basename(path.resolve('./'))
+	if (!io.existsSync('./.git')) {
+		cb(current_dir)
+	} else {
+		child.exec(sh_commands.getGitRemoteProjectName(), function(err, stdout, stderr ) {
+			if (err || stdout.trim() == 'Fetch URL: origin') {
+				console.log(chalk.yellow('Warning: Could not get remote project name from .git folder.'))
+				console.log('> This could simply mean you have initialized git but haven\'t connected it to a GitHub repository.')
+				cb(current_dir)
+			} else {
+				// Grab the repo name from the url, if that doesn't work, default to current directory name
+				var url_parts = stdout.split('/')
+				var project_name = url_parts[url_parts.length - 1].replace(/\.git/, '')
+				cb(project_name)
+			}
+		})
+	}
+}
+
 function initAll(){
 	setConfig(true);
+<<<<<<< HEAD
 	var current_dir = path.basename(path.resolve('.'));
 	kestrelInit(function(err0, stdout0, stderr1){
 		if (err0){
@@ -84,35 +132,44 @@ function initAll(){
 		} else {
 			console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
 		}
+=======
+>>>>>>> 87f6e6aa3182983580d4b655693a6c4384f77f69
 
-		gitInit(current_dir, function(err1, stdout, stderr){
-			if (err1) {
-				console.log(chalk.yellow('Step 2/4: Warning:') + ' Git remote origin already set. You should manually run ' + chalk.bold('git remote set-url origin ' + sh_commands.gitInit(config.github.login_method, config.github.account_name, current_dir).split('origin ')[1]) );
+	getProjectName(function(project_name){
+		console.log('Setting repo name as:', chalk.bold(project_name))
+		kestrelInit(function(err0, stdout0, stderr1){
+			if (err0){
+				console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
 			} else {
-				console.log(chalk.green('Step 2/4: Git init\'ed and origin set!'));
-			} 
-			
-			createGitHubRepo(current_dir, function(err2, response){
-				if (err2) { 
-					console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir) + '\nStated reason:', err2.message);
+				console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
+			}
+
+			gitInit(project_name, function(err1, stdout, stderr){
+				if (err1) {
+					console.log(chalk.yellow('Step 2/4: Warning:') + ' Git remote origin already set. You should manually run ' + chalk.bold('git remote set-url origin ' + sh_commands.gitInit(config.github.login_method, config.github.account_name, project_name).split('origin ')[1]) );
 				} else {
-					console.log(chalk.green('Step 3/4: GitHub repo created!'));
-				}
-
-				createGitHubHook(current_dir, function(err3){
-					if (err3) { 
-						console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + current_dir + '/settings/hooks') + '\nStated reason:', err3.message); 
+					console.log(chalk.green('Step 2/4: Git init\'ed and origin set!'));
+				} 
+				
+				createGitHubRepo(project_name, function(err2, response){
+					if (err2) { 
+						console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + project_name) + '\nStated reason:', err2.message);
 					} else {
-						console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + current_dir) );
+						console.log(chalk.green('Step 3/4: GitHub repo created!'));
 					}
-				});
 
+					createGitHubHook(project_name, function(err3){
+						if (err3) { 
+							console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + project_name + '/settings/hooks') + '\nStated reason:', err3.message); 
+						} else {
+							console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + project_name) );
+						}
+					});
+				});
 			});
 		});
-
 	});
 }
-
 
 /*    D E P L O Y   C O M M A N D S   */
 function checkGitStatus(gitStatus){
@@ -230,7 +287,6 @@ function addToArchive(deploySettings){
 	  	}
 	  })
 }
-
 
 function reportError(err, msg){
 	console.log(msg, '\nReason:');
