@@ -4,6 +4,7 @@ var optimist    = require('optimist');
 var path        = require('path');
 var inquirer    = require('inquirer');
 var chalk       = require('chalk');
+var octonode    = require('octonode');
 var child       = require('child_process');
 var sh_commands = require('../src/sh-commands.js');
 var moment			= require('moment-timezone');
@@ -282,7 +283,22 @@ preflights.helpers.getGitHubRemote = function(cb){
 }
 
 preflights.fns.remoteHasWebhook = function(cb){
-  cb(null)
+  var gh_client = octonode.client(config.github.access_token);
+  var gh_repo = gh_client.repo(config.github.account_name + '/' + LOCAL_FOLDER);
+
+  gh_repo.hooks(function(err, response){
+    if (err) {
+      cb(err)
+    } else {
+      var config_urls = _.chain(response).pluck('config').pluck('url').value()
+      if (!_.contains(config_urls, config.server.url)) {
+        err = chalk.red.bold('Error: ') + 'No webhook found at `https://github.com/'+ config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks`'
+        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      }
+      cb(err);
+    }
+  }); 
+
 }
 preflights.fns.localDirMatchesGhRemote = function(cb){
   preflights.helpers.getGitHubRemote(function(err, repoName){
@@ -296,7 +312,6 @@ preflights.fns.localDirMatchesGhRemote = function(cb){
       err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
     } else {
       matches = LOCAL_FOLDER == repoName;
-      console.log(LOCAL_FOLDER, repoName)
       if (matches) {
         err = null;
       } else {
@@ -341,9 +356,9 @@ preflights.fns.isGit = function(cb){
 preflights.commands.deploy = function(cb){
   var q = queue(1)
   q.defer(preflights.fns.isGit)
-  q.defer(preflights.fns.remoteHasWebhook)
   q.defer(preflights.fns.cleanWorkingTree)
   q.defer(preflights.fns.localDirMatchesGhRemote)
+  q.defer(preflights.fns.remoteHasWebhook)
   q.awaitAll(cb)
 }
 preflights.commands.unschedule = function(cb){
