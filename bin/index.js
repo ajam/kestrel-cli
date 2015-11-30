@@ -262,6 +262,9 @@ var prelights = {
   commands: {}
 };
 
+preflights.fns.remoteHasWebhook = function(cb){
+  cb(null)
+}
 preflights.fns.localDirMatchesGhRemote = function(cb){
   exec( sh_commands.getRemote, function(err, stdout, stderr){
     var repo_name = getRepoName(stdout);
@@ -294,6 +297,7 @@ preflights.fns.cleanWorkingTree = function(cb){
 
 preflights.commands.deploy = function(cb){
   var q = queue()
+  q.defer(preflights.fns.remoteHasWebhook)
   q.defer(preflights.fns.cleanWorkingTree)
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
@@ -303,7 +307,7 @@ preflights.commands.unschedule = function(cb){
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
 }
-preflights.commands.unschedule = function(cb){
+preflights.commands.archive = function(cb){
   var q = queue()
   q.defer(preflights.fns.localDirMatchesGhRemote)
   q.awaitAll(cb)
