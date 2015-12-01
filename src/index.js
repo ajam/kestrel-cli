@@ -132,7 +132,7 @@ function initAll(){
 					if (err3) { 
 						console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks') + '\nStated reason:', err3.message); 
 					} else {
-						console.log(chalk.green('Step 4/4: GitHub hook created.') + ' Once you push you can preview it at:\n  ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + LOCAL_FOLDER) );
+						console.log(chalk.green('Step 4/4: GitHub hook created.') + '\nOnce you push you can preview it at: ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + LOCAL_FOLDER) );
 					}
 				});
 			});

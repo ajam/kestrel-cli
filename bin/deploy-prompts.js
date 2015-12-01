@@ -74,7 +74,7 @@ var questions = [
     message: 'Deploy method?',
     choices: function(){
       var choices = ['sync']
-      if (!config.server.hard_deploy.enabled) {
+      if (config.server.hard_deploy.enabled) {
         choices.push('hard')
       }
       return choices

@@ -16,7 +16,11 @@
 	},
   "publishing": {
     "remote_path": "YYYY",
-    "is_moment_template": true
+    "is_moment_template": true,
+    "buckets": {
+    	"prod": "projects.yoursite.com",
+    	"staging": "staging.projects.yoursite.com"
+    }
   },
 	"archive": {
 		"repo_name": "archive"

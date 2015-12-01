@@ -265,8 +265,6 @@ preflights.helpers.getGitHubRemote = function(cb){
     if (err) {
       cb(err)
     } else if (stdout.trim() == 'Fetch URL: origin') {
-      // console.log(chalk.yellow('Warning: Could not get remote project name from .git folder.'))
-      // console.log('> This could simply mean you have initialized git but haven\'t connected it to a GitHub repository.')
       cb(null, 'Git remote not set')
     } else {
       // Grab the repo name from the url, if that doesn't work, default to current directory name
@@ -309,7 +307,7 @@ preflights.fns.kestrelInited = function (cb){
   var msg
   if ( !io.existsSync(kestrel_path) ) {
     err = chalk.red.bold('Error:') + ' You haven\'t initalized Kestrel for this project yet.'
-    err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+    err += '\nTo do so, please run `' + chalk.bold('swoop init')  + '` and try again.'
     cb(err)
   } else {
     cb(null, chalk.green('Kestrel init\'ed!'))
@@ -325,7 +323,7 @@ preflights.fns.localDirMatchesGhRemote = function(cb){
     } else if (repoName == 'Git remote not set'){
       err = '';
       err = chalk.red.bold('Error: ') + 'You haven\'t connected this project to GitHub.'
-      err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      err += '\nTo do so, please run `' + chalk.bold('swoop init')  + '` and try again.'
     } else {
       matches = LOCAL_FOLDER == repoName;
       if (matches) {
@@ -363,8 +361,8 @@ preflights.fns.isGit = function(cb){
         cb(null, chalk.green('Git init\'ed!'))
       } else {
         err = '';
-        err = chalk.red.bold('Error:') + ' You have not yet initialized git.'
-        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+        err = chalk.red.bold('Error:') + ' You haven\'t initialized git for this project yet.'
+        err += '\nTo do so, please run `' + chalk.bold('swoop init')  + '` and try again.'
         cb(err)
       }
     }

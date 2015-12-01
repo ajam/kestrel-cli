@@ -10,7 +10,9 @@ function checkJson(str) {
 exports.github      = {};
 exports.server      = {};
 exports.archive     = {};
-exports.publishing  = {};
+exports.publishing  = {
+  buckets: {}
+};
 
 exports.github.type           = prompt('GitHub account type', package.github.type);
 exports.github.account_name   = prompt('Account name', package.github.account_name);
@@ -52,6 +54,8 @@ exports.publishing.is_moment_template = prompt('Is the remote path a date templa
   isMoment = JSON.parse(isMoment);
   return isMoment;
 });
+exports.publishing.buckets.prod = prompt('What\'s the name of your production bucket?', package.publishing.buckets.prod);
+exports.publishing.buckets.staging = prompt('What\'s the name of your staging bucket?', package.publishing.buckets.staging);
 
 exports.archive.repo_name = prompt('Optional archive repo name', package.archive.repo_name);
 
