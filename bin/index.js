@@ -7,10 +7,13 @@ var chalk       = require('chalk');
 var octonode    = require('octonode');
 var child       = require('child_process');
 var sh_commands = require('../src/sh-commands.js');
-var moment			= require('moment-timezone');
+var moment      = require('moment-timezone');
 var _           = require('underscore');
 var queue       = require('queue-async');
 var io          = require('indian-ocean');
+
+// Register our autocomlete inquirer type
+inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 
 var updateNotifier = require('update-notifier');
 var pkg = require('../package.json');
@@ -23,6 +26,7 @@ var notifier = updateNotifier({
 
 // Notify using the built-in convenience method
 notifier.notify();
+
 
 var prompts_dict = {
   deploy: function(){

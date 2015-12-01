@@ -5,6 +5,7 @@ var io          = require('indian-ocean');
 var execSync    = require('child_process').execSync;
 var sh_commands = require('../src/sh-commands.js');
 var moment      = require('moment-timezone');
+var Promise     = require('promise');
 
 var home_dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 var config_path = path.join(home_dir, '.conf', 'kestrel-config.json');
@@ -43,6 +44,20 @@ function getLocalDeployDirChoices(){
   return ['./'].concat(dirs_with_basename);
 }
 
+function searchDirs(answers, input) {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+
+      resolve(local_deploy_dir_choices.filter(function(dirChoice) {
+        if (!input) {
+          return true
+        }
+        return new RegExp(input, 'i').exec(dirChoice) !== null;
+      }));
+    }, _.random(30, 500));
+  });
+}
+
 function getConfigRemotePath(){
   var remote_path = config.publishing.remote_path
   if (config.publishing.is_moment_template) {
@@ -60,6 +75,8 @@ var default_deploy = {
 };
 
 _.extend(default_deploy, readDeploySettings());
+
+var local_deploy_dir_choices = getLocalDeployDirChoices()
 
 var questions = [
   {
@@ -81,11 +98,13 @@ var questions = [
     },
     default: default_deploy.trigger_type
   },{
-    type: 'list',
+    type: 'autocomplete',
     name: 'local_path',
     message: 'Deploy from directory:',
-    choices: getLocalDeployDirChoices(),
+    choices: local_deploy_dir_choices,
     default: './',
+    source: searchDirs,
+    // suggestOnly: true,
     filter: function(input){
       if (input == './') {
         return LOCAL_FOLDER

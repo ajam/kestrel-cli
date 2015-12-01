@@ -3,6 +3,8 @@ Changelog
 
 ## 1.3.0
 
+> Not yet on npm
+
 * Remove update info from help screen since `update-notifier` includes this already.
   * [3c1cbbf2e2c6ed91568ac585b202fc8a90e98948](https://github.com/mhkeller/kestrel-cli/commit/3c1cbbf2e2c6ed91568ac585b202fc8a90e98948)
 * Add prelight checks
