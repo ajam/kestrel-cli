@@ -16,6 +16,9 @@ Changelog
   * [6c8267edc3e78257d417abfa2d7b7e67f14773fc](https://github.com/mhkeller/kestrel-cli/commit/6c8267edc3e78257d417abfa2d7b7e67f14773fc)
 * Better deploy prompts
   * [0d25e1f3419bca9731da39f7e94fab7233e40fa8](https://github.com/mhkeller/kestrel-cli/commit/0d25e1f3419bca9731da39f7e94fab7233e40fa8)
+* Update config-tree dep and print deployed url on successful deploy
+  * [222b5801b68eb974b50cd5760435b919534cc332](https://github.com/mhkeller/kestrel-cli/commit/222b5801b68eb974b50cd5760435b919534cc332)
+  * [fbb1b62afc40f3a9ba264937b077232f0d921351](https://github.com/mhkeller/kestrel-cli/commit/fbb1b62afc40f3a9ba264937b077232f0d921351)
 
 ## 1.2.8
 
