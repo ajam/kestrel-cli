@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.3.1
+
+> 2015-12-03
+
+* Add queue-async to `package.json`
+  * [0590d95ac4d7da6a95061fe12e758908e6b52477](https://github.com/mhkeller/kestrel-cli/commit/0590d95ac4d7da6a95061fe12e758908e6b52477)
+
 ## 1.3.0
 
 > 2015-12-03
