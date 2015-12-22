@@ -40,14 +40,35 @@ var prompts_dict = {
   }
 };
 
-var commands = ['config', 'init', 'deploy', 'archive', 'unschedule', 'preflight'];
+var commands_info = [
+  {
+    name: 'config',
+    desc: 'Configure your GitHub account and server settings'
+  },{
+    name: 'init',
+    desc: 'Initialize a kestrel project with git and creating a GitHub repo + hook'
+  },{
+    name: 'deploy',
+    desc: 'Push your project to S3'
+  },{
+    name: 'archive',
+    desc: 'Make your current project a branch of your archive repo.'
+  },{
+    name: 'unschedule',
+    desc: 'Clear a bucket\'s scheduled deployments'
+  },{
+    name: 'preflight',
+    desc: 'Run checks to make sure a project is properly configured'
+  }
+];
+
 var config;
 var pkg_json = require('../package.json');
 var PROJECT_PATH = path.resolve('.');
 var LOCAL_FOLDER = path.basename(PROJECT_PATH);
 
 var argv = optimist
-  .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, ignore the "Options" below and follow the prompts.') + '\n\nCommands:\n  ' + chalk.yellow('config') + '\tConfigure your GitHub account and server settings\n  ' + chalk.yellow('init') + '\t\tGit init, create GitHub repo + hooks\n  ' + chalk.green('deploy') + '\tPush your project to S3.\n  ' + chalk.green('archive') + '\tMake your current project a branch of your archive repo.\n  ' + chalk.green('unschedule') + '\tClear an environment\'s scheduled deployments.')
+  .usage('\nUsage: swoop ' + chalk.bold('<command>') + chalk.cyan('\nFor normal usage, ignore the "Options" below and follow the prompts for each command.') + '\n\nCommands:\n' + commands_info.map(function(cmd){ var indent = (cmd.name.length < 5) ? '\t\t' : '\t'; return '  ' + chalk.green(cmd.name) + indent + cmd.desc; }).join('\n') )
   .options('help', {
     describe: 'Display help'
   })
@@ -87,8 +108,8 @@ var argv = optimist
       throw chalk.cyan('What do you want to do?')+'\n';
     } else if (cmds.length > 1) {
       throw chalk.red.bold('Error: Please only supply one command.');
-    } else if (commands.indexOf(cmds[0]) == -1) {
-      throw chalk.red.bold('Error: ') + chalk.yellow(cmds[0]) + chalk.red(' is not a valid command.') + chalk.cyan('\nValid commands: ') + commands.map(function(cmd){ return '`' + cmd + '`'}).join(', ') + '.';
+    } else if (_.pluck(commands_info, 'name').indexOf(cmds[0]) == -1) {
+      throw chalk.red.bold('Error: ') + '"' + cmds[0] + '" is not a valid command.' + chalk.cyan('\nValid commands: ') + _.pluck(commands_info, 'name').map(function(cmd){ return cmd; }).join(', ') + '.';
     }
   })
   .argv;
