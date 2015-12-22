@@ -51,6 +51,9 @@ var commands_info = [
     name: 'deploy',
     desc: 'Push your project to S3'
   },{
+    name: 'redeploy',
+    desc: 'Run `deploy` with last settings used'
+  },{
     name: 'archive',
     desc: 'Make your current project a branch of your archive repo.'
   },{
@@ -410,6 +413,7 @@ preflights.commands.deploy = function(cb){
   q.defer(preflights.fns.remoteHasWebhook)
   q.awaitAll(cb)
 }
+preflights.commands.redeploy = preflights.commands.deploy
 preflights.commands.unschedule = function(cb){
   var q = queue(1)
   q.defer(preflights.fns.isGit)
@@ -442,6 +446,19 @@ commands.deploy = function(deploySettings){
     if ( checkDeployInfo(deploySettings) ) {
       main_lib['deploy'](bucket_environment, trigger_type, trigger, local_path, remote_path, when);
     }
+  }
+}
+
+commands.redeploy = function(){
+  var last_deploy_settings_path = path.join(PROJECT_PATH, '.kestrel', 'deploy-settings.json')
+  var deploy_settings
+  if (io.existsSync(last_deploy_settings_path)) {
+    deploy_settings = io.readDataSync(last_deploy_settings_path)
+    commands.deploy(deploy_settings)
+  } else {
+    console.log(chalk.yellow('One second...'))
+    console.log('You haven\'t deployed this project yet.')
+    console.log(chalk.bold('Please deploy once before redeploying.'))
   }
 }
 
@@ -511,7 +528,8 @@ if (commands[command]) {
     } else {
       console.log(err)
     }
-  })} else {
+  })
+} else {
   // If the cli doesn't have a specific function related to this command, pass it to the main library
   main_lib[command]();
 }

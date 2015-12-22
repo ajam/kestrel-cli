@@ -286,7 +286,7 @@ function deployLastCommit(bucket_environment, trigger_type, trigger, local_path,
 						console.log(chalk.cyan('Settings:\n') + 'swoop deploy -e ' + bucket_environment + ' -m ' + trigger_type + ' -l ' + local_path + ' -r ' + remote_path + ' -w ' + when.replace(' ', '_'));
 						console.log(chalk.green('Push successful!'));
 						var index = (bucket_environment == 'staging') ? '/index.html' : ''
-						console.log('View at:\n', chalk.bold('http://' + config.publishing.buckets[bucket_environment]  + '/' + remote_path + index));
+						console.log('View at:\n', chalk.bold(' http://' + config.publishing.buckets[bucket_environment]  + '/' + remote_path + index));
 					}
 				});
 			});
