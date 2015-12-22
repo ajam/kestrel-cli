@@ -11,6 +11,8 @@ Changelog
   * [908e2f813dffb04e5f701c9c1dd9991ffb027653](https://github.com/ajam/kestrel-cli/committ/908e2f813dffb04e5f701c9c1dd9991ffb027653)
 * Improve cli usage documentation
   * [7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac](https://github.com/ajam/kestrel-cli/committ/7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac)
+* Add `swoop redeploy` command
+  * [71ec7a04b27d37c262326693bc519cb8c725da2c](https://github.com/ajam/kestrel-cli/committ/71ec7a04b27d37c262326693bc519cb8c725da2c)
 
 ## 1.3.1
 
