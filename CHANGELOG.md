@@ -9,6 +9,8 @@ Changelog
   * [54140f7d2d2ae426464ff224b6fdc28d37fd11a2](https://github.com/ajam/kestrel-cli/commit/54140f7d2d2ae426464ff224b6fdc28d37fd11a2)
 * Redo `swoop init` so that each step checks if it needs to be done and reports better feedback
   * [908e2f813dffb04e5f701c9c1dd9991ffb027653](https://github.com/ajam/kestrel-cli/committ/908e2f813dffb04e5f701c9c1dd9991ffb027653)
+* Improve cli usage documentation
+  * [7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac](https://github.com/ajam/kestrel-cli/committ/7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac)
 
 ## 1.3.1
 
