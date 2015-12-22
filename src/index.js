@@ -4,6 +4,7 @@ var child       = require('child_process');
 var pkg_config  = require('config-tree');
 var chalk			  = require('chalk');
 var io 					= require('indian-ocean');
+var _           = require('underscore');
 
 // Github authentication
 var config;
@@ -35,31 +36,64 @@ function kestrelInit(cb){
 }
 
 function gitInit(current_dir, cb){
-	child.exec( sh_commands.gitInit(config.github.login_method, config.github.account_name, current_dir), cb );
+	if (!io.existsSync('./.git')) {
+		child.exec( sh_commands.gitInit(), cb );
+	} else {
+		cb(null, 'exists')
+	}
+}
+
+function setGitRemote(current_dir, cb){
+	child.exec( sh_commands.setGitRemote(config.github.login_method, config.github.account_name, current_dir), function(err, stdout, stderr){
+		if (stderr.trim() == 'fatal: remote origin already exists.') {
+			child.exec(sh_commands.getGitRemoteProjectName(), function(err1, stdout1, stderr ) {
+				var url_parts = stdout1.split('/')
+				var remote_name = url_parts[url_parts.length - 1].replace(/\.git/, '').trim()
+				cb(null, 'exists', remote_name)
+			})
+		} else {
+			cb(null)
+		}
+	});
 }
 
 function createGitHubRepo(repo_name, cb){
-	gh_entity.repo({
-	  "name": repo_name,
-	  "private": config.github.private_repos
-	}, function(err, response){
-		cb(err, response);
-	}); 
+	// Test if repo exists before attempting to create it
+	var gh_repo = gh_client.repo(config.github.account_name + '/' + repo_name);
+
+	gh_repo.info(function(err, info){
+		if (info){
+			cb(null, 'exists')
+		} else if (err.message == 'Not Found') {
+			gh_entity.repo({
+			  "name": repo_name,
+			  "private": config.github.private_repos
+			}, function(err, response){
+				cb(err, response);
+			}); 
+		}
+	})
 }
 
 function createGitHubHook(repo_name, cb){
-	var gh_repo = gh_client.repo(config.github.account_name + '/' + repo_name);
+	remoteHasWebhook(function(err, msg){
+		if (msg == chalk.green('Webook present!')) {
+			cb(null, 'exists')
+		} else {
+			var gh_repo = gh_client.repo(config.github.account_name + '/' + repo_name);
 
-	gh_repo.hook({
-	  "name": "web",
-	  "active": true,
-	  "events": ["push", "status"],
-	  "config": {
-	    "url": config.server.url
-	  }
-	}, function(err, response){
-		cb(err, response);
-	}); 
+			gh_repo.hook({
+			  "name": "web",
+			  "active": true,
+			  "events": ["push", "status"],
+			  "config": {
+			    "url": config.server.url
+			  }
+			}, function(err, response){
+				cb(err, response);
+			}); 
+		}
+	})
 }
 
 function setConfig(set_gh){
@@ -84,57 +118,89 @@ function setConfig(set_gh){
 	return config;
 }
 
-function getProjectName(cb){
-	var current_dir = path.basename(path.resolve('./'))
-	if (!io.existsSync('./.git')) {
-		cb(current_dir)
-	} else {
-		child.exec(sh_commands.getGitRemoteProjectName(), function(err, stdout, stderr ) {
-			if (err || stdout.trim() == 'Fetch URL: origin') {
-				console.log(chalk.yellow('Warning: Could not get remote project name from .git folder.'))
-				console.log('> This could simply mean you have initialized git but haven\'t connected it to a GitHub repository.')
-				cb(current_dir)
-			} else {
-				// Grab the repo name from the url, if that doesn't work, default to current directory name
-				var url_parts = stdout.split('/')
-				var project_name = url_parts[url_parts.length - 1].replace(/\.git/, '')
-				cb(project_name)
-			}
-		})
-	}
+// This function is copied from preflights and could be improved if instead they inherited from a common files
+function remoteHasWebhook(cb){
+  var gh_repo = gh_client.repo(config.github.account_name + '/' + LOCAL_FOLDER);
+
+  gh_repo.hooks(function(err, response){
+    var msg = ''
+    if (err) {
+      if (err.code == 'ENOTFOUND') {
+        err = chalk.red.bold('Error: ') + 'You do not seem to be connected to the internet.'
+      } else if (err.statusCode === 404) {
+        err = chalk.red.bold('Error: ') + 'The repo `' + config.github.account_name + '/' + LOCAL_FOLDER + '` does not seem to exist.'
+        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      }
+      cb(err)
+    } else {
+      var config_urls = _.chain(response).pluck('config').pluck('url').value()
+      if (!_.contains(config_urls, config.server.url)) {
+        err = chalk.red.bold('Error: ') + 'No webhook found at `https://github.com/'+ config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks`'
+        err += '\nPlease run `' + chalk.bold('swoop init')  + '` and try again.'
+      } else {
+        msg = chalk.green('Webook present!')
+      }
+      cb(err, msg);
+    }
+  }); 
 }
 
 function initAll(){
+	var pause = false
 	setConfig(true);
-	console.log('Using project name:', chalk.bold(LOCAL_FOLDER))
+	// console.log('Using project name:', chalk.bold(LOCAL_FOLDER))
 	kestrelInit(function(err0, stdout0, stderr1){
 		if (err0){
-			console.log( chalk.yellow('Step 1/4: Skipping. .kestrel folder already exists.') );
+			console.log(chalk.gray('Step 1/5: Skipping...'), '.kestrel folder already exists.');
 		} else {
-			console.log(chalk.green('Step 1/4: `.kestrel` folder created!'));
+			console.log(chalk.green('Step 1/5: `.kestrel` folder created!'));
 		}
 
-		gitInit(LOCAL_FOLDER, function(err1, stdout, stderr){
+		gitInit(LOCAL_FOLDER, function(err1, stdout1, stderr1){
+			// console.log(err1, stdout1, stderr1)
 			if (err1) {
-				console.log(chalk.yellow('Step 2/4: Warning:') + ' Git remote origin already set. You should manually run ' + chalk.bold('git remote set-url origin ' + sh_commands.gitInit(config.github.login_method, config.github.account_name, LOCAL_FOLDER).split('origin ')[1]) );
+				console.log(chalk.red('Step 2/5: Error initializing git:'), err);
+			} else if (stdout1 == 'exists'){
+				console.log(chalk.gray('Step 2/5: Skipping...'), '.git already initialized.');
 			} else {
-				console.log(chalk.green('Step 2/4: Git init\'ed and origin set!'));
+				console.log(chalk.green('Step 2/5: Git initialized!'));
 			} 
 			
-			createGitHubRepo(LOCAL_FOLDER, function(err2, response){
-				if (err2) { 
-					console.log(chalk.yellow('Step 3/4: GitHub repo creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + LOCAL_FOLDER) + '\nStated reason:', err2.message);
+			setGitRemote(LOCAL_FOLDER, function(err2, stdout2, remote_name){
+				if (err2) {
+					console.log(chalk.red('Step 3/5: Error setting git remote origin:'), err2);
+				} else if (stdout2 == 'exists' && remote_name == LOCAL_FOLDER) {
+					console.log(chalk.gray('Step 3/5: Skipping...'), 'Git remote origin already set to ' + chalk.bold(remote_name))
+				} else if (stdout2 == 'exists' && remote_name != LOCAL_FOLDER) {
+					pause = true
+					console.log(chalk.yellow('Step 3/5: Hold on a sec...'), 'This project\'s remote is set incorrectly to ' + chalk.bold(remote_name) + '\nBefore continuing, run the following and then try again:\n' + chalk.bold('git remote set-url origin ' + sh_commands.setGitRemote(config.github.login_method, config.github.account_name, LOCAL_FOLDER).split('origin ')[1]) );
 				} else {
-					console.log(chalk.green('Step 3/4: GitHub repo created!'));
-				}
+					console.log(chalk.green('Step 3/5: Git inititalized and origin set!'));
+				} 
 
-				createGitHubHook(LOCAL_FOLDER, function(err3){
-					if (err3) { 
-						console.log(chalk.yellow('Step 4/4: GitHub hook creation failed!') + ' `Validation Failed` could mean it already exists.' + '\nCheck here: ' + chalk.cyan('https://github.com/' + config.github.account_name + '/' + LOCAL_FOLDER + '/settings/hooks') + '\nStated reason:', err3.message); 
-					} else {
-						console.log(chalk.green('Step 4/4: GitHub hook created.') + '\nOnce you push you can preview it at: ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + LOCAL_FOLDER) );
-					}
-				});
+				// Only proceed if we haven't run into something that needs correcting
+				if (!pause) {
+					createGitHubRepo(LOCAL_FOLDER, function(err3, response, info){
+						if (response == 'exists'){
+							console.log(chalk.gray('Step 4/5: Skipping...'), 'Repo already exists.')
+						} else if (err3) { 
+							console.log(chalk.red('Step 4/5: GitHub repo creation failed!'), err3.message)
+						} else {
+							console.log(chalk.green('Step 4/5: GitHub repo created!'));
+						}
+
+						createGitHubHook(LOCAL_FOLDER, function(err4, response1){
+							if (err4) { 
+								console.log(chalk.red('Step 5/5: GitHub hook creation failed!'), err4.message); 
+							} else if (response1 == 'exists'){
+								console.log(chalk.gray('Step 5/5: Skipping...'), 'Webhook already set.'); 
+							} else {
+								console.log(chalk.green('Step 5/5: GitHub hook created.') + '\nOnce you push you can preview it at: ' + chalk.bold(config.server.url.split(':').slice(0,2).join(':') + ':3000/' + LOCAL_FOLDER) );
+							}
+						});
+
+					});
+				}
 			});
 		});
 	});
@@ -257,11 +323,6 @@ function addToArchive(deploySettings){
 	  		console.log(chalk.green('Success!') + ' `' + local_branch + '` branch of `' + repo_name + '` archived as `' + remote_branch + '` on the `' + config.archive.repo_name + '` repo.\n  https://github.com/' + config.github.account_name + '/' + config.archive.repo_name + '/tree/' + remote_branch + '\n' + chalk.cyan('Note:') + ' Your existing repo has not been deleted. Please do that manually through GitHub:\n  https://github.com/' + config.github.account_name + '/' + repo_name + '/settings')
 	  	}
 	  })
-}
-
-function reportError(err, msg){
-	console.log(msg, '\nReason:');
-	throw err;
 }
 
 module.exports = {
