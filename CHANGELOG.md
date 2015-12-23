@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.4.1
+
+> 2015-12-23
+
+* Don't add duplicate dirs in deploy prompts
+  * [3aae2a93dbde5516147fc5528cc288acca0830c0](https://github.com/ajam/kestrel-cli/commit/3aae2a93dbde5516147fc5528cc288acca0830c0)
+
 ## 1.4.0
 
 > 2015-12-23
