@@ -41,21 +41,13 @@ function getLocalDeployDirChoices(){
   var dirs_with_basename = dirs.map(function(dir){
     return ['.', dir].join('/'); // Kestrel server will run with `/` file paths for Linux
   })
-  return ['./'].concat(dirs_with_basename);
-}
+  var all_dirs = ['./'].concat(dirs_with_basename);
+  // If we have a dir that we deployed to that isn't in our list, then it was a sub-dir, so give that as the first choice
+  if (!_.contains(dirs_with_basename, default_deploy.local_path) ) {
+    all_dirs = [default_deploy.local_path.replace(LOCAL_FOLDER, '.')].concat(all_dirs)
+  }
+  return all_dirs
 
-function searchDirs(answers, input) {
-  return new Promise(function(resolve) {
-    setTimeout(function() {
-
-      resolve(local_deploy_dir_choices.filter(function(dirChoice) {
-        if (!input) {
-          return true
-        }
-        return new RegExp(input, 'i').exec(dirChoice) !== null;
-      }));
-    }, _.random(30, 500));
-  });
 }
 
 function getConfigRemotePath(){
@@ -102,9 +94,7 @@ var questions = [
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: local_deploy_dir_choices,
-    default: './',
-    source: searchDirs,
-    // suggestOnly: true,
+    default: local_deploy_dir_choices[0],
     filter: function(input){
       if (input == './') {
         return LOCAL_FOLDER
