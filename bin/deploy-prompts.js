@@ -94,7 +94,7 @@ var questions = [
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: local_deploy_dir_choices,
-    default: default_deploy.local_path
+    default: default_deploy.local_path.replace('.', LOCAL_FOLDER)
   },{
     type: 'input',
     name: 'remote_path',
