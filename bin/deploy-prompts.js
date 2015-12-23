@@ -98,7 +98,7 @@ var questions = [
     },
     default: default_deploy.trigger_type
   },{
-    type: 'autocomplete',
+    type: 'list-input',
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: local_deploy_dir_choices,

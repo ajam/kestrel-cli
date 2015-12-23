@@ -13,7 +13,7 @@ var queue       = require('queue-async');
 var io          = require('indian-ocean');
 
 // Register our autocomlete inquirer type
-inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
+inquirer.registerPrompt('list-input', require('inquirer-list-input'));
 
 var updateNotifier = require('update-notifier');
 var pkg = require('../package.json');
