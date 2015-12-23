@@ -13,9 +13,10 @@ Changelog
   * [7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac](https://github.com/ajam/kestrel-cli/committ/7a12fa15ce92bdd0ffe5483d607b775bf1bb64ac)
 * Add `swoop redeploy` command
   * [71ec7a04b27d37c262326693bc519cb8c725da2c](https://github.com/ajam/kestrel-cli/committ/71ec7a04b27d37c262326693bc519cb8c725da2c)
-* Support for deploying from arbitrary sub-directories
+* Support for deploying from arbitrary sub-directories; Tweak indent and colors on deploy flag printout
   * Closes [#25](https://github.com/ajam/kestrel-cli/issues/25)
   * [502afb1593003d8e9284e8e49313179b96393e34](https://github.com/ajam/kestrel-cli/committ/502afb1593003d8e9284e8e49313179b96393e34)
+  * [1d6ae6620f01a2d7e04210e4a8e759d9b8f2eb1d](https://github.com/ajam/kestrel-cli/committ/1d6ae6620f01a2d7e04210e4a8e759d9b8f2eb1d)
 
 ## 1.3.1
 
