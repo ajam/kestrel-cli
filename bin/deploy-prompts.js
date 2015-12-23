@@ -46,7 +46,7 @@ function getLocalDeployDirChoices(){
   if (!_.contains(dirs_with_basename, default_deploy.local_path) ) {
     all_dirs = [default_deploy.local_path.replace(LOCAL_FOLDER, '.')].concat(all_dirs)
   }
-  return all_dirs
+  return all_dirs.map(function(dir){ return {name: dir, value: dir.replace('.', LOCAL_FOLDER), short: dir} })
 
 }
 
@@ -94,14 +94,7 @@ var questions = [
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: local_deploy_dir_choices,
-    default: local_deploy_dir_choices[0],
-    filter: function(input){
-      if (input == './') {
-        return LOCAL_FOLDER
-      } else {
-        return input.replace('.', LOCAL_FOLDER)
-      }
-    }
+    default: default_deploy.local_path
   },{
     type: 'input',
     name: 'remote_path',
