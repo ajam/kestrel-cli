@@ -43,7 +43,7 @@ function getLocalDeployDirChoices(){
   })
   var all_dirs = ['./'].concat(dirs_with_basename);
   // If we have a dir that we deployed to that isn't in our list, then it was a sub-dir, so give that as the first choice
-  if (!_.contains(dirs_with_basename, default_deploy.local_path) ) {
+  if (!_.contains(all_dirs, default_deploy.local_path.replace(LOCAL_FOLDER, '.')) ) {
     all_dirs = [default_deploy.local_path.replace(LOCAL_FOLDER, '.')].concat(all_dirs)
   }
   return all_dirs.map(function(dir){ return {name: dir, value: dir.replace('.', LOCAL_FOLDER), short: dir} })
