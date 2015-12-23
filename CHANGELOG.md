@@ -17,7 +17,9 @@ Changelog
   * Closes [#25](https://github.com/ajam/kestrel-cli/issues/25)
   * [502afb1593003d8e9284e8e49313179b96393e34](https://github.com/ajam/kestrel-cli/committ/502afb1593003d8e9284e8e49313179b96393e34)
   * [1d6ae6620f01a2d7e04210e4a8e759d9b8f2eb1d](https://github.com/ajam/kestrel-cli/committ/1d6ae6620f01a2d7e04210e4a8e759d9b8f2eb1d)
-
+* Fix bug where last output dir was not remembered; Change filtering to use name / value / short name format
+  * [8c92d599721fb5781aed882e7f67ea80de79d6f9](https://github.com/ajam/kestrel-cli/committ/8c92d599721fb5781aed882e7f67ea80de79d6f9)
+  
 ## 1.3.1
 
 > 2015-12-03
