@@ -3,7 +3,7 @@ Changelog
 
 ## 1.4.0
 
-> Forthcoming...
+> 2015-12-23
 
 * Add line breaks to make read outs more copy-pasteable
   * [54140f7d2d2ae426464ff224b6fdc28d37fd11a2](https://github.com/ajam/kestrel-cli/commit/54140f7d2d2ae426464ff224b6fdc28d37fd11a2)
