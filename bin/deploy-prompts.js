@@ -39,14 +39,15 @@ function getLocalDeployDirChoices(){
 
   // Add repo-name
   var dirs_with_basename = dirs.map(function(dir){
-    return ['.', dir].join('/'); // Kestrel server will run with `/` file paths for Linux
+    return LOCAL_FOLDER + '/' + dir // Kestrel server will run with `/` file paths for Linux
   })
-  var all_dirs = ['./'].concat(dirs_with_basename);
+  var all_dirs = [LOCAL_FOLDER].concat(dirs_with_basename);
   // If we have a dir that we deployed to that isn't in our list, then it was a sub-dir, so give that as the first choice
-  if (!_.contains(all_dirs, default_deploy.local_path.replace(LOCAL_FOLDER, '.')) ) {
-    all_dirs = [default_deploy.local_path.replace(LOCAL_FOLDER, '.')].concat(all_dirs)
+  if (!_.contains(all_dirs, default_deploy.local_path) ) {
+    all_dirs = [default_deploy.local_path].concat(all_dirs)
   }
-  return all_dirs.map(function(dir){ return {name: dir, value: dir.replace('.', LOCAL_FOLDER), short: dir} })
+
+  return all_dirs
 
 }
 
@@ -67,6 +68,7 @@ var default_deploy = {
 };
 
 _.extend(default_deploy, readDeploySettings());
+
 
 var local_deploy_dir_choices = getLocalDeployDirChoices()
 
@@ -94,7 +96,7 @@ var questions = [
     name: 'local_path',
     message: 'Deploy from directory:',
     choices: local_deploy_dir_choices,
-    default: default_deploy.local_path.replace('.', LOCAL_FOLDER)
+    default: default_deploy.local_path
   },{
     type: 'input',
     name: 'remote_path',
