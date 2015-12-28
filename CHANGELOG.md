@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## 1.4.2
+
+> 2015-12-28
+
+* Continue cleaning up directory list in prompt
+  * [d5993b2d924f323ee484fdb61668238e5d043e14](https://github.com/ajam/kestrel-cli/commit/d5993b2d924f323ee484fdb61668238e5d043e14)
+
 ## 1.4.1
 
 > 2015-12-28
