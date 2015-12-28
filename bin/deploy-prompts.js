@@ -44,6 +44,7 @@ function getLocalDeployDirChoices(){
   var all_dirs = [LOCAL_FOLDER].concat(dirs_with_basename);
   // If we have a dir that we deployed to that isn't in our list, then it was a sub-dir, so give that as the first choice
   if (!_.contains(all_dirs, default_deploy.local_path) ) {
+    console.log(default_deploy.local_path)
     all_dirs = [default_deploy.local_path].concat(all_dirs)
   }
 
@@ -62,7 +63,7 @@ function getConfigRemotePath(){
 var default_deploy = {
   bucket_environment: 'staging',
   trigger_type: 'sync',
-  local_path: './',
+  local_path: LOCAL_FOLDER,
   remote_path: getConfigRemotePath() + '/' + LOCAL_FOLDER,
   when: 'now'
 };
