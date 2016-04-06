@@ -1,5 +1,8 @@
 Kestrel Command-line interface
 ========
+
+**This repository is no longer being maintained. Please use [https://github.com/mhkeller/kestrel-cli2](https://github.com/mhkeller/kestrel-cli2).**
+
 A command-line tool for staging and deploying static files with [Kestrel Server](https://github.com/mhkeller/kestrel).
 
 ## Installation
